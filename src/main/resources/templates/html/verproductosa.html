@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="tienda,online,pequelandia,tiendaropa,tiendaropainfantil">
+    <meta name="author" content="Ivan Molina Moglia" />
+    <title>Pequelandia</title>
+    <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+        <!-- Cabecera fija -->
+<div name="cabecera fija" >
+    <div class="container-fluid">
+       <nav class="navbar navbar-expand-sm  fixed-top shadow " style="background-color: #fff3cd;"> 
+        <div class="container-fluid" style="height: 20px; display: flex; align-items: center;" >
+          <a class="navbar-brand" href="#" >
+            <img src="/imagenes/osito.jpg" width="30" height="30" class="d-inline-block align-text-auto">O.S.I
+          </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto ">
+              <li class="nav-item">
+                <a class="nav-link" href="#">Español/Ingles</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Modo Noche</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link disabled" aria-disabled="true">Hora</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </div>
+  
+  <!-- Menú fijo -->
+  <div name="menu" class="mt-5"> 
+    <nav class="navbar navbar-expand-sm  fixed-top shadow" style="top: 35px;" > 
+      <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="navbar-brand" href="indexv1.html">
+          <img src="/imagenes/peq.png.jpg" width="120" height="90" class="d-inline-block align-text-auto">
+        </a>
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo03" >
+          <form class="d-flex ms-auto" role="search" style="width: 30%;">
+            <input class="form-control  me-2   w-100 w-sm-110 w-md-100 w-lg-100 " type="search" placeholder="Buscar" aria-label="Search" >
+            <button class="btn btn-outline-info" style="border: none;" type="submit"><img src="/imagenes/search.svg" alt=""></button>
+          </form>
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="carrito.html" target="_self" aria-label="Ver carrito" title="Ver carrito">
+             <img src="/imagenes/carritooriginal.png" alt="Carrito" width="65" height="65">
+            </a>
+            </li>
+            <li class="nav-item me-5">
+              <a class="nav-link" href="login.html" target="_self" title="Login">
+              <img src="/imagenes/editar-informacion.png" alt="cuenta" width="65" height="65">
+            </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+  
+  <!--Contenedor principal-->
+  <div class="container  py-5 " style="max-width: 95%;margin-top: 180px;">
+  <div class="d-flex flex-row flex-nowrap w-100">
+    
+    <!-- Columna de filtros-->
+    <div class="col-md-3 mb-4">
+    <h5>Filtros</h5>
+      <!-- Aquí van los filtros -->
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="filtro1">
+        <label class="form-check-label" for="filtro1">Calzado</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="filtro2">
+        <label class="form-check-label" for="filtro2">Remeras</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="filtro2">
+        <label class="form-check-label" for="filtro2">Abrigo</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="filtro2">
+        <label class="form-check-label" for="filtro2">Ropa nene</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="filtro2">
+        <label class="form-check-label" for="filtro2">Ropa nena</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="filtro2">
+        <label class="form-check-label" for="filtro2">Accesorios</label>
+      </div>
+      
+    <h6>Talla / Edad</h6>
+    <div class="form-check">
+    <input class="form-check-input" type="checkbox" id="edad0" value="0-3">
+    <label class="form-check-label" for="edad0">0-3 meses</label>
+    </div>
+    <div class="form-check">
+    <input class="form-check-input" type="checkbox" id="edad1" value="3-6">
+    <label class="form-check-label" for="edad1">3-6 meses</label>
+    </div>
+    <div class="form-check">
+    <input class="form-check-input" type="checkbox" id="edad2" value="6-12">
+    <label class="form-check-label" for="edad2">6-12 meses</label>
+    </div>
+
+
+
+    </div>
+   <!-- Columna de mostrar productos-->
+    
+    <div class="col-md-9">
+        <div class="d-flex justify-content-end mb-3">
+            <div class="form-group">
+              <label for="ordenar" class="text-white me-2">Ordenar por:</label>
+              <select class="form-select" id="ordenar" style="width: auto;">
+                <option value="default">-- Seleccionar --</option>
+                <option value="precio-asc">Precio: Menor a Mayor</option>
+                <option value="precio-desc">Precio: Mayor a Menor</option>
+                <option value="alfabetico">Alfabéticamente</option>
+              </select>
+            </div>
+          </div>
+          
+         
+
+        <div class="row" id="contenedor-productos">
+        
+            <!-- Tarjeta 1 -->
+            <div class="col-12 col-sm-6 col-lg-4 mb-4">
+              <div class="card h-100">
+                <img src="/imagenes/producto1.jpg" class="card-img-top" alt="Producto 1">
+                <div class="card-body">
+                  <h6 class="card-title">Body algodón 0-3 meses</h6>
+                  <p class="card-text">$1.500</p>
+                </div>
+              </div>
+            </div>
+    
+            <!-- Tarjeta 2  -->
+            <div class="col-12 col-sm-6 col-lg-4 mb-4">
+              <div class="card h-100">
+                <img src="/imagenes/producto2.jpg" class="card-img-top" alt="Producto 2">
+                <div class="card-body">
+                  <h6 class="card-title">Vestido rosa 6 meses</h6>
+                  <p class="card-text">$2.300</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tarjeta 3  -->
+            <div class="col-12 col-sm-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                  <img src="/imagenes/producto2.jpg" class="card-img-top" alt="Producto 2">
+                  <div class="card-body">
+                    <h6 class="card-title">Vestido rosa 6 meses</h6>
+                    <p class="card-text">$2.300</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tarjeta 4  -->
+            <div class="col-12 col-sm-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                  <img src="/imagenes/producto2.jpg" class="card-img-top" alt="Producto 2">
+                  <div class="card-body">
+                    <h6 class="card-title">Vestido rosa 6 meses</h6>
+                    <p class="card-text">$2.300</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tarjeta 5  -->
+            <div class="col-12 col-sm-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                  <img src="/imagenes/producto2.jpg" class="card-img-top" alt="Producto 2">
+                  <div class="card-body">
+                    <h6 class="card-title">Vestido rosa 6 meses</h6>
+                    <p class="card-text">$2.300</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tarjeta 6  -->
+            <div class="col-12 col-sm-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                  <img src="/imagenes/producto2.jpg" class="card-img-top" alt="Producto 2">
+                  <div class="card-body">
+                    <h6 class="card-title">Vestido rosa 6 meses</h6>
+                    <p class="card-text">$2.300</p>
+                  </div>
+                </div>
+              </div>
+
+               <!-- Tarjeta 1 -->
+            <div class="col-12 col-sm-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                  <img src="/imagenes/producto1.jpg" class="card-img-top" alt="Producto 1">
+                  <div class="card-body">
+                    <h6 class="card-title">Body algodón 0-3 meses</h6>
+                    <p class="card-text">$1.500</p>
+                  </div>
+                </div>
+              </div>
+      
+              <!-- Tarjeta 2  -->
+              <div class="col-12 col-sm-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                  <img src="/imagenes/producto2.jpg" class="card-img-top" alt="Producto 2">
+                  <div class="card-body">
+                    <h6 class="card-title">Vestido rosa 6 meses</h6>
+                    <p class="card-text">$2.300</p>
+                  </div>
+                </div>
+              </div>
+  
+              <!-- Tarjeta 3  -->
+              <div class="col-12 col-sm-6 col-lg-4 mb-4">
+                  <div class="card h-100">
+                    <img src="/imagenes/producto2.jpg" class="card-img-top" alt="Producto 2">
+                    <div class="card-body">
+                      <h6 class="card-title">Vestido rosa 6 meses</h6>
+                      <p class="card-text">$2.300</p>
+                    </div>
+                  </div>
+                </div>
+  
+                <!-- Tarjeta 4  -->
+              <div class="col-12 col-sm-6 col-lg-4 mb-4">
+                  <div class="card h-100">
+                    <img src="/imagenes/producto2.jpg" class="card-img-top" alt="Producto 2">
+                    <div class="card-body">
+                      <h6 class="card-title">Vestido rosa 6 meses</h6>
+                      <p class="card-text">$2.300</p>
+                    </div>
+                  </div>
+                </div>
+  
+                <!-- Tarjeta 5  -->
+              <div class="col-12 col-sm-6 col-lg-4 mb-4">
+                  <div class="card h-100">
+                    <img src="/imagenes/producto2.jpg" class="card-img-top" alt="Producto 2">
+                    <div class="card-body">
+                      <h6 class="card-title">Vestido rosa 6 meses</h6>
+                      <p class="card-text">$2.300</p>
+                    </div>
+                  </div>
+                </div>
+  
+                <!-- Tarjeta 6  -->
+              <div class="col-12 col-sm-6 col-lg-4 mb-4">
+                  <div class="card h-100">
+                    <img src="/imagenes/producto2.jpg" class="card-img-top" alt="Producto 2">
+                    <div class="card-body">
+                      <h6 class="card-title">Vestido rosa 6 meses</h6>
+                      <p class="card-text">$2.300</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <nav aria-label="Paginación de productos">
+                    <ul class="pagination justify-content-center mt-4">
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                      </li>
+                      <li class="page-item"><a class="page-link" href="#">1</a></li>
+                      <li class="page-item"><a class="page-link" href="#">2</a></li>
+                      <li class="page-item"><a class="page-link" href="#">3</a></li>
+                      <li class="page-item">
+                        <a class="page-link" href="#">Siguiente</a>
+                      </li>
+                    </ul>
+                  </nav>
+                  
+        </div>
+    </div>
+    </div>
+    
+</body>
+</html>

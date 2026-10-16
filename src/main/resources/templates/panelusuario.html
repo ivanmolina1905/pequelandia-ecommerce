@@ -1,0 +1,2616 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="tienda,online,pequelandia,tiendaropa,tiendaropainfantil">
+    <meta name="author" content="Ivan Molina Moglia" />
+    <title>Pequelandia</title>
+    <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Cabecera fija -->
+<div name="cabecera fija" >
+  <div class="container-fluid">
+     <nav class="navbar navbar-expand-sm  fixed-top shadow " style="background-color: #fff3cd;"> 
+      <div class="container-fluid" style="height: 20px; display: flex; align-items: center;" >
+        <a class="navbar-brand" href="#" >
+          <img src="/imagenes/osito.jpg" width="30" height="30" class="d-inline-block align-text-auto">O.S.I
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto ">
+            <li class="nav-item">
+              <a class="nav-link" href="#">Español/Ingles</a>
+            </li>
+            <li class="nav-item d-flex align-items-center">
+  			<button id="btnDarkMode" class="nav-link btn btn-link p-0 m-0 text-center">Modo Noche</button>
+			</li>
+				<li class="nav-item">
+  				<span class="nav-link" id="clock">--:--</span>
+			</li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- Menú fijo -->
+<div name="menu" class="mt-5"> 
+  <nav class="navbar navbar-expand-sm  fixed-top shadow" style="top: 35px;" > 
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="/" th:href="@{/}">
+        <img src="/imagenes/peq.png.jpg" width="120" height="90" class="d-inline-block align-text-auto">
+      </a>
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo03" >
+        <form class="d-flex ms-auto" role="search" style="width: 30%;">
+          <input class="form-control  me-2   w-100 w-sm-110 w-md-100 w-lg-100 " type="search" placeholder="Buscar" aria-label="Search" >
+         <button class="btn btn-outline-info" style="border: none;" type="button"
+        	onclick="window.location.href='/productos?categoriaId=0'">
+    		<img src="/imagenes/search.svg" alt="Buscar">
+			</button>
+        </form>
+        <!-- campana -->
+        <!-- ==========================================
+     CAMPANITA DE NOTIFICACIONES
+=========================================== -->
+<div class="dropdown peq-notification-dropdown">
+
+  <button class="btn peq-notification-button"
+          type="button"
+          id="notificacionesDropdown"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          onclick="cargarNotificaciones()">
+
+    <span class="peq-notification-bell">🔔</span>
+
+    <span id="notificacionesBadge"
+          class="peq-notification-badge"
+          style="display:none;">
+      0
+    </span>
+  </button>
+
+  <div class="dropdown-menu dropdown-menu-end peq-notification-menu"
+       aria-labelledby="notificacionesDropdown">
+
+    <div class="peq-notification-header">
+      <div>
+        <strong>Notificaciones</strong>
+        <small>Novedades de tu cuenta</small>
+      </div>
+
+      <button type="button"
+              class="btn peq-notification-read-all"
+              onclick="marcarTodasLeidas()">
+        Marcar leídas
+      </button>
+    </div>
+
+    <div id="notificacionesLista"
+         class="peq-notification-list">
+
+      <div class="peq-notification-empty">
+        Cargando...
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/carrito/vercarrito}" target="_self" aria-label="Ver carrito" title="Ver carrito">
+             <img src="/imagenes/carritooriginal.png" alt="Carrito" width="65" height="65">
+            </a>
+          </li>
+          <!-- Si NO hay usuario logueado -->
+<li class="nav-item me-5" th:if="${session.usuario == null}">
+  <a class="nav-link" th:href="@{/auth/login}" title="Iniciar sesión">
+    <img src="/imagenes/editar-informacion.png" alt="cuenta" width="65" height="65">
+  </a>
+</li>
+
+<!-- Si hay usuario logueado -->
+<li class="nav-item dropdown me-5" th:if="${session.usuario != null}">
+  <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">
+    <img src="/imagenes/editar-informacion.png" alt="cuenta" width="65" height="65">
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+    <li class="dropdown-item-text">Hola, <b th:text="${session.usuario.nombre_usuario}"></b></li>
+    <li><hr class="dropdown-divider"></li>
+    <!-- admin => panel admin, resto => panel usuario -->
+    <li th:if="${#strings.equalsIgnoreCase(session.usuario.nombre_usuario,'admin')}">
+      <a class="dropdown-item" th:href="@{/panel/admin}">Panel de administración</a>
+    </li>
+    <li th:if="${!#strings.equalsIgnoreCase(session.usuario.nombre_usuario,'admin')}">
+      <a class="dropdown-item" th:href="@{/panel/usuario}">Mi panel</a>
+    </li>
+    <li><a class="dropdown-item text-danger" th:href="@{/auth/logout}">Cerrar sesión</a></li>
+  </ul>
+</li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
+
+ <!-- Botón hamburguesa -->
+ <div class="d-md-none" style="margin-top: 160px; padding-left: 15px;">
+    <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#userSidebar" aria-controls="userSidebar">
+        ☰ Menú usuario
+    </button>
+</div>
+  <!-- Offcanvas (mobile) -->
+<div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="userSidebar" aria-labelledby="userSidebarLabel">
+    <div class="offcanvas-header" style="background-color:#fff3cd;">
+      <h5 class="offcanvas-title" id="userSidebarLabel">Panel de Usuario</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body" style="background-color:#fff3cd;">
+      <ul class="nav flex-column">
+        <li class="nav-item mb-2">
+          <a class="nav-link js-section" data-section="perfil" th:href="@{/panelusuarios/panelhistorial(section='perfil')}">👤 Perfil de Usuario</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link js-section" data-section="historial" th:href="@{/panelusuarios/panelhistorial(section='historial')}">🛍️ Historial de Compras</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-section" data-section="stats" th:href="@{/panelusuarios/panelhistorial(section='stats')}">📊 Estadísticas</a>
+        </li>
+      </ul>
+      <!-- logout OK -->
+      <div class="logout-container">
+        <form th:action="@{/auth/logout}" method="get">
+          <button type="submit" class="btn btn-logout w-100">Cerrar sesión</button>
+        </form>
+      </div>
+    </div>
+</div>
+
+
+
+
+  
+
+
+  
+<div class="container-fluid" style="margin-top: 180px;">
+    <div class="row">
+        <!-- Sidebar fijo -->
+        <nav class="col-md-3 col-lg-2 d-none d-md-block sidebar p-3" style="background-color: #fff3cd; min-height: 80vh;">
+    <h5 class="text-center mb-4">Panel de Usuario</h5>
+    <ul class="nav flex-column">
+        <li class="nav-item mb-2">
+            <a class="nav-link js-section"
+               id="perfil-usuario"
+               data-section="perfil"
+               th:href="@{/panelusuarios/panelhistorial(section='perfil')}">👤 Perfil de Usuario</a>
+        </li>
+        <li class="nav-item mb-2">
+            <a class="nav-link js-section"
+               id="historial-compras"
+               data-section="historial"
+               th:href="@{/panelusuarios/panelhistorial(section='historial')}">🛍️ Historial de Compras</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link js-section"
+               id="estadisticas"
+               data-section="stats"
+               th:href="@{/panelusuarios/panelhistorial(section='stats')}">📊 Estadísticas</a>
+        </li>
+    </ul>
+    <div class="logout-container">
+        <form th:action="@{/auth/logout}" method="get">
+            <button type="submit" class="btn btn-logout w-100">Cerrar sesión</button>
+        </form>
+    </div>
+</nav>
+        
+        <!-- Contenido principal -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+             <input type="hidden"
+         id="initialSection"
+         th:value="${section != null ? section : 'perfil'}">
+            <!-- Cartel de bienvenida -->
+            <div id="bienvenida" class="peq-user-welcome">
+  <div>
+    <h2>
+      Hola,
+      <span th:text="${session.usuario != null ? session.usuario.nombre_usuario : 'usuario'}">usuario</span>
+      👋
+    </h2>
+    <p>Desde acá podés ver tus compras, revisar pedidos y administrar tus datos.</p>
+  </div>
+</div>
+
+            <!-- Perfil de Usuario -->
+       
+
+<!-- PERFIL USUARIO -->
+<div id="perfil-usuario-contenido" class="peq-user-section" style="display:none;">
+
+  <div class="peq-profile-card-main">
+    
+    <!-- lado izquierdo: avatar -->
+    <div class="peq-profile-left">
+      <div class="peq-profile-avatar-wrap">
+        <img src="/imagenes/osito.jpg"
+             alt="foto de perfil"
+             class="peq-profile-avatar"
+             onerror="this.src='/imagenes/imagendefecto.png'">
+      </div>
+
+      <div class="peq-profile-badge">
+        Mi cuenta
+      </div>
+    </div>
+
+    <!-- lado derecho: info -->
+    <div class="peq-profile-right">
+      <div class="peq-profile-top">
+        <div>
+          <h2 class="peq-profile-name" id="nombreUsuario" th:text="${u.nombre_usuario}">Ivan</h2>
+          <p class="peq-profile-subtext">Gestioná tu información personal y revisá tus datos.</p>
+        </div>
+
+        <button type="button" class="btn peq-profile-edit-btn" id="editarBtn">
+          ✏️ Editar perfil
+        </button>
+      </div>
+
+      <div class="peq-profile-info-grid">
+
+        <div class="peq-info-item">
+          <div class="peq-info-icon">✉️</div>
+          <div>
+            <div class="peq-info-label">Correo electrónico</div>
+            <div class="peq-info-value" id="correoUsuario" th:text="${u.email}">correo@ejemplo.com</div>
+          </div>
+        </div>
+
+        <div class="peq-info-item">
+          <div class="peq-info-icon">📍</div>
+          <div>
+            <div class="peq-info-label">Dirección</div>
+            <div class="peq-info-value" id="direccionUsuario" th:text="${u.direccion}">Pasaje Publico 2447</div>
+          </div>
+        </div>
+
+        <div class="peq-info-item">
+          <div class="peq-info-icon">📞</div>
+          <div>
+            <div class="peq-info-label">Teléfono</div>
+            <div class="peq-info-value" id="telefonoUsuario" th:text="${u.telefono}">25656412</div>
+          </div>
+        </div>
+
+        <div class="peq-info-item">
+          <div class="peq-info-icon">👤</div>
+          <div>
+            <div class="peq-info-label">Usuario</div>
+            <div class="peq-info-value" th:text="${u.nombre_usuario}">Ivan</div>
+          </div>
+        </div>
+
+      </div>
+         </div>
+            </div>
+      <div class="peq-user-mini-stats">
+
+  <div class="peq-user-stat-card">
+    <div class="peq-user-stat-icon">📅</div>
+    <div class="peq-user-stat-content">
+      <div class="peq-user-stat-label">Miembro desde</div>
+      <div class="peq-user-stat-value"
+           th:text="${u.fecha_registro != null ? #dates.format(u.fecha_registro, 'dd/MM/yyyy') : 'Sin fecha'}">
+        10/04/2025
+      </div>
+      <div class="peq-user-stat-sub">
+        Gracias por formar parte de Pequelandia
+      </div>
+    </div>
+  </div>
+
+  <div class="peq-user-stat-card">
+    <div class="peq-user-stat-icon">🛍️</div>
+    <div class="peq-user-stat-content">
+      <div class="peq-user-stat-label">Cantidad de compras</div>
+      <div class="peq-user-stat-value"
+           th:text="${pedidosPage != null ? pedidosPage.totalElements : 0}">
+        0
+      </div>
+      <div class="peq-user-stat-sub">
+        Pedidos realizados en tu cuenta
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+ 
+  </div>
+
+
+
+ 
+
+<!-- HISTORIAL -->
+<div id="historial-compras-contenido" class="pt-3"
+     th:style="${section}=='historial' ? '' : 'display:none;'">
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+    <h2 class="m-0" style="color:#a93512bb;">Historial de Compras</h2>
+
+    <!-- selector por página -->
+    <form method="get" th:action="@{/panelusuarios/panelhistorial}" class="d-flex align-items-center gap-2">
+      <input type="hidden" name="section" value="historial">
+      <input type="hidden" name="page" th:value="${pedidosPage != null ? pedidosPage.number : 0}">
+      <label class="form-label mb-0">Por página:</label>
+      <select name="size" class="form-select form-select-sm" style="width:auto"
+        onchange="this.form.page.value=0; this.form.submit()">
+  <option value="5"  th:selected="${pedidosPage != null and pedidosPage.size == 5}">5</option>
+  <option value="10" th:selected="${pedidosPage == null or pedidosPage.size == 10}">10</option>
+  <option value="20" th:selected="${pedidosPage != null and pedidosPage.size == 20}">20</option>
+</select>
+    </form>
+  </div>
+
+  <div class="card shadow-sm" style="border-radius:16px;">
+    <div class="card-body">
+
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr style="background:#ffe8b3;">
+              <th class="text-center">Fecha</th>
+              <th class="text-center">N° Pedido</th>
+              <th class="text-center">Estado</th>
+              <th class="text-end">Total</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr th:if="${pedidosPage == null or pedidosPage.totalElements == 0}">
+              <td colspan="5" class="text-center text-muted py-4">
+                Todavía no tenés compras realizadas 🧸
+              </td>
+            </tr>
+
+            <tr th:each="p : ${pedidosPage != null ? pedidosPage.content : {}}">
+              <td class="text-center"
+                  th:text="${p.fecha_pedido != null ? #dates.format(p.fecha_pedido,'yyyy-MM-dd HH:mm') : '—'}">—</td>
+
+              <td class="text-center fw-bold" th:text="${'#' + p.id_pedido}">#14</td>
+
+              <td class="text-center">
+                <span class="badge"
+                      th:text="${p.estado_pedido}"
+                      th:classappend="${#strings.equalsIgnoreCase(p.estado_pedido,'PENDIENTE') ? ' bg-warning text-dark' :
+                                      #strings.equalsIgnoreCase(p.estado_pedido,'PREPARANDO') ? ' bg-success' :
+                                      #strings.equalsIgnoreCase(p.estado_pedido,'CANCELACION_SOLICITADA') ? ' bg-secondary' :
+                                      #strings.equalsIgnoreCase(p.estado_pedido,'CANCELADO') ? ' bg-danger' :
+                                      ' bg-primary'}">ESTADO</span>
+              </td>
+
+              <td class="text-end fw-bold"
+                  th:text="${p.carrito != null and p.carrito.total != null
+                              ? '$ ' + #numbers.formatDecimal(p.carrito.total, 1, 'COMMA', 2, 'POINT')
+                              : '$ 0,00'}">$ 0,00</td>
+
+              <td class="text-end">
+                <button type="button"
+                        class="btn btn-sm btn-outline-dark js-ver-detalle"
+                        th:attr="data-id=${p.id_pedido}">
+                  Ver detalle
+                </button>
+
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger ms-2 js-cancelar"
+                        th:attr="data-id=${p.id_pedido}"
+                        th:disabled="${#strings.equalsIgnoreCase(p.estado_pedido,'ENTREGADO')
+                                      || #strings.equalsIgnoreCase(p.estado_pedido,'CANCELADO')
+                                      || #strings.equalsIgnoreCase(p.estado_pedido,'CANCELACION_SOLICITADA')}">
+                  Solicitar cancelación
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINACIÓN -->
+      <nav th:if="${pedidosPage != null and pedidosPage.totalPages > 1}"aria-label="Paginación de pedidos">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" th:classappend="${pedidosPage.first} ? ' disabled'">
+            <a class="page-link"
+               th:href="@{/panelusuarios/panelhistorial(section='historial', page=${pedidosPage.number - 1}, size=${pedidosPage.size})}">
+              &laquo; Anterior
+            </a>
+          </li>
+
+          <li class="page-item"
+              th:each="i : ${#numbers.sequence(0, pedidosPage.totalPages - 1)}"
+              th:classappend="${i} == ${pedidosPage.number} ? ' active'">
+            <a class="page-link"
+               th:text="${i+1}"
+               th:href="@{/panelusuarios/panelhistorial(section='historial', page=${i}, size=${pedidosPage.size})}">1</a>
+          </li>
+
+          <li class="page-item" th:classappend="${pedidosPage.last} ? ' disabled'">
+            <a class="page-link"
+               th:href="@{/panelusuarios/panelhistorial(section='historial', page=${pedidosPage.number + 1}, size=${pedidosPage.size})}">
+              Siguiente &raquo;
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <small class="text-muted">
+        * “Solicitar cancelación” envía el pedido a revisión del administrador.
+      </small>
+    </div>
+  </div>
+</div>
+
+ 
+ 
+ <!-- estadisticas -->
+
+
+            
+
+            <!-- ESTADÍSTICAS USUARIO PREMIUM -->
+<div id="estadisticas-contenido" class="pt-3"
+     th:style="${section}=='stats' ? '' : 'display:none;'">
+
+  <h2 class="peq-stats-title">Mis Estadísticas</h2>
+  <p class="peq-stats-subtitle">
+    Un resumen de tu actividad dentro de Pequelandia.
+  </p>
+
+  <div class="peq-stats-grid">
+
+    <div class="peq-stat-card">
+      <div class="peq-stat-icon">🛍️</div>
+      <div>
+        <div class="peq-stat-label">Total de compras</div>
+        <div class="peq-stat-value"
+             th:text="${stats != null ? stats.totalPedidos : 0}">
+          0
+        </div>
+        <div class="peq-stat-help">Pedidos realizados</div>
+      </div>
+    </div>
+
+    <div class="peq-stat-card">
+      <div class="peq-stat-icon">💰</div>
+      <div>
+        <div class="peq-stat-label">Total gastado</div>
+        <div class="peq-stat-value"
+             th:text="${stats != null ? '$ ' + #numbers.formatDecimal(stats.totalGastado, 1, 'COMMA', 2, 'POINT') : '$ 0,00'}">
+          $ 0,00
+        </div>
+        <div class="peq-stat-help">Importe acumulado</div>
+      </div>
+    </div>
+
+    <div class="peq-stat-card">
+      <div class="peq-stat-icon">📦</div>
+      <div>
+        <div class="peq-stat-label">Productos comprados</div>
+        <div class="peq-stat-value"
+             th:text="${stats != null ? stats.totalProductosComprados : 0}">
+          0
+        </div>
+        <div class="peq-stat-help">Unidades adquiridas</div>
+      </div>
+    </div>
+
+    <div class="peq-stat-card">
+      <div class="peq-stat-icon">📅</div>
+      <div>
+        <div class="peq-stat-label">Última compra</div>
+
+        <div class="peq-stat-value peq-stat-value-sm"
+             th:if="${stats != null and stats.ultimoPedidoId != null}"
+             th:text="${stats.ultimoPedidoFecha}">
+          2026-05-22
+        </div>
+
+        <div class="peq-stat-value peq-stat-value-sm"
+             th:if="${stats == null or stats.ultimoPedidoId == null}">
+          Sin compras
+        </div>
+
+        <div class="peq-stat-help">Fecha del último pedido</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="peq-stats-panels">
+
+  <!-- PANEL IZQUIERDO -->
+  <div class="peq-stats-panel peq-stats-highlight">
+    <div class="peq-stats-panel-head">
+      <span class="peq-stats-panel-icon">📈</span>
+      <div>
+        <h3>Resumen de actividad</h3>
+        <p>Un vistazo rápido a tu actividad en Pequelandia.</p>
+      </div>
+    </div>
+
+    <div class="peq-stats-highlight-main">
+
+      <div class="peq-highlight-item">
+        <span class="peq-highlight-label">Promedio por compra</span>
+        <span class="peq-highlight-value"
+              th:text="${stats != null ? '$ ' + #numbers.formatDecimal(stats.promedioCompra, 1, 'COMMA', 2, 'POINT') : '$ 0,00'}">
+          $ 0,00
+        </span>
+      </div>
+
+     <div class="peq-highlight-item">
+  <span class="peq-highlight-label">Meses con compras</span>
+  <span class="peq-highlight-value"
+        th:text="${stats != null ? #lists.size(stats.totales.?[#this > 0]) : 0}">
+    0
+  </span>
+</div>
+
+    </div>
+
+    <div class="peq-chart-card peq-chart-card-small">
+      <div class="peq-chart-head">
+        <h4>Compras por mes</h4>
+        <span>Año actual</span>
+      </div>
+
+      <div class="peq-chart-wrap">
+        <canvas id="chartComprasMes"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL DERECHO -->
+  
+<div class="peq-stats-panel">
+  <div class="peq-stats-panel-head">
+    <span class="peq-stats-panel-icon">👤</span>
+    <div>
+      <h3>Datos de tu cuenta</h3>
+      <p>Información útil sobre tu perfil y tu último pedido.</p>
+    </div>
+  </div>
+
+  <div class="peq-mini-metrics">
+
+    <div class="peq-mini-metric">
+      <div class="peq-mini-icon">📅</div>
+      <div>
+        <div class="peq-mini-label">Miembro desde</div>
+        <div class="peq-mini-value"
+             th:text="${u.fecha_registro != null ? #dates.format(u.fecha_registro, 'dd/MM/yyyy') : 'Sin fecha'}">
+          Sin fecha
+        </div>
+      </div>
+    </div>
+
+    <div class="peq-mini-metric">
+      <div class="peq-mini-icon">🧾</div>
+      <div>
+        <div class="peq-mini-label">Último pedido</div>
+        <div class="peq-mini-value"
+             th:text="${stats != null and stats.ultimoPedidoId != null ? '#' + stats.ultimoPedidoId : 'Sin pedidos'}">
+          Sin pedidos
+        </div>
+      </div>
+    </div>
+
+    <div class="peq-mini-metric">
+      <div class="peq-mini-icon">🚚</div>
+      <div>
+        <div class="peq-mini-label">Estado último pedido</div>
+        <div class="peq-mini-value"
+             th:text="${stats != null and stats.ultimoPedidoEstado != null ? stats.ultimoPedidoEstado : '—'}">
+          —
+        </div>
+      </div>
+    </div>
+
+    <div class="peq-mini-metric">
+      <div class="peq-mini-icon">✅</div>
+      <div>
+        <div class="peq-mini-label">Estado de cuenta</div>
+        <div class="peq-mini-value">Activa</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="peq-stats-message">
+    <span>🧡</span>
+    <p>
+      Gracias por formar parte de Pequelandia. Desde este panel podés seguir tus pedidos y controlar tu actividad.
+    </p>
+  </div>
+</div>
+
+    
+
+
+</div>
+
+             
+      </main>
+   
+ 
+
+            
+        
+    </div>
+</div>
+
+<div class="modal fade" id="pedidoDetalleModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content" style="border-radius:18px;">
+
+      <div class="modal-header" style="background:#fff3cd;">
+        <h5 class="modal-title fw-bold">
+          🧾 Pedido <span id="pd-numero">#</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="d-flex gap-4 flex-wrap mb-2">
+          <div><b>Fecha:</b> <span id="pd-fecha"></span></div>
+          <div><b>Estado:</b> <span id="pd-estado" class="badge bg-success"></span></div>
+        </div>
+
+        <hr>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr style="background:#ffe8b3;">
+                <th>Producto</th>
+                <th class="text-center" style="width:120px;">Cantidad</th>
+                <th class="text-end" style="width:160px;">Precio unitario</th>
+                <th class="text-end" style="width:160px;">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody id="pd-items"></tbody>
+          </table>
+        </div>
+        
+
+        <div class="d-flex justify-content-between fw-bold fs-5 mt-2">
+          <span>Total</span>
+          <span id="pd-total">$ 0</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a id="pd-pdf" class="btn btn-outline-dark" href="#" target="_blank">Descargar PDF</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Perfil -->
+       <div class="modal fade peq-profile-modal" id="editarPerfilModal" tabindex="-1"
+     aria-labelledby="editarPerfilModalLabel" aria-hidden="true">
+
+  <div class="modal-dialog peq-draggable-dialog peq-profile-dialog">
+    <div class="modal-content peq-profile-card">
+
+      <!-- Header draggable -->
+      <div class="modal-header peq-profile-header" id="editarPerfilHandle">
+
+        <div class="peq-profile-header-left">
+          <div class="peq-profile-avatar">
+            <img src="/imagenes/osito.jpg" alt="Usuario">
+          </div>
+
+          <div>
+            <h5 class="modal-title peq-profile-title" id="editarPerfilModalLabel">
+              Editar Perfil
+            </h5>
+            <small class="peq-profile-subtitle">
+              Arrastrá esta ventana desde aquí
+            </small>
+          </div>
+        </div>
+
+        <div class="peq-drag-dots" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+
+        <button type="button"
+                class="peq-profile-close"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body peq-profile-body">
+        <form id="form-editar-perfil">
+
+          <div class="peq-field">
+            <label for="nombreInput" class="peq-field-label">
+              <span class="peq-field-icon">👤</span>
+              Nombre
+            </label>
+            <input type="text"
+                   class="form-control peq-profile-input"
+                   id="nombreInput"
+                   th:value="${u.nombre_usuario}">
+          </div>
+
+          <div class="peq-field">
+            <label for="correoInput" class="peq-field-label">
+              <span class="peq-field-icon">✉️</span>
+              Correo Electrónico
+            </label>
+            <input type="email"
+                   class="form-control peq-profile-input"
+                   id="correoInput"
+                   th:value="${u.email}">
+          </div>
+
+          <div class="peq-field">
+            <label for="direccionInput" class="peq-field-label">
+              <span class="peq-field-icon">📍</span>
+              Dirección
+            </label>
+            <input type="text"
+                   class="form-control peq-profile-input"
+                   id="direccionInput"
+                   th:value="${u.direccion}">
+          </div>
+
+          <div class="peq-field">
+            <label for="telefonoInput" class="peq-field-label">
+              <span class="peq-field-icon">📞</span>
+              Teléfono
+            </label>
+            <input type="text"
+                   class="form-control peq-profile-input"
+                   id="telefonoInput"
+                   th:value="${u.telefono}">
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer peq-profile-footer">
+        <button type="button"
+                class="btn peq-profile-btn-cancel"
+                data-bs-dismiss="modal">
+          Cancelar
+        </button>
+
+        <button type="button"
+                class="btn peq-profile-btn-save"
+                id="guardarBtn">
+          <span class="peq-save-icon">💾</span>
+          Guardar cambios
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script th:src="@{/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js}"></script>
+<script>
+    
+        //verr todo esto
+//Navegación entre secciones (desktop + mobile)
+(function(){
+  const offcanvasEl = document.getElementById('userSidebar');
+
+  const closeOffcanvas = () => {
+    if (!offcanvasEl) return;
+    const inst = bootstrap.Offcanvas.getInstance(offcanvasEl);
+    if (inst) inst.hide();
+  };
+
+  const links = document.querySelectorAll('.js-section');
+
+  const map = {
+    perfil: 'perfil-usuario-contenido',
+    historial: 'historial-compras-contenido',
+    stats: 'estadisticas-contenido'
+  };
+
+  function show(sectionKey){
+    const b = document.getElementById('bienvenida');
+    if (b) b.style.display = 'none';
+
+    Object.values(map).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+
+    const target = document.getElementById(map[sectionKey]);
+    if (target) target.style.display = 'block';
+
+    links.forEach(a => a.classList.remove('active'));
+    links.forEach(a => {
+      if (a.getAttribute('data-section') === sectionKey) {
+        a.classList.add('active');
+      }
+    });
+
+    closeOffcanvas();
+  }
+
+  links.forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      const key = a.getAttribute('data-section');
+      if (!key) return;
+
+      show(key);
+
+      // actualiza la URL sin recargar
+      const url = new URL(window.location.href);
+      url.searchParams.set("section", key);
+      window.history.replaceState({}, "", url);
+    });
+  });
+
+  const initialInput = document.getElementById("initialSection");
+  const initialSection = initialInput?.value || "perfil";
+
+  show(initialSection);
+})();
+
+// Modal editar
+document.getElementById('editarBtn').addEventListener('click', function(){
+  const modal = new bootstrap.Modal(document.getElementById('editarPerfilModal'));
+  modal.show();
+});
+
+document.getElementById('guardarBtn').addEventListener('click', async function(){
+	  const btn = this;
+
+	  const nombre = document.getElementById('nombreInput').value;
+	  const email = document.getElementById('correoInput').value;
+	  const direccion = document.getElementById('direccionInput').value;
+	  const telefono = document.getElementById('telefonoInput').value;
+
+	  try {
+	    btn.disabled = true;
+	    btn.textContent = "Guardando...";
+
+	    const body = new URLSearchParams();
+	    body.append("nombre", nombre);
+	    body.append("email", email);
+	    body.append("direccion", direccion);
+	    body.append("telefono", telefono);
+
+	    const res = await fetch("/panelusuarios/perfil/editar", {
+	      method: "POST",
+	      headers: {
+	        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+	      },
+	      body
+	    });
+
+	    const data = await res.json();
+
+	    if (!res.ok || data.ok === false) {
+	      if (data.redirect) {
+	        window.location.href = data.redirect;
+	        return;
+	      }
+
+	      alert(data.error || "No se pudo guardar el perfil");
+	      return;
+	    }
+
+	    document.getElementById('nombreUsuario').innerText = data.nombre;
+	    document.getElementById('correoUsuario').innerText = data.email;
+	    document.getElementById('direccionUsuario').innerText = data.direccion || "—";
+	    document.getElementById('telefonoUsuario').innerText = data.telefono || "—";
+
+	    bootstrap.Modal.getInstance(document.getElementById('editarPerfilModal')).hide();
+
+	  } catch (e) {
+	    console.error(e);
+	    alert("Error al guardar los cambios");
+	  } finally {
+	    btn.disabled = false;
+	    btn.textContent = "Guardar cambios";
+	  }
+	  
+});
+
+(function liveClock(){
+    const el = document.getElementById('clock');
+    if (!el) return;
+    const pad = n => n.toString().padStart(2,'0');
+    const tick = () => {
+      const d = new Date();
+      const hh = pad(d.getHours()), mm = pad(d.getMinutes()), ss = pad(d.getSeconds());
+      el.textContent = `${hh}:${mm}:${ss}`;
+    };
+    tick();
+    setInterval(tick, 1000);
+  })();
+  
+const fmtMoney = (v) => {
+	  const n = (typeof v === "number") ? v : Number(String(v).replace(",", "."));
+	  return Number.isFinite(n) ? "$ " + n.toLocaleString("es-AR") : "$ 0";
+	};
+
+	document.addEventListener("click", async (e) => {
+	  const ver = e.target.closest(".js-ver-detalle");
+	  const cancelar = e.target.closest(".js-cancelar");
+
+	  if (ver) {
+	    const id = ver.dataset.id;
+	    await abrirDetallePedido(id);
+	  }
+
+	  if (cancelar) {
+	    const id = cancelar.dataset.id;
+	    if (!confirm("¿Querés solicitar la cancelación de este pedido?")) return;
+	    await solicitarCancelacion(id);
+	  }
+	});
+
+	async function abrirDetallePedido(id){
+	  const res = await fetch(`/pedido/${id}`); // tu endpoint JSON
+	  const p = await res.json();
+
+	  document.getElementById("pd-numero").textContent = "#" + p.id;
+	  document.getElementById("pd-fecha").textContent = new Date(p.fecha).toLocaleString("es-AR");
+	  document.getElementById("pd-estado").textContent = p.estado;
+	  document.getElementById("pd-total").textContent = fmtMoney(p.total);
+
+	  // link PDF
+	  document.getElementById("pd-pdf").href = `/pedido/${p.id}/pdf`;
+
+	  // badge color
+	  const badge = document.getElementById("pd-estado");
+	  const est = (p.estado || "").toUpperCase();
+	  badge.className = "badge " + (
+	    est === "PENDIENTE" ? "bg-warning text-dark" :
+	    est === "PREPARANDO" ? "bg-success" :
+	    est === "CANCELACION_SOLICITADA" ? "bg-secondary" :
+	    est === "CANCELADO" ? "bg-danger" : "bg-primary"
+	  );
+
+	  const tbody = document.getElementById("pd-items");
+	  tbody.innerHTML = "";
+
+	  (p.items || []).forEach(i => {
+	    tbody.innerHTML += `
+	      <tr>
+	        <td>${i.producto}</td>
+	        <td class="text-center">${i.cantidad}</td>
+	        <td class="text-end">${fmtMoney(i.precio)}</td>
+	        <td class="text-end">${fmtMoney(i.subtotal)}</td>
+	      </tr>`;
+	  });
+
+	  new bootstrap.Modal(document.getElementById("pedidoDetalleModal")).show();
+	}
+
+	async function solicitarCancelacion(id){
+	  const res = await fetch(`/pedido/${id}/cancelar`, { method: "POST" });
+	  const data = await res.json().catch(() => ({}));
+
+	  if(!res.ok || data.ok === false){
+	    if(data.redirect) window.location.href = data.redirect;
+	    alert(data.error || "No se pudo solicitar la cancelación");
+	    return;
+	  }
+
+	  alert("Solicitud enviada. Un administrador la revisará.");
+	  location.reload();
+	}
+	
+	
+	</script>
+	
+	<!-- estadisticas -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script th:inline="javascript">
+    const meses =  /*[[${stats != null ? stats.meses : {}}]]*/ [];
+    const totales =  /*[[${stats != null ? stats.totales : {}}]]*/[];
+    const ctx = document.getElementById("chartComprasMes");
+    if (ctx) {
+        new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: meses,
+            datasets: [{
+              label: "Total comprado",
+              data: totales,
+              tension: 0.35,
+              fill: true,
+              borderWidth: 3,
+              pointRadius: 4,
+              pointHoverRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const value = context.raw || 0;
+                    return "$ " + Number(value).toLocaleString("es-AR");
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function(value) {
+                    return "$ " + Number(value).toLocaleString("es-AR");
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    
+    (function () {
+    	  const modal = document.getElementById("editarPerfilModal");
+    	  if (!modal) return;
+
+    	  const dialog = modal.querySelector(".peq-draggable-dialog");
+    	  const handle = document.getElementById("editarPerfilHandle");
+
+    	  if (!dialog || !handle) return;
+
+    	  let dragging = false;
+    	  let startX = 0;
+    	  let startY = 0;
+    	  let initialLeft = 0;
+    	  let initialTop = 0;
+
+    	  function centrarModal() {
+    	    dialog.style.left = "50%";
+    	    dialog.style.top = "50%";
+    	    dialog.style.transform = "translate(-50%, -50%)";
+    	  }
+
+    	  modal.addEventListener("shown.bs.modal", function () {
+    	    centrarModal();
+    	  });
+
+    	  modal.addEventListener("hidden.bs.modal", function () {
+    	    centrarModal();
+    	  });
+
+    	  handle.addEventListener("mousedown", function (e) {
+    	    if (e.target.closest("button")) return;
+
+    	    dragging = true;
+
+    	    const rect = dialog.getBoundingClientRect();
+
+    	    if (dialog.style.transform && dialog.style.transform !== "none") {
+    	      dialog.style.left = rect.left + "px";
+    	      dialog.style.top = rect.top + "px";
+    	      dialog.style.transform = "none";
+    	    }
+
+    	    startX = e.clientX;
+    	    startY = e.clientY;
+    	    initialLeft = parseFloat(dialog.style.left) || rect.left;
+    	    initialTop = parseFloat(dialog.style.top) || rect.top;
+
+    	    document.body.style.userSelect = "none";
+    	    handle.style.cursor = "grabbing";
+    	  });
+
+    	  document.addEventListener("mousemove", function (e) {
+    	    if (!dragging) return;
+
+    	    let newLeft = initialLeft + (e.clientX - startX);
+    	    let newTop = initialTop + (e.clientY - startY);
+
+    	    const maxLeft = window.innerWidth - dialog.offsetWidth - 10;
+    	    const maxTop = window.innerHeight - dialog.offsetHeight - 10;
+
+    	    newLeft = Math.max(10, Math.min(newLeft, maxLeft));
+    	    newTop = Math.max(10, Math.min(newTop, maxTop));
+
+    	    dialog.style.left = newLeft + "px";
+    	    dialog.style.top = newTop + "px";
+    	  });
+
+    	  document.addEventListener("mouseup", function () {
+    	    dragging = false;
+    	    document.body.style.userSelect = "";
+    	    handle.style.cursor = "move";
+    	  });
+    	})();
+    
+    
+    async function cargarNotificaciones() {
+      const lista = document.getElementById("notificacionesLista");
+      const badge = document.getElementById("notificacionesBadge");
+
+      if (!lista || !badge) return;
+
+      try {
+        const response = await fetch("/notificaciones/mias");
+        const json = await response.json();
+
+        if (!json.ok) {
+          if (json.redirect) {
+            window.location.href = json.redirect;
+          }
+
+          return;
+        }
+
+        actualizarBadgeNotificaciones(json.noLeidas);
+
+        const notificaciones = json.notificaciones || [];
+
+        if (notificaciones.length === 0) {
+          lista.innerHTML = `
+            <div class="peq-notification-empty">
+              No tenés notificaciones por el momento.
+            </div>
+          `;
+
+          return;
+        }
+
+        lista.innerHTML = "";
+
+        notificaciones.forEach(n => {
+          const item = document.createElement("div");
+
+          item.className =
+            "peq-notification-item"
+            + (!n.leida ? " is-unread" : "");
+
+          item.onclick = () => abrirNotificacion(
+            n.id,
+            n.pedidoId
+          );
+
+          item.innerHTML = `
+            <div class="peq-notification-icon">
+              ${iconoNotificacion(n.descripcion)}
+            </div>
+
+            <div class="peq-notification-body">
+              <p class="peq-notification-text">
+                ${escapeHtmlNotificacion(n.descripcion)}
+              </p>
+
+              <span class="peq-notification-date">
+                ${formatearFechaNotificacion(n.fecha)}
+              </span>
+            </div>
+          `;
+
+          lista.appendChild(item);
+        });
+
+      } catch (error) {
+        console.error(error);
+
+        lista.innerHTML = `
+          <div class="peq-notification-empty">
+            No se pudieron cargar las notificaciones.
+          </div>
+        `;
+      }
+    }
+
+    async function abrirNotificacion(id, pedidoId) {
+      try {
+        await fetch(`/notificaciones/${id}/leer`, {
+          method: "POST"
+        });
+
+        await cargarNotificaciones();
+
+        /*
+         * Por ahora solo recargamos la campanita.
+         * Luego podemos navegar directamente al pedido
+         * o abrir el modal correspondiente.
+         */
+        if (pedidoId) {
+          console.log("Pedido relacionado:", pedidoId);
+        }
+
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    async function marcarTodasLeidas() {
+      try {
+        await fetch("/notificaciones/leer-todas", {
+          method: "POST"
+        });
+
+        await cargarNotificaciones();
+
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    function actualizarBadgeNotificaciones(cantidad) {
+      const badge =
+        document.getElementById("notificacionesBadge");
+
+      if (!badge) return;
+
+      const numero = Number(cantidad || 0);
+
+      badge.textContent =
+        numero > 99 ? "99+" : String(numero);
+
+      badge.style.display =
+        numero > 0 ? "inline-block" : "none";
+    }
+
+    function formatearFechaNotificacion(fecha) {
+      if (!fecha) return "";
+
+      const date = new Date(fecha);
+
+      if (Number.isNaN(date.getTime())) {
+        return fecha;
+      }
+
+      return date.toLocaleString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function iconoNotificacion(texto) {
+      const valor = String(texto || "").toLowerCase();
+
+      if (valor.includes("cancel")) return "⚠️";
+      if (valor.includes("usuario")) return "👤";
+      if (valor.includes("entregado")) return "✅";
+      if (valor.includes("pedido")) return "🧾";
+
+      return "🔔";
+    }
+
+    function escapeHtmlNotificacion(valor) {
+      return String(valor ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      cargarNotificaciones
+    );
+    
+    
+ 
+  </script>
+
+<style>
+.peq-user-welcome{
+  background: linear-gradient(135deg, #fff3cd, #ffffff);
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 8px 22px rgba(0,0,0,.06);
+  margin-bottom: 22px;
+}
+
+.peq-user-welcome h2{
+  font-weight: 900;
+  color: #a93512bb;
+}
+
+.peq-user-welcome p{
+  margin: 0;
+  color: #555;
+  font-weight: 600;
+}
+.badge{
+  padding: 8px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* ===== Modal editar perfil - estilo Pequelandia ===== */
+
+#editarPerfilModal .modal-dialog{
+  max-width: 560px;
+}
+
+#editarPerfilModal .peq-draggable-dialog{
+  position: fixed;
+  margin: 0;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#editarPerfilModal .peq-modal-content{
+  border: none;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #fffdf8;
+  box-shadow: 0 18px 40px rgba(0,0,0,.18);
+}
+
+#editarPerfilModal .peq-modal-header{
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe9a8 100%);
+  border-bottom: 1px solid #f0d58a;
+  padding: 18px 22px;
+  cursor: move;
+  user-select: none;
+}
+
+#editarPerfilModal .peq-modal-title{
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #8f4d19;
+}
+
+#editarPerfilModal .peq-modal-subtitle{
+  display: block;
+  margin-top: 2px;
+  color: #9b7a3d;
+  font-size: .85rem;
+  font-weight: 600;
+}
+
+#editarPerfilModal .peq-modal-body{
+  padding: 22px;
+  background: #fffdf8;
+}
+
+#editarPerfilModal .peq-label{
+  font-weight: 700;
+  color: #7b4b1a;
+  margin-bottom: 6px;
+}
+
+#editarPerfilModal .peq-input{
+  border-radius: 14px;
+  border: 1px solid #e7d7ab;
+  background: #fffefb;
+  min-height: 46px;
+  padding: 10px 14px;
+  color: #444;
+  transition: all .18s ease;
+}
+
+#editarPerfilModal .peq-input:focus{
+  border-color: #ffb300;
+  box-shadow: 0 0 0 .2rem rgba(255, 179, 0, .18);
+  background: #fff;
+}
+
+#editarPerfilModal .peq-modal-footer{
+  border-top: 1px solid #f1e2b6;
+  background: #fff8e8;
+  padding: 14px 22px;
+}
+
+#editarPerfilModal .peq-btn-cancel{
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 700;
+  background: #e9ecef;
+  color: #4a4a4a;
+  border: none;
+}
+
+#editarPerfilModal .peq-btn-cancel:hover{
+  background: #d9dee3;
+}
+
+#editarPerfilModal .peq-btn-save{
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-weight: 800;
+  border: none;
+  color: #fff;
+  background: linear-gradient(135deg, #ffb300 0%, #ff9800 100%);
+  box-shadow: 0 8px 18px rgba(255, 152, 0, .25);
+}
+
+#editarPerfilModal .peq-btn-save:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(255, 152, 0, .32);
+}
+
+#editarPerfilModal .peq-btn-close{
+  opacity: .8;
+}
+
+#editarPerfilModal .peq-btn-close:hover{
+  opacity: 1;
+}
+
+.modal-backdrop.show{
+  opacity: .45;
+}
+
+/* ==============================
+   MODAL EDITAR PERFIL PREMIUM
+   Pequelandia
+   ============================== */
+
+#editarPerfilModal .peq-profile-dialog{
+  max-width: 560px;
+}
+
+/* Si tu JS ya mueve el modal, esta clase debe existir */
+#editarPerfilModal .peq-draggable-dialog{
+  position: fixed !important;
+  margin: 0 !important;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  min-height: auto !important;
+  display: block !important;
+}
+
+/* Card principal */
+#editarPerfilModal .peq-profile-card{
+  border: 0;
+  border-radius: 26px;
+  overflow: hidden;
+  background: #fffdf8;
+  box-shadow:
+    0 24px 55px rgba(0,0,0,.22),
+    0 0 0 1px rgba(255,179,0,.10);
+  animation: peqModalIn .28s ease both;
+}
+
+/* Animación suave de entrada */
+@keyframes peqModalIn{
+  from{
+    opacity: 0;
+    transform: translateY(18px) scale(.96);
+  }
+  to{
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header */
+#editarPerfilModal .peq-profile-header{
+  position: relative;
+  min-height: 126px;
+  padding: 24px 28px;
+  border-bottom: 1px solid rgba(255,179,0,.22);
+  background:
+    radial-gradient(circle at 88% 75%, rgba(255,225,160,.55) 0 42px, transparent 44px),
+    radial-gradient(circle at 12% 105%, rgba(255,225,160,.50) 0 58px, transparent 60px),
+    linear-gradient(135deg, #fff7df 0%, #fff2c7 48%, #fffaf0 100%);
+  cursor: move;
+  user-select: none;
+}
+
+/* Decoración nube/estrellitas sutiles */
+#editarPerfilModal .peq-profile-header::after{
+  content: "★";
+  position: absolute;
+  right: 165px;
+  top: 56px;
+  color: rgba(255,179,0,.35);
+  font-size: 18px;
+}
+
+#editarPerfilModal .peq-profile-header-left{
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* Avatar */
+#editarPerfilModal .peq-profile-avatar{
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  padding: 5px;
+  background: linear-gradient(135deg, #ffe082, #fff8d8);
+  box-shadow: 0 8px 18px rgba(255,179,0,.25);
+  flex: 0 0 auto;
+}
+
+#editarPerfilModal .peq-profile-avatar img{
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff;
+}
+
+/* Título */
+#editarPerfilModal .peq-profile-title{
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: #7b3f14;
+  letter-spacing: -.3px;
+  margin: 0;
+}
+
+#editarPerfilModal .peq-profile-subtitle{
+  display: block;
+  margin-top: 4px;
+  font-size: .92rem;
+  font-weight: 600;
+  color: #a16f36;
+}
+
+/* Puntitos para indicar arrastre */
+#editarPerfilModal .peq-drag-dots{
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(3, 6px);
+  gap: 6px;
+  opacity: .65;
+}
+
+#editarPerfilModal .peq-drag-dots span{
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e8a04c;
+}
+
+/* Botón cerrar redondo */
+#editarPerfilModal .peq-profile-close{
+  position: absolute;
+  top: 24px;
+  right: 26px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px solid rgba(159, 99, 40, .18);
+  background: rgba(255,255,255,.88);
+  color: #a35a1c;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 18px rgba(0,0,0,.10);
+  transition: all .18s ease;
+  cursor: pointer;
+  z-index: 5;
+}
+
+#editarPerfilModal .peq-profile-close:hover{
+  background: #fff;
+  color: #ff8f00;
+  transform: rotate(8deg) scale(1.06);
+}
+
+/* Body */
+#editarPerfilModal .peq-profile-body{
+  padding: 28px 32px 18px;
+  background:
+    linear-gradient(180deg, #fffdf8 0%, #fffaf1 100%);
+}
+
+/* Campo */
+#editarPerfilModal .peq-field{
+  margin-bottom: 22px;
+}
+
+#editarPerfilModal .peq-field-label{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 9px;
+  color: #744019;
+  font-size: .98rem;
+  font-weight: 900;
+}
+
+#editarPerfilModal .peq-field-icon{
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fff1c7;
+  color: #f29b20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  box-shadow: 0 4px 10px rgba(255,179,0,.12);
+}
+
+/* Inputs */
+#editarPerfilModal .peq-profile-input{
+  min-height: 52px;
+  border-radius: 16px;
+  border: 1px solid #ead9b8;
+  background: rgba(255,255,255,.88);
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+  transition: all .18s ease;
+}
+
+#editarPerfilModal .peq-profile-input:hover{
+  border-color: #f6c15d;
+}
+
+#editarPerfilModal .peq-profile-input:focus{
+  border-color: #ff9800;
+  box-shadow:
+    0 0 0 .22rem rgba(255,179,0,.20),
+    0 8px 18px rgba(255,152,0,.12);
+  background: #fff;
+}
+
+/* Footer */
+#editarPerfilModal .peq-profile-footer{
+  position: relative;
+  border-top: 1px solid rgba(255,179,0,.18);
+  padding: 20px 32px 26px;
+  background:
+    radial-gradient(circle at 5% 100%, rgba(255,225,160,.55) 0 62px, transparent 64px),
+    radial-gradient(circle at 100% 95%, rgba(255,225,160,.55) 0 55px, transparent 58px),
+    #fff8e9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+/* Botones */
+#editarPerfilModal .peq-profile-btn-cancel{
+  min-width: 140px;
+  border-radius: 999px;
+  padding: 12px 22px;
+  border: 1px solid #e5d2aa;
+  background: rgba(255,255,255,.92);
+  color: #744019;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(0,0,0,.08);
+  transition: all .18s ease;
+}
+
+#editarPerfilModal .peq-profile-btn-cancel:hover{
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+#editarPerfilModal .peq-profile-btn-save{
+  min-width: 190px;
+  border-radius: 999px;
+  padding: 12px 24px;
+  border: 0;
+  color: #fff;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffb300 0%, #ff9800 48%, #ff7a1a 100%);
+  box-shadow: 0 12px 24px rgba(255,152,0,.32);
+  transition: all .18s ease;
+}
+
+#editarPerfilModal .peq-profile-btn-save:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(255,152,0,.40);
+}
+
+#editarPerfilModal .peq-profile-btn-save:disabled{
+  opacity: .7;
+  transform: none;
+}
+
+#editarPerfilModal .peq-save-icon{
+  margin-right: 8px;
+}
+
+/* Fondo oscuro más suave */
+.modal-backdrop.show{
+  opacity: .48;
+}
+
+/* Mobile */
+@media (max-width: 576px){
+  #editarPerfilModal .peq-profile-dialog{
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+  }
+
+  #editarPerfilModal .peq-profile-header{
+    padding: 20px;
+  }
+
+  #editarPerfilModal .peq-profile-avatar{
+    width: 58px;
+    height: 58px;
+  }
+
+  #editarPerfilModal .peq-profile-title{
+    font-size: 1.35rem;
+  }
+
+  #editarPerfilModal .peq-profile-body{
+    padding: 22px 20px 12px;
+  }
+
+  #editarPerfilModal .peq-profile-footer{
+    padding: 18px 20px 22px;
+    flex-direction: column-reverse;
+  }
+
+  #editarPerfilModal .peq-profile-btn-cancel,
+  #editarPerfilModal .peq-profile-btn-save{
+    width: 100%;
+  }
+}
+
+
+/* =========================
+   PERFIL DE USUARIO
+   ========================= */
+
+.peq-user-section{
+  margin-top: 10px;
+}
+
+.peq-profile-card-main{
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  border: 1px solid rgba(255, 179, 0, .18);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.08);
+}
+
+.peq-profile-left{
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.peq-profile-avatar-wrap{
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  padding: 6px;
+  background: linear-gradient(135deg, #ffd770, #fff0b8);
+  box-shadow: 0 10px 24px rgba(255, 179, 0, .25);
+}
+
+.peq-profile-avatar{
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background: #fff;
+}
+
+.peq-profile-badge{
+  margin-top: 14px;
+  background: #fff;
+  color: #b86b2a;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 8px 16px;
+  border: 1px solid #f0d7a2;
+  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+}
+
+.peq-profile-right{
+  flex: 1;
+}
+
+.peq-profile-top{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.peq-profile-name{
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #b86b2a;
+}
+
+.peq-profile-subtext{
+  margin: 6px 0 0 0;
+  color: #6f6f6f;
+  font-weight: 500;
+}
+
+.peq-profile-edit-btn{
+  border-radius: 999px;
+  padding: 12px 20px;
+  font-weight: 800;
+  border: none;
+  color: #fff;
+  background: linear-gradient(135deg, #ffb300 0%, #ff9800 100%);
+  box-shadow: 0 10px 20px rgba(255,152,0,.24);
+  transition: all .18s ease;
+  white-space: nowrap;
+}
+
+.peq-profile-edit-btn:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 14px 24px rgba(255,152,0,.32);
+  color: #fff;
+}
+
+.peq-profile-info-grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.peq-info-item{
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: rgba(255,255,255,.72);
+  border: 1px solid #f2e0b8;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.peq-info-icon{
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 50%;
+  background: #fff1c9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 4px 10px rgba(255,179,0,.10);
+}
+
+.peq-info-label{
+  font-size: .92rem;
+  font-weight: 800;
+  color: #8f5a23;
+  margin-bottom: 2px;
+}
+
+.peq-info-value{
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+/* Responsive */
+@media (max-width: 992px){
+  .peq-profile-card-main{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .peq-profile-left{
+    min-width: unset;
+  }
+
+  .peq-profile-top{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .peq-profile-edit-btn{
+    width: 100%;
+  }
+
+  .peq-profile-info-grid{
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================
+   MINI STATS PERFIL
+   ========================= */
+
+.peq-user-mini-stats{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.peq-user-stat-card{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(255,255,255,.88) 0%, rgba(255,248,230,.95) 100%);
+  border: 1px solid #f0ddb4;
+  box-shadow: 0 8px 18px rgba(0,0,0,.05);
+}
+
+.peq-user-stat-icon{
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff0c2 0%, #ffe082 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 6px 14px rgba(255,179,0,.16);
+}
+
+.peq-user-stat-content{
+  min-width: 0;
+}
+
+.peq-user-stat-label{
+  font-size: .92rem;
+  font-weight: 900;
+  color: #8f4d19;
+  margin-bottom: 4px;
+}
+
+.peq-user-stat-value{
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #b85f22;
+  line-height: 1.1;
+}
+
+.peq-user-stat-sub{
+  margin-top: 4px;
+  font-size: .88rem;
+  color: #666;
+  font-weight: 500;
+}
+
+/* responsive */
+@media (max-width: 992px){
+  .peq-user-mini-stats{
+    grid-template-columns: 1fr;
+  }
+}
+
+/*estadisticas*/
+/* =========================
+   ESTADÍSTICAS USUARIO
+   ========================= */
+
+.peq-stats-title{
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #b85f22;
+  margin-bottom: 6px;
+}
+
+.peq-stats-subtitle{
+  color: #6c6c6c;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.peq-stats-grid{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(190px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.peq-stat-card{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  border: 1px solid rgba(255,179,0,.22);
+  border-radius: 24px;
+  padding: 22px 18px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  transition: all .18s ease;
+}
+
+.peq-stat-card:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(0,0,0,.09);
+}
+
+.peq-stat-icon{
+  width: 62px;
+  height: 62px;
+  min-width: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff0c2 0%, #ffe082 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 6px 14px rgba(255,179,0,.16);
+}
+
+.peq-stat-label{
+  font-size: .92rem;
+  color: #8f4d19;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.peq-stat-value{
+  font-size: 1.8rem;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #e65f18;
+}
+
+.peq-stat-value-sm{
+  font-size: 1.15rem;
+}
+
+.peq-stat-help{
+  margin-top: 4px;
+  color: #666;
+  font-size: .85rem;
+  font-weight: 600;
+}
+
+.peq-stats-panels{
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 20px;
+}
+
+.peq-stats-panel{
+  background: linear-gradient(135deg, rgba(255,255,255,.96) 0%, rgba(255,248,230,.98) 100%);
+  border: 1px solid #f0ddb4;
+  border-radius: 26px;
+  padding: 24px;
+  box-shadow: 0 12px 26px rgba(0,0,0,.06);
+}
+
+.peq-stats-highlight{
+  background: linear-gradient(135deg, #fffaf0 0%, #fff2d0 100%);
+}
+
+.peq-stats-panel-head{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.peq-stats-panel-head h3{
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #8f4d19;
+}
+
+.peq-stats-panel-head p{
+  margin: 4px 0 0;
+  color: #777;
+  font-weight: 600;
+}
+
+.peq-stats-panel-icon{
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fff1c9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 6px 14px rgba(255,179,0,.14);
+}
+
+.peq-stats-highlight-main{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.peq-highlight-item{
+  background: rgba(255,255,255,.78);
+  border: 1px solid #f2e0b8;
+  border-radius: 20px;
+  padding: 18px;
+}
+
+.peq-highlight-active{
+  background: linear-gradient(135deg, #f9ffe9 0%, #efffd9 100%);
+  border-color: #d7efb1;
+}
+
+.peq-highlight-label{
+  display: block;
+  font-size: .9rem;
+  color: #8f4d19;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.peq-highlight-value{
+  display: block;
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #e65f18;
+}
+
+.peq-highlight-badge{
+  display: inline-block;
+  background: #dff5c8;
+  color: #4f8a22;
+  border: 1px solid #bde59c;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 900;
+}
+
+.peq-chart-card{
+  background: rgba(255,255,255,.76);
+  border: 1px solid #f1dfb8;
+  border-radius: 20px;
+  padding: 18px;
+}
+
+.peq-chart-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.peq-chart-head h4{
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 900;
+  color: #8f4d19;
+}
+
+.peq-chart-head span{
+  color: #777;
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+.peq-mini-metrics{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.peq-mini-metric{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255,255,255,.78);
+  border: 1px solid #f1dfb8;
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.peq-mini-icon{
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: 50%;
+  background: #fff1c9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.peq-mini-label{
+  font-size: .84rem;
+  font-weight: 900;
+  color: #8f4d19;
+  margin-bottom: 4px;
+}
+
+.peq-mini-value{
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #e65f18;
+}
+
+.peq-stats-message{
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 20px;
+  background: #fff6df;
+  border: 1px solid #f2dfb1;
+}
+
+.peq-stats-message span{
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff1c9;
+  font-size: 20px;
+}
+
+.peq-stats-message p{
+  margin: 0;
+  color: #665;
+  font-weight: 600;
+}
+
+@media (max-width: 1200px){
+  .peq-stats-grid{
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .peq-stats-panels{
+    grid-template-columns: minmax(0, 1.05fr) minmax(300px, .85fr);
+  }
+}
+
+@media (max-width: 900px){
+  .peq-stats-panels{
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+/* Gráfico más chico y controlado */
+.peq-chart-card-small{
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.peq-chart-wrap{
+  position: relative;
+  width: 100%;
+  height: 190px;
+  max-height: 190px;
+  overflow: hidden;
+}
+
+#chartComprasMes{
+  width: 100% !important;
+  height: 190px !important;
+  max-height: 190px !important;
+}
+
+/* Evita que las columnas empujen el layout */
+.peq-stats-panels{
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+}
+
+.peq-stats-panel{
+  min-width: 0;
+  overflow: hidden;
+}
+
+.peq-stats-highlight{
+  min-width: 0;
+}
+
+/* ==================================================
+   FIX FINAL ESTADÍSTICAS - DOS COLUMNAS + GRÁFICO CHICO
+   PEGAR ABAJO DE TODO
+   ================================================== */
+
+#estadisticas-contenido .peq-stats-panels{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr) !important;
+  gap: 18px !important;
+  align-items: start !important;
+}
+
+#estadisticas-contenido .peq-stats-panel{
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+#estadisticas-contenido .peq-stats-highlight{
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Gráfico controlado */
+#estadisticas-contenido .peq-chart-card{
+  padding: 12px 16px !important;
+  overflow: hidden !important;
+}
+
+#estadisticas-contenido .peq-chart-wrap{
+  position: relative !important;
+  width: 100% !important;
+  height: 135px !important;
+  max-height: 135px !important;
+  overflow: hidden !important;
+}
+
+#estadisticas-contenido #chartComprasMes{
+  width: 100% !important;
+  height: 135px !important;
+  max-height: 135px !important;
+}
+
+/* El panel derecho más compacto */
+#estadisticas-contenido .peq-mini-metrics{
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 12px !important;
+}
+
+#estadisticas-contenido .peq-mini-metric{
+  padding: 13px 14px !important;
+}
+
+#estadisticas-contenido .peq-mini-icon{
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  font-size: 18px !important;
+}
+
+/* En pantallas muy chicas recién baja */
+@media (max-width: 720px){
+  #estadisticas-contenido .peq-stats-panels{
+    grid-template-columns: 1fr !important;
+  }
+
+  #estadisticas-contenido .peq-chart-wrap{
+    height: 150px !important;
+    max-height: 150px !important;
+  }
+
+  #estadisticas-contenido #chartComprasMes{
+    height: 150px !important;
+    max-height: 150px !important;
+  }
+}
+
+/* Separar más el botón cerrar sesión del menú */
+.sidebar .logout-container,
+.offcanvas-body .logout-container{
+  margin-top: 42px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(184, 95, 34, .18);
+}
+
+.btn-logout{
+  border-radius: 12px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #ff9800, #ff7a00);
+  color: white;
+  border: none;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(255, 128, 0, .22);
+}
+
+.btn-logout:hover{
+  background: linear-gradient(135deg, #ff7a00, #f05a00);
+  color: white;
+  transform: translateY(-1px);
+}
+
+
+/* ==========================================
+   PEQUELANDIA - CAMPANITA DE NOTIFICACIONES
+   ========================================== */
+
+.peq-notification-dropdown{
+  position: relative;
+}
+
+.peq-notification-button{
+  position: relative;
+  width: 45px;
+  height: 45px;
+  border: 1px solid rgba(255,179,0,.28);
+  border-radius: 50%;
+  background: #fff8e7;
+  box-shadow: 0 7px 16px rgba(0,0,0,.07);
+  transition: all .18s ease;
+}
+
+.peq-notification-button:hover{
+  background: #fff1c9;
+  transform: translateY(-1px);
+}
+
+.peq-notification-bell{
+  font-size: 19px;
+}
+
+.peq-notification-badge{
+  position: absolute;
+  top: -4px;
+  right: -5px;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 5px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #e53935;
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 900;
+  line-height: 17px;
+  text-align: center;
+}
+
+.peq-notification-menu{
+  width: min(390px, calc(100vw - 24px));
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid rgba(255,179,0,.22);
+  border-radius: 18px;
+  background: #fffdf8;
+  box-shadow: 0 20px 46px rgba(0,0,0,.17);
+}
+
+.peq-notification-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 15px 16px;
+  border-bottom: 1px solid #f0ddb4;
+  background: linear-gradient(135deg, #fff7df, #fff1c4);
+}
+
+.peq-notification-header strong{
+  display: block;
+  color: #75431b;
+  font-weight: 900;
+}
+
+.peq-notification-header small{
+  display: block;
+  margin-top: 2px;
+  color: #977040;
+  font-size: .76rem;
+  font-weight: 600;
+}
+
+.peq-notification-read-all{
+  border: 1px solid #e8ce9c;
+  border-radius: 999px;
+  background: rgba(255,255,255,.74);
+  color: #a55b18;
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.peq-notification-list{
+  max-height: 390px;
+  overflow-y: auto;
+}
+
+.peq-notification-item{
+  display: flex;
+  gap: 10px;
+  padding: 13px 15px;
+  border-bottom: 1px solid rgba(0,0,0,.055);
+  background: #fffdf8;
+  cursor: pointer;
+  transition: background .16s ease;
+}
+
+.peq-notification-item:hover{
+  background: #fff8e7;
+}
+
+.peq-notification-item.is-unread{
+  background: #fff4d5;
+}
+
+.peq-notification-icon{
+  width: 35px;
+  height: 35px;
+  min-width: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff1c9;
+}
+
+.peq-notification-body{
+  min-width: 0;
+}
+
+.peq-notification-text{
+  margin: 0;
+  color: #584530;
+  font-size: .84rem;
+  font-weight: 700;
+}
+
+.peq-notification-date{
+  display: block;
+  margin-top: 4px;
+  color: #a3896a;
+  font-size: .73rem;
+  font-weight: 600;
+}
+
+.peq-notification-empty{
+  padding: 25px 15px;
+  color: #947c61;
+  font-size: .86rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+
+</style>
+</body>
+</html>

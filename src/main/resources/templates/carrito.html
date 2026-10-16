@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="tienda,online,pequelandia,tiendaropa,tiendaropainfantil">
+    <meta name="author" content="Ivan Molina Moglia" />
+    <title>Pequelandia</title>
+    <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+    :root{
+      --peq-bg: #fff8e6;
+      --peq-card: #ffffff;
+      --peq-border: #ffe0a3;
+      --peq-accent: #ff9800;   /* naranja */
+      --peq-accent2:#ffc107;   /* ámbar */
+      --peq-text: #2b2b2b;
+      --peq-muted:#6b7280;
+      --peq-danger:#d84315;
+      --peq-shadow: 0 12px 30px rgba(0,0,0,.08);
+      --peq-radius: 18px;
+    }
+
+    body{ background: var(--peq-bg); color: var(--peq-text); }
+
+    .peq-page-title{
+      font-weight: 800;
+      letter-spacing: .2px;
+      margin: 18px 0 22px;
+    }
+
+    .peq-card{
+      background: var(--peq-card);
+      border: 1px solid var(--peq-border);
+      border-radius: var(--peq-radius);
+      box-shadow: var(--peq-shadow);
+    }
+
+    .peq-cart-item{
+      padding: 18px;
+    }
+
+    .peq-seller{
+      font-weight: 700;
+      color: var(--peq-muted);
+      font-size: .92rem;
+    }
+
+    .peq-seller a{ color: var(--peq-accent); text-decoration: none; }
+    .peq-seller a:hover{ text-decoration: underline; }
+
+    .peq-item-grid{
+      display: grid;
+      grid-template-columns: 92px 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .peq-thumb{
+      width: 92px;
+      height: 72px;
+      border-radius: 14px;
+      border: 1px solid var(--peq-border);
+      object-fit: cover;
+      background: #fff;
+    }
+
+    .peq-item-name{
+      font-weight: 700;
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .peq-item-desc{
+      margin: 6px 0 0;
+      color: var(--peq-muted);
+      font-size: .92rem;
+      line-height: 1.25;
+    }
+
+    .peq-item-actions{
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      min-width: 170px;
+    }
+
+    .peq-price{
+      font-weight: 800;
+      font-size: 1.15rem;
+      white-space: nowrap;
+    }
+
+    .peq-qty{
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--peq-border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .peq-qty button{
+      width: 40px;
+      height: 34px;
+      border: 0;
+      background: #fff;
+      font-weight: 900;
+      color: var(--peq-accent);
+    }
+    .peq-qty button:hover{ background: #fff3cd; }
+    .peq-qty span{
+      width: 44px;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .peq-remove{
+      background: none;
+      border: 0;
+      padding: 0;
+      color: var(--peq-danger);
+      font-weight: 700;
+      font-size: .95rem;
+      text-decoration: underline;
+    }
+
+    .peq-side{
+      position: sticky;
+      top: 16px;
+    }
+
+    .peq-collapse-head{
+      font-weight: 800;
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .peq-coupon{
+      padding: 16px;
+    }
+
+    .peq-coupon .form-control{
+      border-radius: 14px;
+      border: 1px solid var(--peq-border);
+    }
+
+    .peq-btn-accent{
+      background: linear-gradient(90deg, var(--peq-accent), var(--peq-accent2));
+      border: 0;
+      border-radius: 14px;
+      font-weight: 800;
+      color: #1f1f1f;
+      padding: 12px 14px;
+    }
+
+    .peq-btn-outline{
+      background: #fff;
+      border: 1px solid var(--peq-border);
+      border-radius: 14px;
+      font-weight: 800;
+      padding: 12px 14px;
+      color: #1f1f1f;
+    }
+    .peq-btn-outline:hover{ background:#fff3cd; }
+
+    .peq-summary{
+      padding: 18px;
+    }
+
+    .peq-row{
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 10px;
+      margin: 10px 0;
+      color: var(--peq-text);
+      font-weight: 700;
+    }
+
+    .peq-row small{ color: var(--peq-muted); font-weight: 700; }
+    .peq-divider{
+      height: 1px;
+      background: var(--peq-border);
+      margin: 14px 0;
+    }
+
+    .peq-total{
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
+    .peq-empty{
+      padding: 22px;
+      text-align: center;
+      color: var(--peq-muted);
+      font-weight: 700;
+    }
+
+    @media (max-width: 991px){
+      .peq-item-grid{ grid-template-columns: 84px 1fr; }
+      .peq-item-actions{
+        align-items: flex-start;
+        min-width: auto;
+      }
+      .peq-side{ position: static; }
+    }
+  </style>
+</head>
+<body>
+    <!-- Cabecera fija -->
+<div name="cabecera fija" >
+  <div class="container-fluid">
+     <nav class="navbar navbar-expand-sm  fixed-top shadow " style="background-color: #fff3cd;"> 
+      <div class="container-fluid" style="height: 20px; display: flex; align-items: center;" >
+        <a class="navbar-brand" href="#" >
+          <img src="/imagenes/osito.jpg" width="30" height="30" class="d-inline-block align-text-auto">O.S.I
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto ">
+            <li class="nav-item">
+              <a class="nav-link" href="#">Español/Ingles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Modo Noche</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" aria-disabled="true">Hora</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- Menú fijo -->
+<div name="menu" class="mt-5"> 
+  <nav class="navbar navbar-expand-sm  fixed-top shadow" style="top: 35px; " >
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" th:href="@{/indexv1}">
+        <img src="/imagenes/peq.png.jpg" width="120" height="90" class="d-inline-block align-text-auto">
+      </a>
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo03" >
+        <form class="d-flex ms-auto" role="search" style="width: 30%;">
+          <input class="form-control  me-2   w-100 w-sm-110 w-md-100 w-lg-100 " type="search" placeholder="Buscar" aria-label="Search" >
+          
+         	<button class="btn btn-outline-info" style="border: none;" type="button"
+        	onclick="window.location.href='/productos?categoriaId=0'">
+    		<img src="/imagenes/search.svg" alt="Buscar">
+			</button>
+        </form>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/carrito/vercarrito}" target="_self" aria-label="Ver carrito" title="Ver carrito">
+             <img src="/imagenes/carritooriginal.png" alt="Carrito" width="65" height="65">
+            </a>
+          </li>
+          <!-- Si no hay usuario logueado -->
+<li class="nav-item me-5" th:if="${session.usuario == null}">
+  <a class="nav-link" th:href="@{/auth/login}" title="Iniciar sesión">
+    <img src="/imagenes/editar-informacion.png" alt="cuenta" width="65" height="65">
+  </a>
+</li>
+<!-- Si hay usuario logueado -->
+<li class="nav-item dropdown me-5" th:if="${session.usuario != null}">
+  <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">
+    <img src="/imagenes/editar-informacion.png" alt="cuenta" width="65" height="65">
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+    <li class="dropdown-item-text">Hola, <b th:text="${session.usuario.nombre_usuario}"></b></li>
+    <li><hr class="dropdown-divider"></li>
+    <li th:if="${#strings.equalsIgnoreCase(session.usuario.nombre_usuario, 'admin')}">
+      <a class="dropdown-item" th:href="@{/panel/admin}">Panel de administración</a>
+    </li>
+    <li th:if="${!#strings.equalsIgnoreCase(session.usuario.nombre_usuario, 'admin')}">
+      <a class="dropdown-item" th:href="@{/panel/usuario}">Mi panel</a>
+    </li>
+    <li><a class="dropdown-item text-danger" th:href="@{/auth/logout}">Cerrar sesión</a></li>
+  </ul>
+</li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
+
+
+
+
+<!-- -carrito -->
+<div class="container py-3 py-md-4" style="margin-top: 180px;">
+  <h2 class="peq-page-title">Mi carrito</h2>
+
+  <div class="row g-3 g-md-4">
+    <!-- IZQUIERDA: items -->
+    <div class="col-lg-8">
+      <div class="peq-card" th:if="${#lists.isEmpty(detalles)}">
+        <div class="peq-empty">
+          Tu carrito está vacío 🧸<br/>
+          <a class="btn peq-btn-accent mt-3" th:href="@{/productos}">Ver productos</a>
+        </div>
+      </div>
+
+      <div class="peq-card peq-cart-item mb-3" th:each="d : ${detalles}">
+  <div class="peq-seller mb-2">
+    Vendido por <a href="#">Pequelandia</a>
+  </div>
+
+  <div class="peq-item-grid">
+    <img class="peq-thumb"
+         th:src="${d.producto.imagenUrl != null ? d.producto.imagenUrl : '/imagenes/imagendefecto.png'}"
+         alt="Producto"/>
+
+    <div>
+      <p class="peq-item-name" th:text="${d.producto.nombre_producto}">Nombre</p>
+
+      <p class="peq-item-desc"
+         th:text="${d.producto.descripcion_producto != null ? d.producto.descripcion_producto : ''}">
+        Descripción
+      </p>
+
+      <button class="peq-remove mt-2 js-remove"
+              type="button"
+              th:attr="data-id=${d.producto.idProducto}">
+        Eliminar
+      </button>
+    </div>
+
+    <div class="peq-item-actions">
+      <div class="peq-qty">
+        <button type="button" class="js-minus" th:attr="data-id=${d.producto.idProducto}">−</button>
+
+        <span th:attr="data-id=${d.producto.idProducto}"
+              th:text="${d.cantidad}">
+          1
+        </span>
+
+        <button type="button" class="js-plus" th:attr="data-id=${d.producto.idProducto}">+</button>
+      </div>
+
+      <div class="peq-price"
+           th:text="${'$ ' + #numbers.formatDecimal(d.subtotal, 1, 'POINT', 0, 'COMMA')}">
+        $ 0
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+    <!-- DERECHA: cupón + resumen -->
+    <div class="col-lg-4">
+      <div class="peq-side d-grid gap-3">
+
+        <!-- Cupón -->
+        <div class="peq-card peq-coupon">
+          <div class="d-flex justify-content-between align-items-center">
+            <p class="peq-collapse-head mb-0">Cupón de descuento</p>
+            <span style="font-weight:900;color:var(--peq-muted)">⌃</span>
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <input class="form-control" placeholder="Ingresar cupón" disabled>
+            <button class="btn peq-btn-outline" type="button" disabled>AGREGAR</button>
+          </div>
+          <small class="d-block mt-2" style="color:var(--peq-muted)">(Opcional) lo activamos después</small>
+        </div>
+
+        <!-- Resumen -->
+        <div class="peq-card peq-summary">
+          <div style="font-weight:900; font-size:1.05rem;">Resumen de compra</div>
+
+          <div class="peq-row mt-3">
+            <div>Productos (<span id="sumItems" th:text="${items}">0</span>)</div>
+            <div id="sumSubtotal"
+                 th:text="${'$ ' + #numbers.formatDecimal(total, 1, 'POINT', 0, 'COMMA')}">
+              $ 0
+            </div>
+          </div>
+
+          <div class="peq-divider"></div>
+
+          <div class="peq-row">
+            <div class="peq-total">Total</div>
+            <div class="peq-total" id="sumTotal"
+                 th:text="${'$ ' + #numbers.formatDecimal(total, 1, 'POINT', 0, 'COMMA')}">
+              $ 0
+            </div>
+          </div>
+
+          
+  <button type="button" class="btn peq-btn-accent w-100 mt-3" onclick="finalizarCompra()">
+    Finalizar compra
+  </button>
+
+
+          <a class="btn peq-btn-outline w-100 mt-2" th:href="@{/productos}">
+            Continuar comprando
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE PEDIDO -->
+<div class="modal fade" id="pedidoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content peq-card">
+
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          🧾 Pedido <span id="pd-numero">#</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="mb-3">
+          <div><b>Fecha:</b> <span id="pd-fecha"></span></div>
+          <div><b>Estado:</b> <span id="pd-estado" class="badge bg-success"></span></div>
+        </div>
+
+        <div class="peq-divider"></div>
+
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th class="text-center">Cantidad</th>
+              <th class="text-center">Precio Unitario</th>
+
+            </tr>
+          </thead>
+          <tbody id="pd-items">
+          </tbody>
+        </table>
+
+        <div class="peq-divider"></div>
+
+        <div class="d-flex justify-content-between fw-bold fs-5">
+          <span>Total</span>
+          <span id="pd-total">$ 0</span>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn peq-btn-outline" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+        <a href="/productos" class="btn peq-btn-accent">
+          Seguir comprando
+        </a>
+        <a id="pd-pdf" class="btn peq-btn-outline" href="#" target="_blank">
+  		Descargar PDF
+		</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+<script th:src="@{/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js}"></script>
+
+<script>
+  // Helpers formato
+  const fmtARS = (n) => "$ " + Number(n || 0).toLocaleString("es-AR");
+
+  // Delegación de eventos (+, -, eliminar)
+  document.addEventListener("click", async (e) => {
+    const plus = e.target.closest(".js-plus");
+    const minus = e.target.closest(".js-minus");
+    const remove = e.target.closest(".js-remove");
+
+    if (plus)  return changeQty(plus.dataset.id, +1);
+    if (minus) return changeQty(minus.dataset.id, -1);
+    if (remove) return removeLine(remove.dataset.id);
+  });
+
+  async function changeQty(productoId, delta) {
+	  const qtySpan = document.querySelector(`span[data-id="${productoId}"]`);
+	  if (!qtySpan) return;
+
+	  const actual = parseInt(qtySpan.textContent || "1", 10);
+	  const nueva = Math.max(1, actual + delta);
+
+	  const body = new URLSearchParams();
+	  body.append("productoId", productoId);
+	  body.append("cantidad", String(nueva));
+
+	  const res = await fetch("/carrito/cantidad", {
+	    method: "POST",
+	    headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+	    body
+	  });
+
+	  if (!res.ok) {
+	    console.error("HTTP", res.status, await res.text().catch(() => ""));
+	    alert("No se pudo actualizar la cantidad.");
+	    return;
+	  }
+
+	  const data = await res.json();
+
+	  if (!data.ok) {
+	    let msg = data.error || "No se pudo actualizar la cantidad.";
+	    if (data.stockDisponible != null) {
+	      msg += ` Stock disponible: ${data.stockDisponible}`;
+	    }
+	    mostrarToastError(msg);
+	    return;
+	  }
+
+	  qtySpan.textContent = String(nueva);
+
+	  document.getElementById("sumItems").textContent = data.items;
+	  document.getElementById("sumSubtotal").textContent = fmtARS(data.total);
+	  document.getElementById("sumTotal").textContent = fmtARS(data.total);
+
+	  const bubble = document.querySelector(".js-cart-count");
+	  if (bubble) bubble.textContent = data.items;
+	}
+
+  async function removeLine(productoId){
+    if(!confirm("¿Eliminar este producto del carrito?")) return;
+
+    const body = new URLSearchParams();
+    body.append("productoId", productoId);
+
+    const res = await fetch("/carrito/eliminar", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+      body: new URLSearchParams({ productoId: productoId })
+    });
+
+    if(!res.ok){
+      console.error("HTTP", res.status, await res.text().catch(()=> ""));
+      alert("No se pudo eliminar del carrito.");
+      return;
+    }
+
+    const data = await res.json();
+    if(!data.ok){
+      alert(data.error || "No se pudo eliminar del carrito.");
+      return;
+    }
+
+    // borrar card del DOM
+    const card = document.querySelector(`.js-remove[data-id="${productoId}"]`)?.closest(".peq-card");
+    if(card) card.remove();
+
+    // resumen
+    document.getElementById("sumItems").textContent = data.items;
+    document.getElementById("sumSubtotal").textContent = fmtARS(data.total);
+    document.getElementById("sumTotal").textContent = fmtARS(data.total);
+
+    // burbuja
+    const bubble = document.querySelector(".js-cart-count");
+    if(bubble) bubble.textContent = data.items;
+
+    // si quedó vacío, recargar para mostrar estado vacío
+    if(data.items === 0){
+      location.reload();
+    }
+  }
+  
+  async function finalizarCompra(){
+	  const res = await fetch("/carrito/finalizar", { method: "POST" });
+	  const data = await res.json();
+
+	  if(!data.ok){
+	    if(data.redirect) window.location.href = data.redirect;
+	    else alert(data.error || "No se pudo finalizar la compra");
+	    return;
+	  }
+	  
+	// setear link PDF (para el botón del modal)
+	  document.getElementById("pd-pdf").href = `/pedido/${data.pedidoId}/pdf`;
+
+	  // abrir modal con detalle
+	  await cargarPedido(data.pedidoId);
+
+	 
+	}
+  
+  
+  async function cargarPedido(id){
+
+    const res = await fetch(`/pedido/${id}`);
+    const p = await res.json();
+   //document.getElementById("pd-pdf").href = p.pdfUrl;
+    //document.getElementById("pd-pdf").href = `/pedido/${id}/pdf`;
+    document.getElementById("pd-numero").textContent = "#" + p.id;
+    document.getElementById("pd-fecha").textContent =
+      new Date(p.fecha).toLocaleString("es-AR");
+    document.getElementById("pd-estado").textContent = p.estado;
+    document.getElementById("pd-total").textContent =
+      "$ " + Number(p.total).toLocaleString("es-AR");
+
+    const tbody = document.getElementById("pd-items");
+    tbody.innerHTML = "";
+
+    p.items.forEach(i => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${i.producto}</td>
+          <td class="text-center">${i.cantidad}</td>
+          <td class="text-end">$ ${Number(i.subtotal).toLocaleString("es-AR")}</td>
+        </tr>`;
+    });
+
+    const modal = new bootstrap.Modal(document.getElementById("pedidoModal"));
+    modal.show();
+  }
+  
+  function mostrarToastError(msg) {
+	  const el = document.getElementById("peqToastError");
+	  if (!el) {
+		  mostrarToastError(msg);
+	    return;
+	  }
+
+	  el.textContent = msg;
+	  el.hidden = false;
+	  el.classList.add("show");
+
+	  clearTimeout(window.__peqToastTimer);
+	  window.__peqToastTimer = setTimeout(() => {
+	    el.classList.remove("show");
+	    setTimeout(() => {
+	      el.hidden = true;
+	    }, 200);
+	  }, 2600);
+	}
+
+</script>
+<style>
+.peq-toast-error{
+  position: fixed;
+  top: 110px;
+  right: 18px;
+  z-index: 10000;
+  max-width: 320px;
+  background: #fff;
+  color: #842029;
+  border: 1px solid #f5c2c7;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.12);
+  padding: 12px 14px;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity .2s ease, transform .2s ease;
+  background: #fff8e1;
+border: 1px solid #ffcc80;
+color: #8a5a00;
+}
+
+.peq-toast-error.show{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+</style>
+
+<div id="peqToastError" class="peq-toast-error" hidden></div>
+</body>
+</html>

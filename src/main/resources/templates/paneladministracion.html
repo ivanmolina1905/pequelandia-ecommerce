@@ -1,0 +1,6293 @@
+<!DOCTYPE html>
+
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="tienda,online,pequelandia,tiendaropa,tiendaropainfantil">
+    <meta name="author" content="Ivan Molina Moglia" />
+    <title>Pequelandia</title>
+    <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+ 
+    
+</head>
+<body>
+    <!-- Cabecera fija -->
+<div name="cabecera fija" >
+  <div class="container-fluid">
+     <nav class="navbar navbar-expand-sm  fixed-top shadow " style="background-color: #fff3cd;"> 
+      <div class="container-fluid" style="height: 20px; display: flex; align-items: center;" >
+        <a class="navbar-brand" href="#" >
+          <img src="/imagenes/osito.jpg" width="30" height="30" class="d-inline-block align-text-auto">O.S.I
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto ">
+            <li class="nav-item">
+              <a class="nav-link" href="#">Español/Ingles</a>
+            </li>
+            <li class="nav-item d-flex align-items-center">
+  			<button id="btnDarkMode" class="nav-link btn btn-link p-0 m-0 text-center">Modo Noche</button>
+			</li>
+				<li class="nav-item">
+  				<span class="nav-link" id="clock">--:--</span>
+			</li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- Menú fijo -->
+<div name="menu" class="mt-5"> 
+  <nav class="navbar navbar-expand-sm  fixed-top shadow" style="top: 35px;" > 
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="/" th:href="@{/}">
+        <img src="/imagenes/peq.png.jpg" width="120" height="90" class="d-inline-block align-text-auto">
+      </a>
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo03" >
+        <form class="d-flex ms-auto" role="search" style="width: 30%;">
+          <input class="form-control  me-2   w-100 w-sm-110 w-md-100 w-lg-100 " type="search" placeholder="Buscar" aria-label="Search" >
+         <button class="btn btn-outline-info" style="border: none;" type="button"
+        	onclick="window.location.href='/productos?categoriaId=0'">
+    		<img src="/imagenes/search.svg" alt="Buscar">
+			</button>
+        </form>
+        <!-- campana -->
+        <!-- ==========================================
+     CAMPANITA DE NOTIFICACIONES
+=========================================== -->
+<div class="dropdown peq-notification-dropdown">
+
+  <button class="btn peq-notification-button"
+          type="button"
+          id="notificacionesDropdown"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          onclick="cargarNotificaciones()">
+
+    <span class="peq-notification-bell">🔔</span>
+
+    <span id="notificacionesBadge"
+          class="peq-notification-badge"
+          style="display:none;">
+      0
+    </span>
+  </button>
+
+  <div class="dropdown-menu dropdown-menu-end peq-notification-menu"
+       aria-labelledby="notificacionesDropdown">
+
+    <div class="peq-notification-header">
+      <div>
+        <strong>Notificaciones</strong>
+        <small>Novedades de tu cuenta</small>
+      </div>
+
+      <button type="button"
+              class="btn peq-notification-read-all"
+              onclick="marcarTodasLeidas()">
+        Marcar leídas
+      </button>
+    </div>
+
+    <div id="notificacionesLista"
+         class="peq-notification-list">
+
+      <div class="peq-notification-empty">
+        Cargando...
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/carrito/vercarrito}" target="_self" aria-label="Ver carrito" title="Ver carrito">
+             <img src="/imagenes/carritooriginal.png" alt="Carrito" width="65" height="65">
+            </a>
+          </li>
+          <!-- Si NO hay usuario logueado -->
+<li class="nav-item me-5" th:if="${session.usuario == null}">
+  <a class="nav-link" th:href="@{/auth/login}" title="Iniciar sesión">
+    <img src="/imagenes/editar-informacion.png" alt="cuenta" width="65" height="65">
+  </a>
+</li>
+
+<!-- Si hay usuario logueado -->
+<li class="nav-item dropdown me-5" th:if="${session.usuario != null}">
+  <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">
+    <img src="/imagenes/editar-informacion.png" alt="cuenta" width="65" height="65">
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+    <li class="dropdown-item-text">Hola, <b th:text="${session.usuario.nombre_usuario}"></b></li>
+    <li><hr class="dropdown-divider"></li>
+    <!-- admin => panel admin, resto => panel usuario -->
+    <li th:if="${#strings.equalsIgnoreCase(session.usuario.nombre_usuario,'admin')}">
+      <a class="dropdown-item" th:href="@{/panel/admin}">Panel de administración</a>
+    </li>
+    <li th:if="${!#strings.equalsIgnoreCase(session.usuario.nombre_usuario,'admin')}">
+      <a class="dropdown-item" th:href="@{/panel/usuario}">Mi panel</a>
+    </li>
+    <li><a class="dropdown-item text-danger" th:href="@{/auth/logout}">Cerrar sesión</a></li>
+  </ul>
+</li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
+
+    <!-- Botón hamburguesa -->
+    <div class="d-md-none" style="margin-top: 160px; padding-left: 15px;">
+        <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar" aria-controls="adminSidebar">
+            ☰ Menú administrador
+        </button>
+    </div>
+
+
+    <div class="container-fluid" style="margin-top: 180px;">
+        <div class="row">
+            <!-- Sidebar offcanvas -->
+            <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="adminSidebar" aria-labelledby="adminSidebarLabel">
+                <div class="offcanvas-header" style="background-color: #fff3cd;">
+                    <h5 class="offcanvas-title" id="adminSidebarLabel">Panel de Administración</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+                </div>
+                <div class="offcanvas-body" style="background-color: #fff3cd;">
+                    <ul class="nav flex-column">
+                        <li class="nav-item mb-2">
+                            <a class="nav-link js-section" data-section="productos" th:href="@{/admin/productos}">🛒 Gestión de productos</a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a class="nav-link js-section" data-section="usuarios"  th:href="@{/admin/usuarios}">👤 Gestión de usuarios</a>
+                        </li>
+                       <li class="nav-item mb-2">
+    <a class="nav-link js-section" data-section="estadisticas" href="#">📈 Estadísticas</a>
+    </li>
+    <li class="nav-item mb-2">
+  <a class="nav-link js-section" data-section="pedidos" href="#">
+    🧾 Pedidos
+  </a>
+</li>
+
+
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Sidebar fijo -->
+            <nav class="col-md-3 col-lg-2 d-none d-md-block sidebar p-3" style="background-color: #fff3cd; min-height: 80vh;">
+                <h5 class="text-center mb-4">Panel de Administración</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a class="nav-link js-section" data-section="productos" th:href="@{/admin/productos}">🛒 Gestión de productos</a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link js-section" data-section="usuarios"  th:href="@{/admin/usuarios}">👤 Gestión de usuarios</a>
+                    </li>
+                    <li class="nav-item mb-2">
+    				<a class="nav-link js-section" data-section="estadisticas" href="#">📈 Estadísticas</a>
+					</li>
+					<li class="nav-item mb-2">
+  <a class="nav-link js-section" data-section="pedidos" href="#">
+    🧾 Pedidos
+  </a>
+</li>
+                </ul>
+                <!-- Botón Cerrar Sesión -->
+				<div class="logout-container">
+			  	<form th:action="@{/auth/logout}" method="get">
+			   	 <button type="submit" class="btn btn-logout w-100">Cerrar sesión</button>
+			  	</form>
+				</div>
+            </nav>
+			
+            <!-- Contenido principal -->
+            <main  class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div id="welcome-message" class="pt-3">
+                    <h2>Bienvenido al panel de administración</h2>
+                    <p>Seleccioná una opción del menú para comenzar.</p>
+                </div>
+                
+                
+                <div id="gestion-productos-contenido" class="pt-3" th:attr="style=${seccion}=='productos' ? '' : 'display:none;'">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+    <h2 class="m-0" style="color: #a93512bb;">Gestión de Productos</h2>
+
+    <!-- Buscador -->
+    <form class="d-flex" method="get" th:action="@{/admin/productos}">
+      <input class="form-control me-2" type="search" name="q"
+             placeholder="Buscar por nombre / marca / modelo"
+             th:value="${q}">
+      <input type="hidden" name="size" th:value="${productos != null ? productos.size : 10}">
+      <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+    </form>
+
+    <!-- Tamaño por página -->
+    <form method="get" th:action="@{/admin/productos}" class="d-flex align-items-center gap-2">
+      <input type="hidden" name="q" th:value="${q}">
+      <label for="psize" class="form-label mb-0">Por página:</label>
+      <select id="psize" name="size" class="form-select form-select-sm" style="width:auto"
+              onchange="this.form.page.value=0; this.form.submit()">
+        <option th:value="5"  th:selected="${productos == null or productos.size == 5}">5</option>
+        <option th:value="10" th:selected="${productos == null or productos.size == 10}">10</option>
+        <option th:value="20" th:selected="${productos == null or productos.size == 20}">20</option>
+        <option th:value="50" th:selected="${productos == null or productos.size == 50}">50</option>
+      </select>
+      <input type="hidden" name="page" th:value="${productos != null ? productos.number : 0}">
+      <noscript><button class="btn btn-sm btn-primary" type="submit">Aplicar</button></noscript>
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead class="table-light">
+        <tr>
+          <th class="text-center">Imagen</th>
+          <th class="text-center">Nombre</th>
+          <th class="text-center">Precio</th>
+          <th class="text-center">Stock</th>
+          <th class="text-center">Categoría</th>
+          <th class="text-center">Detalle</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody th:if="${productos != null}">
+        <tr th:if="${productos.content.isEmpty()}">
+          <td colspan="7" class="text-center text-muted py-4">No se encontraron productos.</td>
+        </tr>
+
+        <tr th:each="p : ${productos.content}">
+          <td class="text-center">
+           <!--   <img th:src="${p.imagenUrl != null ? p.imagenUrl : '/imagenes/product-placeholder.png'}"
+                 alt="img" width="50"> -->
+          </td>
+          <td class="text-center" th:text="${p.nombre_producto}">Nombre</td>
+          <td class="text-center" th:text="${#numbers.formatDecimal(p.precio, 1, 'COMMA', 2, 'POINT')}">$0,00</td>
+          <td class="text-center" th:text="${p.stock}">0</td>
+          <td class="text-center"
+    th:text="${(p.categorias != null and !p.categorias.isEmpty()) 
+              ? #strings.listJoin(p.categorias.![nombre_categoria], ', ')
+              : '—'}">—</td>
+          <td class="text-center" th:text="${p.descripcion_producto}">—</td>
+          <td class="text-center">
+            <div class="btn-group">
+              <!-- Editar (abre modal) -->
+              <button type="button" class="btn btn-primary btn-sm"
+                      data-bs-toggle="modal" data-bs-target="#editProductModal"
+                      th:attr="
+                        data-action=@{|/admin/productos/${p.idProducto}/editar|},
+                        data-id=${p.idProducto},
+                        data-nombre=${p.nombre_producto},
+                        data-descripcion=${p.descripcion_producto},
+                        data-precio=${p.precio},
+                        data-stock=${p.stock},
+                        data-marca=${p.marca_producto},
+                        data-modelo=${p.modelo_producto},
+                        data-talle=${p.talle_producto},
+                        data-estado=${p.estado},
+                        data-categoria-ids=${(p.categorias != null and !p.categorias.isEmpty()) 
+                                ? #strings.listJoin(p.categorias.![id_categoria], ',') 
+                                : ''}"
+              >Editar</button>
+
+              <!-- Eliminar (abre confirmación) -->
+              <button type="button" class="btn btn-danger btn-sm"
+                      data-bs-toggle="modal" data-bs-target="#confirmDeleteProductModal"
+                      th:attr="data-action=@{|/admin/productos/${p.idProducto}/eliminar|},
+                               data-name=${p.nombre_producto}">
+                Eliminar
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginación -->
+  <nav th:if="${productos != null and productos.totalPages > 1}" aria-label="Paginación de productos">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" th:classappend="${productos.first} ? ' disabled'">
+        <a class="page-link"
+           th:href="@{/admin/productos(page=${productos.number - 1}, size=${productos.size}, q=${q})}">&laquo; Anterior</a>
+      </li>
+
+      <li class="page-item"
+          th:each="i : ${#numbers.sequence(0, productos.totalPages - 1)}"
+          th:classappend="${i} == ${productos.number} ? ' active'">
+        <a class="page-link" th:text="${i + 1}"
+           th:href="@{/admin/productos(page=${i}, size=${productos.size}, q=${q})}">1</a>
+      </li>
+
+      <li class="page-item" th:classappend="${productos.last} ? ' disabled'">
+        <a class="page-link"
+           th:href="@{/admin/productos(page=${productos.number + 1}, size=${productos.size}, q=${q})}">Siguiente &raquo;</a>
+      </li>
+    </ul>
+  </nav>
+
+</div>
+                
+
+               
+				<div id="gestion-usuarios-contenido" class="pt-3"
+					th:attr="style=${seccion} == 'gestion' ? '' : 'display: none;'">
+					<div
+						class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+						<h2 class="m-0" style="color: #6a1b9a;">Gestión de Usuarios</h2>
+
+						<!-- Buscador -->
+						<form class="d-flex" method="get" th:action="@{/admin/usuarios}">
+							<input class="form-control me-2" type="search" name="q"
+								placeholder="Buscar por nombre, apellido o email"
+								th:value="${q}"> <input type="hidden" name="size"
+								th:value="${usuarios != null ? usuarios.size : 10}">
+								
+							<button class="btn btn-outline-secondary" type="submit">Buscar</button>
+						</form>
+
+						<!-- Tamaño por página -->
+						<form method="get" th:action="@{/admin/usuarios}"
+							class="d-flex align-items-center gap-2">
+							
+							<input type="hidden" name="q" th:value="${q}"> <label
+								for="size" class="form-label mb-0">Por página:</label> <select
+								id="size" name="size" class="form-select form-select-sm"
+								style="width: auto"
+								onchange="this.form.page.value=0; this.form.submit()">
+								<option th:value="5" th:selected="${usuarios == null or usuarios.size == 5}">5</option>
+								<option th:value="10" th:selected="${usuarios == null or usuarios.size == 10}">10</option>
+								<option th:value="20" th:selected="${usuarios == null or usuarios.size == 20}">20</option>
+								<option th:value="50" th:selected="${usuarios == null or usuarios.size == 50}">50</option>
+							</select> <input type="hidden" name="page" th:value="${usuarios != null ? usuarios.number : 0}">
+							
+							<noscript>
+								<button class="btn btn-sm btn-primary" type="submit">Aplicar</button>
+							</noscript>
+						</form>
+					</div>
+
+					<div class="table-responsive">
+						<table class="table table-striped align-middle">
+							<thead class="table-light">
+								<tr>
+									<th class="text-center">Nombre</th>
+									<th class="text-center">Apellido</th>
+									<th class="text-center">Usuario</th>
+									<th class="text-center">Email</th>
+									<th class="text-center">Última Conexión</th>
+									<th class="text-center">Historial</th>
+									<th class="text-center">Acciones</th>
+								</tr>
+							</thead>
+							<tbody th:if="${usuarios != null}">
+								<tr th:if="${usuarios.content.isEmpty()}">
+									<td colspan="7" class="text-center text-muted py-4">No se
+										encontraron usuarios.</td>
+								</tr>
+
+								<tr th:each="u : ${usuarios.content}">
+									<td class="text-center" th:text="${u.nombre_usuario}">Nombre</td>
+									<td class="text-center" th:text="${u.apellido}">Apellido</td>
+									<td class="text-center" th:text="${u.id}">usuario123</td>
+									<td class="text-center" th:text="${u.email}">email@dominio.com</td>
+									<td class="text-center"
+										th:text="${u.ultima_conexion != null ? #dates.format(u.ultima_conexion, 'yyyy-MM-dd HH:mm') : '—'}">—</td>
+									<td class="text-center">
+								  	<button type="button"
+								          class="btn btn-info btn-sm"
+								          data-bs-toggle="modal"
+								          data-bs-target="#modalHistorial"
+								          th:attr="
+								            data-user-id=${u.id},
+								            data-user-nombre=${u.nombre_usuario},
+								            data-user-apellido=${u.apellido}
+								          ">
+								    Ver historial
+								  </button>
+									</td>
+									<td class="text-center">
+										<div class="btn-group">
+											<button type="button"
+        							class="btn btn-primary btn-sm"
+       								 data-bs-toggle="modal"
+        								data-bs-target="#editUserModal"
+       								 th:attr="
+         							 data-action=@{|/admin/usuarios/${u.id}/editar|},
+          								data-id=${u.id},
+          data-nombre=${u.nombre_usuario},
+          data-apellido=${u.apellido},
+          data-email=${u.email},
+          data-telefono=${u.telefono},
+          data-direccion=${u.direccion}
+        ">
+  Editar
+</button>
+												
+												<button type="button"
+									            class="btn btn-danger btn-sm"
+									            data-bs-toggle="modal"
+									            data-bs-target="#confirmDeleteModal"
+									            th:attr="data-action=@{|/admin/usuarios/${u.id}/eliminar|},
+                    						 data-user-name=${u.nombre_usuario}">
+      										Eliminar
+    										</button>
+											<!--   <form th:action="@{|/admin/usuarios/${u.id}/eliminar|}"
+												method="post"
+												onsubmit="return confirm('¿Eliminar este usuario?');"
+												class="d-inline">
+												<!--<input type="hidden" th:name="${_csrf.parameterName}"
+													th:value="${_csrf.token}" />
+												<button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
+											</form>-->
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Paginación -->
+					<nav th:if="${usuarios != null and usuarios.totalPages > 1}"
+						aria-label="Paginación de usuarios">
+						<ul class="pagination justify-content-center" id="user-pagination">
+							<!-- Anterior -->
+							<li class="page-item"
+								th:classappend="${usuarios.first} ? ' disabled'">
+								<a class="page-link"
+   								th:href="@{/admin/usuarios(page=${usuarios.number - 1}, size=${usuarios.size}, q=${q})}">&laquo; Anterior</a>
+							</li>
+							
+							<!-- Números -->
+							<li class="page-item"
+								th:each="i : ${#numbers.sequence(0, usuarios.totalPages - 1)}"
+								th:classappend="${i} == ${usuarios.number} ? ' active'">
+								<a class="page-link" th:text="${i + 1}"
+   th:href="@{/admin/usuarios(page=${i}, size=${usuarios.size}, q=${q})}">1</a>
+							</li>
+
+							<!-- Siguiente -->
+							<li class="page-item"
+								th:classappend="${usuarios.last} ? ' disabled'">
+								<a class="page-link"
+   						th:href="@{/admin/usuarios(page=${usuarios.number + 1}, size=${usuarios.size}, q=${q})}">Siguiente &raquo;</a>
+   						</li>
+						</ul>
+					</nav>
+				</div>
+				
+				<!-- seccion pedidos -->
+
+<!-- ==========================================
+     GESTIÓN DE PEDIDOS PREMIUM
+=========================================== -->
+<div id="gestion-pedidos-contenido"
+     class="admin-orders-section"
+     style="display:none;">
+
+  <!-- Encabezado -->
+  <div class="admin-orders-header">
+    <div>
+      <h2>Gestión de Pedidos</h2>
+      <p>Visualizá y administrá todos los pedidos realizados en la tienda.</p>
+    </div>
+
+    <a th:href="@{/admin/export/pedidos}"
+       class="btn admin-orders-export">
+      ⬇ Exportar reporte
+    </a>
+  </div>
+
+  <div class="admin-orders-summary admin-orders-summary-five">
+
+  <div class="admin-order-summary-card">
+    <div class="admin-order-summary-icon">🧾</div>
+
+    <div>
+      <span>Total pedidos</span>
+      <strong id="pedidosTotalResumen">0</strong>
+      <small>Pedidos registrados</small>
+    </div>
+  </div>
+
+  <div class="admin-order-summary-card">
+    <div class="admin-order-summary-icon admin-icon-green">💰</div>
+
+    <div>
+      <span>Ventas del mes</span>
+
+      <strong class="admin-summary-green"
+              th:text="${estad != null
+                  ? '$ ' + #numbers.formatDecimal(estad.ventasMes, 1, 'COMMA', 2, 'POINT')
+                  : '$ 0,00'}">
+        $ 0,00
+      </strong>
+
+      <small>Ingresos mensuales</small>
+    </div>
+  </div>
+
+  <div class="admin-order-summary-card">
+    <div class="admin-order-summary-icon admin-icon-purple">📅</div>
+
+    <div>
+      <span>Pedidos hoy</span>
+      <strong id="pedidosHoyResumen">0</strong>
+      <small>Pedidos del día</small>
+    </div>
+  </div>
+
+  <div class="admin-order-summary-card">
+    <div class="admin-order-summary-icon admin-icon-yellow">⏱</div>
+
+    <div>
+      <span>Pendientes</span>
+      <strong id="pedidosPendientesResumen">0</strong>
+      <small>Esperando preparación</small>
+    </div>
+  </div>
+
+  <div class="admin-order-summary-card">
+    <div class="admin-order-summary-icon admin-icon-red">✕</div>
+
+    <div>
+      <span>Cancelados</span>
+      <strong class="admin-summary-red"
+              id="pedidosCanceladosResumen">
+        0
+      </strong>
+
+      <small>Pedidos cancelados</small>
+    </div>
+  </div>
+
+</div>
+
+  <!-- Filtros -->
+  <div class="admin-orders-filter-card">
+
+    <div class="admin-orders-filter-field">
+      <label for="pedidosDesde">Desde</label>
+      <input type="date"
+             id="pedidosDesde"
+             class="form-control">
+    </div>
+
+    <div class="admin-orders-filter-field">
+      <label for="pedidosHasta">Hasta</label>
+      <input type="date"
+             id="pedidosHasta"
+             class="form-control">
+    </div>
+
+    <div class="admin-orders-filter-field admin-orders-search-field">
+      <label for="pedidosUsuario">Buscar usuario</label>
+      <input type="search"
+             id="pedidosUsuario"
+             class="form-control"
+             placeholder="Nombre, email o DNI...">
+    </div>
+
+    <div class="admin-orders-filter-field">
+      <label for="filtroEstado">Estado</label>
+
+      <select id="filtroEstado"
+              class="form-select">
+        <option value="">Todos los estados</option>
+        <option value="PENDIENTE">PENDIENTE</option>
+        <option value="PREPARANDO">PREPARANDO</option>
+        <option value="ENTREGADO">ENTREGADO</option>
+        <option value="CANCELACION_SOLICITADA">CANCELACIÓN SOLICITADA</option>
+        <option value="CANCELADO">CANCELADO</option>
+      </select>
+    </div>
+
+    <div class="admin-orders-filter-actions">
+      <button type="button"
+              class="btn admin-orders-filter-btn"
+              onclick="cargarPedidos(0)">
+        🔎 Filtrar
+      </button>
+
+      <button type="button"
+              class="btn admin-orders-clear-btn"
+              onclick="limpiarFiltrosPedidos()">
+        ↻ Limpiar
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Tabla -->
+  <div class="admin-orders-table-card">
+
+    <div class="admin-orders-table-head">
+      <div>
+        <h5>🧾 Lista de pedidos</h5>
+        <p>Revisá el detalle y actualizá el estado de cada compra.</p>
+      </div>
+    </div>
+
+    <div class="table-responsive admin-orders-table-wrap">
+      <table class="table admin-orders-table">
+        <thead>
+          <tr>
+            <th class="text-center">Pedido</th>
+            <th class="text-center">Fecha</th>
+            <th class="text-center">Usuario</th>
+            <th class="text-center">Estado</th>
+            <th class="text-end">Total</th>
+            <th class="text-end">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody id="tbodyPedidos">
+          <tr>
+            <td colspan="6"
+                class="text-center text-muted py-4">
+              Cargando pedidos...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pie tabla -->
+    <div class="admin-orders-table-footer">
+
+      <div class="admin-orders-size">
+        <span>Mostrar</span>
+
+        <select id="pedidosSize"
+                class="form-select form-select-sm"
+                onchange="cargarPedidos(0)">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+
+        <span>resultados por página</span>
+      </div>
+
+      <nav aria-label="Paginación pedidos">
+        <ul class="pagination mb-0"
+            id="pedidosPagination">
+        </ul>
+      </nav>
+
+      <div class="admin-orders-count"
+           id="pedidosCount">
+        —
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+
+<!-- ============================
+     DASHBOARD ESTADÍSTICAS
+============================ -->
+<div id="estadisticas-contenido" class="dashboard-container" style="display:none;">
+
+    <div class="admin-stats-header mb-4">
+  <div>
+    <h2 class="admin-stats-title">Dashboard de Estadísticas</h2>
+    <p class="admin-stats-subtitle">
+      Resumen general de ventas, productos, usuarios y pedidos.
+    </p>
+  </div>
+
+  <div class="dropdown">
+    <button class="btn admin-export-btn dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+      ⬇ Exportar reportes
+    </button>
+
+    <ul class="dropdown-menu dropdown-menu-end admin-export-menu">
+      <li>
+        <a class="dropdown-item" th:href="@{/admin/export/usuarios}">
+          👤 Usuarios
+        </a>
+      </li>
+
+      <li>
+        <a class="dropdown-item" th:href="@{/admin/export/productos}">
+          📦 Productos
+        </a>
+      </li>
+
+      <li>
+        <a class="dropdown-item" th:href="@{/admin/export/pedidos}">
+          🧾 Pedidos
+        </a>
+      </li>
+
+      <li>
+        <a class="dropdown-item"
+           th:href="@{/admin/export/ventas-dia(desde=${#dates.format(#dates.createNow(),'yyyy-01-01')}, hasta=${#dates.format(#dates.createNow(),'yyyy-12-31')})}">
+          💰 Ventas
+        </a>
+      </li>
+
+      <li>
+        <a class="dropdown-item" th:href="@{/admin/export/top-productos}">
+          🏆 Top productos
+        </a>
+      </li>
+
+      <li>
+        <a class="dropdown-item" th:href="@{/admin/export/stock-bajo}">
+          ⚠️ Stock bajo
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+    <!-- Loader -->
+    <div id="estad-loader" class="loader-wrapper" style="display:none;">
+    <div class="loader"></div>
+    <p class="mt-2 text-center">Cargando estadísticas...</p>
+</div>
+
+ <!-- ============================
+         CARDS SUPERIORES
+    ============================= -->
+    <div class="row g-3 admin-stat-grid">
+
+  <!-- TOTAL USUARIOS -->
+  <div class="col-md-2 col-sm-6">
+    <div class="card admin-stat-card">
+      <div class="admin-stat-top">
+        <div class="admin-stat-icon">👤</div>
+        <span class="admin-stat-tag">Usuarios</span>
+      </div>
+
+      <h6>Total usuarios</h6>
+      <h3 th:text="${estad.totalUsuarios}">0</h3>
+      <p>Usuarios registrados</p>
+    </div>
+  </div>
+
+  <!-- TOTAL PRODUCTOS -->
+  <div class="col-md-2 col-sm-6">
+    <div class="card admin-stat-card">
+      <div class="admin-stat-top">
+        <div class="admin-stat-icon">📦</div>
+        <span class="admin-stat-tag">Productos</span>
+      </div>
+
+      <h6>Total productos</h6>
+      <h3 th:text="${estad.totalProductos}">0</h3>
+      <p>Productos cargados</p>
+    </div>
+  </div>
+
+  <!-- TOTAL PEDIDOS -->
+  <div class="col-md-2 col-sm-6">
+    <div class="card admin-stat-card">
+      <div class="admin-stat-top">
+        <div class="admin-stat-icon">🧾</div>
+        <span class="admin-stat-tag">Pedidos</span>
+      </div>
+
+      <h6>Total pedidos</h6>
+      <h3 th:text="${estad.totalPedidos}">0</h3>
+      <p>Pedidos generados</p>
+    </div>
+  </div>
+
+  <!-- VENTAS DEL DÍA -->
+  <div class="col-md-2 col-sm-6">
+    <div class="card admin-stat-card admin-stat-money">
+      <div class="admin-stat-top">
+        <div class="admin-stat-icon">💰</div>
+        <span class="admin-stat-tag">Hoy</span>
+      </div>
+
+      <h6>Ventas del día</h6>
+      <h3 th:text="'$ ' + ${estad.ventasHoy}">$ 0</h3>
+      <p>Ingresos de hoy</p>
+    </div>
+  </div>
+
+  <!-- VENTAS DEL MES -->
+  <div class="col-md-2 col-sm-6">
+    <div class="card admin-stat-card admin-stat-money">
+      <div class="admin-stat-top">
+        <div class="admin-stat-icon">📅</div>
+        <span class="admin-stat-tag">Mes</span>
+      </div>
+
+      <h6>Ventas del mes</h6>
+      <h3 th:text="'$ ' + ${estad.ventasMes}">$ 0</h3>
+      <p>Ingresos mensuales</p>
+    </div>
+  </div>
+
+  <!-- VENTAS DEL AÑO -->
+  <div class="col-md-2 col-sm-6">
+    <div class="card admin-stat-card admin-stat-money">
+      <div class="admin-stat-top">
+        <div class="admin-stat-icon">👑</div>
+        <span class="admin-stat-tag">Año</span>
+      </div>
+
+      <h6>Ventas del año</h6>
+      <h3 th:text="'$ ' + ${estad.ventasAnio}">$ 0</h3>
+      <p>Ingresos anuales</p>
+    </div>
+  </div>
+
+</div>
+	
+    <!-- ============================
+     GRÁFICO + TABLAS A LA DERECHA
+============================= -->
+<div class="row mt-4">
+
+    <!-- IZQUIERDA: GRÁFICO -->
+    <!-- IZQUIERDA: GRÁFICO DE VENTAS PREMIUM -->
+<div class="col-md-8">
+  <div class="card admin-sales-card">
+
+    <!-- Encabezado -->
+    <div class="admin-sales-head">
+      <div class="admin-sales-title-wrap">
+        <div class="admin-sales-icon">📊</div>
+
+        <div>
+          <h5>Ventas</h5>
+          <p>Visualizá la evolución de los ingresos registrados.</p>
+        </div>
+      </div>
+
+      <select id="tipoGrafico" class="form-select admin-sales-select">
+        <option value="dia">Por día</option>
+        <option value="mes">Por mes</option>
+        <option value="anio">Por año</option>
+      </select>
+    </div>
+
+    <!-- Filtros -->
+    <div class="admin-sales-filters">
+      <div class="admin-sales-filter-field">
+        <label for="ventasDesde">Desde</label>
+        <input type="date"
+               id="ventasDesde"
+               class="form-control">
+      </div>
+
+      <div class="admin-sales-filter-field">
+        <label for="ventasHasta">Hasta</label>
+        <input type="date"
+               id="ventasHasta"
+               class="form-control">
+      </div>
+
+      <button type="button"
+              id="btnAplicarGrafico"
+              class="btn admin-sales-apply">
+        Aplicar
+      </button>
+    </div>
+
+    <!-- Gráfico -->
+    <div class="admin-sales-chart-wrap">
+      <div id="graficoVentasVacio"
+           class="admin-sales-empty"
+           style="display:none;">
+        <div class="admin-sales-empty-icon">📉</div>
+        <strong>No hay ventas registradas</strong>
+        <span>Probá seleccionando otro período.</span>
+      </div>
+
+      <canvas id="graficoVentas"></canvas>
+    </div>
+
+    <!-- Pie -->
+    <div class="admin-sales-footer">
+      <div class="admin-sales-updated">
+        <span>✓</span>
+        Datos actualizados recientemente
+      </div>
+
+      <a id="btnExportGrafico"
+         th:href="@{/admin/export/ventas-dia(desde=${#dates.format(#dates.createNow(),'yyyy-01-01')}, hasta=${#dates.format(#dates.createNow(),'yyyy-12-31')})}"
+         class="btn admin-sales-export">
+        ⬇ Exportar Excel
+      </a>
+    </div>
+
+  </div>
+</div>
+
+    <!-- DERECHA: TABLAS -->
+    <div class="col-md-4">
+
+        <!-- Productos más vendidos -->
+        <div class="card p-3 mb-4">
+            <div class="card p-3 mb-4 admin-side-card">
+  <div class="admin-side-card-head">
+    <div>
+      <h5>🏆 Productos más vendidos</h5>
+      <p>Ranking por cantidad vendida</p>
+    </div>
+
+    <a th:href="@{/admin/export/top-productos}"
+       class="admin-mini-export"
+       title="Exportar top productos">
+      ⬇
+    </a>
+  </div>
+
+  <div class="table-responsive admin-mini-table-wrap">
+    <table class="table table-sm align-middle admin-mini-table">
+      <thead>
+        <tr>
+          <th style="width:50px;">#</th>
+          <th>Producto</th>
+          <th class="text-center">Vendidos</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr th:each="p, i : ${estad.topProductos}">
+          <td>
+            <span class="admin-rank-badge"
+                  th:text="${i.index + 1}">
+              1
+            </span>
+          </td>
+
+          <td>
+            <div class="admin-product-name"
+                 th:text="${p.nombre}">
+              Producto
+            </div>
+          </td>
+
+          <td class="text-center">
+            <span class="admin-sold-badge"
+                  th:text="${p.cantidadVendida}">
+              0
+            </span>
+          </td>
+        </tr>
+
+        <tr th:if="${estad.topProductos == null or #lists.isEmpty(estad.topProductos)}">
+          <td colspan="3" class="text-center text-muted py-3">
+            No hay ventas registradas.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <a th:href="@{/admin/productos}"
+     class="admin-side-link">
+    Ver todos los productos
+  </a>
+</div>
+
+        <!-- Productos con bajo stock -->
+        <div class="card p-3 admin-side-card">
+  <div class="admin-side-card-head">
+    <div>
+      <h5>⚠️ Productos con bajo stock</h5>
+      <p>Productos con stock menor o igual a 3</p>
+    </div>
+
+    <a th:href="@{/admin/export/stock-bajo}"
+       class="admin-mini-export"
+       title="Exportar stock bajo">
+      ⬇
+    </a>
+  </div>
+
+  <div class="table-responsive admin-mini-table-wrap">
+    <table class="table table-sm align-middle admin-mini-table">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th class="text-center" style="width:110px;">Stock</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr th:each="p : ${estad.productosStockBajo}">
+          <td>
+            <div class="admin-product-name"
+                 th:text="${p.nombre_producto}">
+              Producto
+            </div>
+          </td>
+
+          <td class="text-center">
+            <span th:if="${p.stock == 0}"
+                  class="admin-stock-badge admin-stock-zero">
+              Sin stock
+            </span>
+
+            <span th:if="${p.stock != null and p.stock > 0 and p.stock <= 3}"
+                  class="admin-stock-badge admin-stock-low"
+                  th:text="${p.stock}">
+              1
+            </span>
+          </td>
+        </tr>
+
+        <tr th:if="${estad.productosStockBajo == null or #lists.isEmpty(estad.productosStockBajo)}">
+          <td colspan="2" class="text-center text-muted py-3">
+            No hay productos con bajo stock.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <a th:href="@{/admin/productos}"
+     class="admin-side-link">
+    Ver productos
+  </a>
+</div>
+    </div>
+
+</div>
+
+   
+
+
+        
+
+    </div>
+  <style>
+.stat-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: transform .15s;
+}
+.stat-card:hover {
+    transform: translateY(-4px);
+}
+.card-chart, .card {
+    border-radius: 12px;
+}
+.loader {
+  border: 6px solid #eaeaea;
+  border-top: 6px solid #ffbc00;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin .8s linear infinite;
+  margin: auto;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+  
+
+
+						<!-- Botón flotante: Agregar usuario y productos-->
+			<!-- FAB Productos -->
+			<button id="fabProductos" class="btn btn-success rounded-circle position-fixed"
+			        style="display:none;bottom:24px; right:24px; width:60px; height:60px; box-shadow:0 6px 18px rgba(0,0,0,.2);"
+			        data-bs-toggle="modal" data-bs-target="#newProductModal"
+			        title="Agregar producto">
+			  <span class="fs-3 d-block" style="line-height:1;">＋</span>
+			</button>
+			
+			<!-- FAB Usuarios -->
+			<button id="fabUsuarios" class="btn btn-success rounded-circle position-fixed"
+			        style="display:none; bottom:24px; right:24px; width:60px; height:60px; box-shadow:0 6px 18px rgba(0,0,0,.2);"
+			        data-bs-toggle="modal" data-bs-target="#newUserModal"
+			        title="Agregar usuario">
+			  <span class="fs-3 d-block" style="line-height:1;">＋</span>
+			</button>
+			
+			</main>
+        </div>
+    </div>
+
+<!-- ==========================================
+     MODAL PREMIUM: DETALLE DEL PEDIDO
+=========================================== -->
+<div class="modal fade peq-order-modal"
+     id="pedidoDetalleModal"
+     tabindex="-1"
+     aria-labelledby="pedidoDetalleModalLabel"
+     aria-hidden="true">
+
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content peq-order-modal-card">
+
+      <!-- Encabezado -->
+      <div class="modal-header peq-order-modal-header">
+        <div class="peq-order-modal-heading">
+          <div class="peq-order-modal-icon">🧾</div>
+
+          <div>
+            <span class="peq-order-modal-overline">Detalle de compra</span>
+
+            <h5 class="modal-title" id="pedidoDetalleModalLabel">
+              Pedido <strong id="pd-numero">#</strong>
+            </h5>
+
+            <p>Información completa de los productos incluidos.</p>
+          </div>
+        </div>
+
+        <button type="button"
+                class="peq-order-modal-close"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+
+      <!-- Cuerpo -->
+      <div class="modal-body peq-order-modal-body">
+
+        <!-- Resumen -->
+        <div class="peq-order-detail-summary">
+
+          <div class="peq-order-detail-info">
+            <div class="peq-order-detail-info-icon">📅</div>
+
+            <div>
+              <span>Fecha del pedido</span>
+              <strong id="pd-fecha">—</strong>
+            </div>
+          </div>
+
+          <div class="peq-order-detail-info">
+            <div class="peq-order-detail-info-icon">📦</div>
+
+            <div>
+              <span>Estado actual</span>
+
+              <strong id="pd-estado"
+                      class="peq-order-state-badge peq-order-state-default">
+                —
+              </strong>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tabla -->
+        <div class="peq-order-detail-table-card">
+          <div class="peq-order-detail-table-title">
+            <div>
+              <h6>Productos del pedido</h6>
+              <p>Detalle de unidades, precios y subtotales.</p>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table peq-order-detail-table align-middle">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th class="text-center">Cantidad</th>
+                  <th class="text-end">Precio unitario</th>
+                  <th class="text-end">Subtotal</th>
+                </tr>
+              </thead>
+
+              <tbody id="pd-items"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Total -->
+        <div class="peq-order-detail-total">
+          <div>
+            <span>Total del pedido</span>
+            <small>Importe final de la compra</small>
+          </div>
+
+          <strong id="pd-total">$ 0</strong>
+        </div>
+
+      </div>
+
+      <!-- Pie -->
+      <div class="modal-footer peq-order-modal-footer">
+        <button type="button"
+                class="btn peq-order-btn-secondary"
+                data-bs-dismiss="modal">
+          Cerrar
+        </button>
+
+        <a id="pd-pdf"
+           class="btn peq-order-btn-primary"
+           href="#"
+           target="_blank">
+          📄 Descargar PDF
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     MODAL PREMIUM: CAMBIAR ESTADO DEL PEDIDO
+=========================================== -->
+<div class="modal fade peq-order-modal"
+     id="pedidoEstadoModal"
+     tabindex="-1"
+     aria-labelledby="pedidoEstadoModalLabel"
+     aria-hidden="true">
+
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content peq-order-modal-card">
+
+      <!-- Encabezado -->
+      <div class="modal-header peq-order-modal-header">
+        <div class="peq-order-modal-heading">
+          <div class="peq-order-modal-icon">✏️</div>
+
+          <div>
+            <span class="peq-order-modal-overline">Administrar pedido</span>
+
+            <h5 class="modal-title" id="pedidoEstadoModalLabel">
+              Cambiar estado
+            </h5>
+
+            <p>
+              Pedido <strong id="pe-numero">#</strong>
+            </p>
+          </div>
+        </div>
+
+        <button type="button"
+                class="peq-order-modal-close"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+
+      <!-- Cuerpo -->
+      <div class="modal-body peq-order-modal-body">
+
+        <input type="hidden" id="pe-id">
+
+        <div class="peq-order-state-field">
+          <label for="pe-estado">Nuevo estado del pedido</label>
+
+          <select id="pe-estado"
+                  class="form-select peq-order-state-select">
+            <option value="PENDIENTE">PENDIENTE</option>
+            <option value="PREPARANDO">PREPARANDO</option>
+            <option value="ENTREGADO">ENTREGADO</option>
+            <option value="CANCELACION_SOLICITADA">CANCELACIÓN SOLICITADA</option>
+            <option value="CANCELADO">CANCELADO</option>
+          </select>
+        </div>
+
+        <!-- Aviso dinámico -->
+        <div id="pe-aviso"
+             class="peq-order-state-alert peq-order-alert-info">
+          <div class="peq-order-state-alert-icon">ℹ️</div>
+
+          <div>
+            <strong>Seleccioná el nuevo estado.</strong>
+            <p>El cambio se aplicará al confirmar la operación.</p>
+          </div>
+        </div>
+
+        <!-- Flujo sugerido -->
+        <div class="peq-order-flow">
+          <span>PENDIENTE</span>
+          <b>→</b>
+          <span>PREPARANDO</span>
+          <b>→</b>
+          <span>ENTREGADO</span>
+        </div>
+
+      </div>
+
+      <!-- Pie -->
+      <div class="modal-footer peq-order-modal-footer">
+        <button type="button"
+                class="btn peq-order-btn-secondary"
+                data-bs-dismiss="modal">
+          Cancelar
+        </button>
+
+        <button type="button"
+                id="pe-guardar"
+                class="btn peq-order-btn-primary"
+                onclick="guardarEstadoPedido()">
+          💾 Guardar cambio
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal: nuevo usuario -->
+<!-- Modal: nuevo usuario PREMIUM -->
+<div class="modal fade peq-admin-modal" id="newUserModal" tabindex="-1" aria-labelledby="newUserLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg peq-admin-modal-dialog">
+    <div class="modal-content peq-admin-modal-card">
+
+      <div class="modal-header peq-admin-modal-header">
+        <div class="peq-admin-modal-title-wrap">
+          <div class="peq-admin-modal-icon">👤</div>
+          <div>
+            <h5 class="modal-title peq-admin-modal-title" id="newUserLabel">Agregar usuario</h5>
+            <p class="peq-admin-modal-subtitle">Cargá los datos del nuevo cliente o usuario del sistema.</p>
+          </div>
+        </div>
+
+        <button type="button" class="peq-admin-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+      </div>
+
+      <form id="newUserForm" method="post" th:action="@{/admin/usuarios/nuevo}">
+        <div class="modal-body peq-admin-modal-body">
+
+          <input th:if="${_csrf != null}" type="hidden"
+                 th:name="${_csrf.parameterName}"
+                 th:value="${_csrf.token}"/>
+
+          <div class="peq-form-section">
+            <h6 class="peq-form-section-title">Datos personales</h6>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Nombre</label>
+                <input name="nombre_usuario" class="form-control peq-admin-input" required>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Apellido</label>
+                <input name="apellido" class="form-control peq-admin-input" required>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Email</label>
+                <input type="email" name="email" class="form-control peq-admin-input" required>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">DNI</label>
+                <input name="dni" class="form-control peq-admin-input" inputmode="numeric" pattern="[0-9]*">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Fecha de nacimiento</label>
+                <input type="date" name="fecha_nacimiento" class="form-control peq-admin-input">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Teléfono</label>
+                <input name="telefono" class="form-control peq-admin-input" inputmode="numeric" placeholder="Ej: 3424280512">
+              </div>
+            </div>
+          </div>
+
+          <div class="peq-form-section mb-0">
+            <h6 class="peq-form-section-title">Ubicación</h6>
+
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label peq-admin-label">Dirección</label>
+                <input name="direccion" class="form-control peq-admin-input" placeholder="Calle, número, barrio">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Localidad</label>
+                <select name="localidadId" class="form-select peq-admin-input" required>
+                  <option value="" selected disabled>Seleccionar...</option>
+                  <option th:each="loc : ${localidades}"
+                          th:value="${loc.id_localidad}"
+                          th:text="${loc.nombre_localidad}">
+                  </option>
+                </select>
+
+                <small class="peq-help-text">
+                  Localidades:
+                  <span th:text="${localidades != null ? #lists.size(localidades) : 0}">0</span>
+                </small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer peq-admin-modal-footer">
+          <button type="button" class="btn peq-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn peq-btn-save">
+            <span>＋</span> Crear usuario
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal: editar usuario -->
+<div class="modal fade peq-admin-modal" id="editUserModal" tabindex="-1" aria-labelledby="editUserLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg peq-admin-modal-dialog">
+    <div class="modal-content peq-admin-modal-card">
+
+      <div class="modal-header peq-admin-modal-header">
+        <div class="peq-admin-modal-title-wrap">
+          <div class="peq-admin-modal-icon">👤</div>
+          <div>
+            <h5 class="modal-title peq-admin-modal-title" id="editUserLabel">Editar usuario</h5>
+            <p class="peq-admin-modal-subtitle">Modificá los datos del usuario seleccionado.</p>
+          </div>
+        </div>
+
+        <button type="button"
+                class="peq-admin-modal-close"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+
+      <form id="editUserForm" method="post">
+        <div class="modal-body peq-admin-modal-body">
+
+          <input th:if="${_csrf != null}"
+                 type="hidden"
+                 th:name="${_csrf.parameterName}"
+                 th:value="${_csrf.token}"/>
+
+          <div class="peq-form-section">
+            <h6 class="peq-form-section-title">Datos personales</h6>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Nombre</label>
+                <input name="nombre_usuario"
+                       id="edtNombre"
+                       class="form-control peq-admin-input"
+                       required>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Apellido</label>
+                <input name="apellido"
+                       id="edtApellido"
+                       class="form-control peq-admin-input">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Email</label>
+                <input type="email"
+                       name="email"
+                       id="edtEmail"
+                       class="form-control peq-admin-input">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Teléfono</label>
+                <input name="telefono"
+                       id="edtTelefono"
+                       class="form-control peq-admin-input"
+                       inputmode="numeric">
+              </div>
+
+              <div class="col-md-8">
+                <label class="form-label peq-admin-label">Dirección</label>
+                <input name="direccion"
+                       id="edtDireccion"
+                       class="form-control peq-admin-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="peq-form-section mb-0">
+            <h6 class="peq-form-section-title">Información del sistema</h6>
+
+            <div class="peq-user-edit-note">
+              <div class="peq-user-edit-note-icon">ℹ️</div>
+              <div>
+                <strong>Nota:</strong>
+                Desde acá editás los datos principales del usuario. Si después querés agregar DNI, localidad o rol al editar, lo sumamos manteniendo este mismo diseño.
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer peq-admin-modal-footer">
+          <button type="button" class="btn peq-btn-cancel" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+
+          <button type="submit" class="btn peq-btn-save">
+            💾 Guardar cambios
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal: nuevo producto -->
+<div class="modal fade peq-admin-modal" id="newProductModal" tabindex="-1" aria-labelledby="newProductLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg peq-admin-modal-dialog">
+    <div class="modal-content peq-admin-modal-card">
+
+      <div class="modal-header peq-admin-modal-header">
+        <div class="peq-admin-modal-title-wrap">
+          <div class="peq-admin-modal-icon">🧸</div>
+          <div>
+            <h5 class="modal-title peq-admin-modal-title" id="newProductLabel">Agregar producto</h5>
+            <p class="peq-admin-modal-subtitle">Cargá un nuevo producto para mostrarlo en la tienda.</p>
+          </div>
+        </div>
+
+        <button type="button" class="peq-admin-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+      </div>
+
+      <form id="newProductForm" method="post" th:action="@{/admin/productos/nuevo}">
+        <div class="modal-body peq-admin-modal-body">
+
+          <input th:if="${_csrf != null}" type="hidden"
+                 th:name="${_csrf.parameterName}"
+                 th:value="${_csrf.token}"/>
+
+          <div class="peq-form-section">
+            <h6 class="peq-form-section-title">Información principal</h6>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label peq-admin-label">Nombre del producto</label>
+                <input name="nombre_producto" class="form-control peq-admin-input" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label peq-admin-label">Precio</label>
+                <div class="peq-input-money">
+                  <span>$</span>
+                  <input type="number" step="0.01" name="precio" class="form-control peq-admin-input peq-input-with-prefix" required>
+                </div>
+              </div>
+
+              <div class="col-md-12">
+                <label class="form-label peq-admin-label">Descripción</label>
+                <input name="descripcion_producto" class="form-control peq-admin-input" placeholder="Ej: Body manga larga algodón premium">
+              </div>
+            </div>
+          </div>
+
+          <div class="peq-form-section">
+            <h6 class="peq-form-section-title">Stock y variantes</h6>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Stock</label>
+                <input type="number" name="stock" class="form-control peq-admin-input" min="0" required>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Marca</label>
+                <input name="marca_producto" class="form-control peq-admin-input">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Modelo</label>
+                <input name="modelo_producto" class="form-control peq-admin-input">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Talle</label>
+                <input name="talle_producto" class="form-control peq-admin-input" placeholder="Ej: 3-6m / S / M">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Estado</label>
+                <select name="estado" class="form-select peq-admin-input">
+                  <option value="activo">Activo</option>
+                  <option value="inactivo">Inactivo</option>
+                  <option value="discontinuado">Discontinuado</option>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Categorías</label>
+                <select name="categoriaIds" class="form-select peq-admin-input peq-admin-select-multiple" multiple size="5" required>
+                  <option th:each="c : ${categorias}"
+                          th:value="${c.id_categoria}"
+                          th:text="${c.nombre_categoria}">
+                  </option>
+                </select>
+                <small class="peq-help-text">Podés seleccionar más de una categoría.</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="peq-form-section mb-0">
+            <h6 class="peq-form-section-title">Imagen</h6>
+
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label peq-admin-label">URL Imagen</label>
+                <input name="imagenUrl" class="form-control peq-admin-input" placeholder="https://...">
+                <small class="peq-help-text">Si no cargás imagen, se puede mostrar una imagen por defecto.</small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer peq-admin-modal-footer">
+          <button type="button" class="btn peq-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn peq-btn-save">
+            <span>＋</span> Crear producto
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal: editar producto -->
+
+<div class="modal fade peq-admin-modal" id="editProductModal" tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg peq-admin-modal-dialog">
+    <div class="modal-content peq-admin-modal-card">
+
+      <div class="modal-header peq-admin-modal-header">
+        <div class="peq-admin-modal-title-wrap">
+          <div class="peq-admin-modal-icon">✏️</div>
+          <div>
+            <h5 class="modal-title peq-admin-modal-title" id="editProductLabel">Editar producto</h5>
+            <p class="peq-admin-modal-subtitle">Modificá los datos del producto seleccionado.</p>
+          </div>
+        </div>
+
+        <button type="button" class="peq-admin-modal-close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+      </div>
+
+      <form id="editProductForm" method="post">
+        <div class="modal-body peq-admin-modal-body">
+
+          <div class="peq-form-section">
+            <h6 class="peq-form-section-title">Información principal</h6>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label peq-admin-label">Nombre del producto</label>
+                <input name="nombre_producto" id="prodNombre" class="form-control peq-admin-input" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label peq-admin-label">Precio</label>
+                <div class="peq-input-money">
+                  <span>$</span>
+                  <input type="number"
+                         step="0.01"
+                         name="precio"
+                         id="prodPrecio"
+                         class="form-control peq-admin-input peq-input-with-prefix"
+                         required>
+                </div>
+              </div>
+
+              <div class="col-md-12">
+                <label class="form-label peq-admin-label">Descripción</label>
+                <input name="descripcion_producto"
+                       id="prodDescripcion"
+                       class="form-control peq-admin-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="peq-form-section">
+            <h6 class="peq-form-section-title">Stock y variantes</h6>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Stock</label>
+                <input type="number"
+                       name="stock"
+                       id="prodStock"
+                       class="form-control peq-admin-input"
+                       min="0"
+                       required>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Marca</label>
+                <input name="marca_producto"
+                       id="prodMarca"
+                       class="form-control peq-admin-input">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Modelo</label>
+                <input name="modelo_producto"
+                       id="prodModelo"
+                       class="form-control peq-admin-input">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Talle</label>
+                <input name="talle_producto"
+                       id="prodTalle"
+                       class="form-control peq-admin-input">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Estado</label>
+                <select name="estado"
+                        id="prodEstado"
+                        class="form-select peq-admin-input">
+                  <option value="activo">Activo</option>
+                  <option value="inactivo">Inactivo</option>
+                  <option value="discontinuado">Discontinuado</option>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label peq-admin-label">Categorías</label>
+                <select name="categoriaIds"
+                        id="prodCategorias"
+                        class="form-select peq-admin-input peq-admin-select-multiple"
+                        multiple
+                        size="5">
+                  <option th:each="c : ${categorias}"
+                          th:value="${c.id_categoria}"
+                          th:text="${c.nombre_categoria}">
+                  </option>
+                </select>
+                <small class="peq-help-text">Podés seleccionar más de una categoría.</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="peq-form-section mb-0">
+            <h6 class="peq-form-section-title">Imagen</h6>
+
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label peq-admin-label">URL Imagen</label>
+                <input name="imagenUrl"
+                       id="prodImagen"
+                       class="form-control peq-admin-input"
+                       placeholder="https://...">
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer peq-admin-modal-footer">
+          <button type="button" class="btn peq-btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn peq-btn-save">
+            💾 Guardar cambios
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal: confirmar eliminación de producto -->
+<div class="modal fade peq-delete-modal" id="confirmDeleteProductModal" tabindex="-1" aria-labelledby="confirmDeleteProductLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content peq-delete-card">
+
+      <div class="peq-delete-header">
+        <div class="peq-delete-icon">⚠️</div>
+
+        <button type="button"
+                class="peq-delete-close"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+
+      <div class="peq-delete-body">
+        <h5 id="confirmDeleteProductLabel">Eliminar producto</h5>
+
+        <p>
+          ¿Seguro que querés eliminar el producto
+          <strong id="delProductName"></strong>?
+        </p>
+
+        <div class="peq-delete-warning">
+          Esta acción puede afectar listados, historial o estadísticas si el producto ya fue usado en pedidos.
+        </div>
+      </div>
+
+      <div class="peq-delete-footer">
+        <button type="button"
+                class="btn peq-btn-cancel"
+                data-bs-dismiss="modal">
+          Cancelar
+        </button>
+
+        <form id="deleteProductForm" method="post">
+          <button type="submit" class="btn peq-btn-danger">
+            Sí, eliminar
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal: confirmar eliminación de USUARIO -->
+
+<div class="modal fade peq-delete-modal" id="confirmDeleteModal" tabindex="-1"
+     aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content peq-delete-card">
+
+      <div class="peq-delete-header">
+        <div class="peq-delete-icon">⚠️</div>
+
+        <button type="button"
+                class="peq-delete-close"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+
+      <div class="peq-delete-body">
+        <h5 id="confirmDeleteLabel">Eliminar usuario</h5>
+
+        <p>
+          ¿Seguro que querés eliminar al usuario
+          <strong id="delUserName"></strong>?
+        </p>
+
+        <div class="peq-delete-warning">
+          Esta acción puede afectar el historial de compras, pedidos asociados y estadísticas del sistema.
+        </div>
+      </div>
+
+      <div class="peq-delete-footer">
+        <button type="button"
+                class="btn peq-btn-cancel"
+                data-bs-dismiss="modal">
+          Cancelar
+        </button>
+
+        <form id="deleteForm" method="post">
+          <button type="submit" class="btn peq-btn-danger">
+            Sí, eliminar
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Historial de compras -->
+<div class="modal fade" id="modalHistorial" tabindex="-1" aria-labelledby="modalHistorialLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content shadow-lg">
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalHistorialLabel">
+          Historial de compras — <span id="historialNombreUsuario"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <table class="table table-striped align-middle">
+          <thead class="table-warning">
+            <tr>
+              <th class="text-center">ID Compra</th>
+              <th class="text-center">Fecha</th>
+              <th class="text-center">Monto</th>
+              <th class="text-center">Detalle</th>
+            </tr>
+          </thead>
+
+          <tbody id="tbodyHistorialCompras">
+            <!-- Se llena dinámicamente con JS -->
+          </tbody>
+        </table>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Detalle de compra -->
+<div class="modal fade" id="modalDetalleCompra" tabindex="-1" aria-labelledby="modalDetalleCompraLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content shadow-lg">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDetalleCompraLabel">
+          Detalle de compra #<span id="detalleIdCompra"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <table class="table table-striped align-middle">
+          <thead class="table-warning">
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio unitario</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+
+          <tbody id="tbodyDetalleCompra">
+            <!-- Se llena desde JS -->
+          </tbody>
+        </table>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+<style>
+  /* Más opaco el fondo del modal y un look más suave */
+  .modal-backdrop.show { opacity: .65; }
+  .modal-content { border-radius: 1rem; }
+   .modal-content {
+    border-radius: 1rem;
+  }
+  .modal-backdrop.show {
+    opacity: .65;
+  }
+</style>
+
+   <script th:src="@{/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js}"></script>
+<script>
+(function () {
+	  const welcome   = document.getElementById('welcome-message');
+	  const productos = document.getElementById('gestion-productos-contenido');
+	  const usuarios  = document.getElementById('gestion-usuarios-contenido');
+	  const offcanvasEl = document.getElementById('adminSidebar');
+	  const estadisticas = document.getElementById('estadisticas-contenido');
+	  const fabProductos = document.getElementById('fabProductos');
+	  const fabUsuarios  = document.getElementById('fabUsuarios');
+	  const pedidos     = document.getElementById('gestion-pedidos-contenido');
+	  
+	  function marcarLinkActivo(name) {
+		  document.querySelectorAll('.js-section').forEach(a => {
+		    a.classList.remove('active');
+
+		    if (a.getAttribute('data-section') === name) {
+		      a.classList.add('active');
+		    }
+		  });
+		}
+
+		function actualizarFab(name) {
+		  if (fabProductos) {
+		    fabProductos.style.display = (name === 'productos') ? 'block' : 'none';
+		  }
+
+		  if (fabUsuarios) {
+		    fabUsuarios.style.display = (name === 'usuarios') ? 'block' : 'none';
+		  }
+		}
+		
+	  
+	  function showSection(name) {
+	    if (welcome) welcome.style.display = 'none';
+
+	    // Ocultar todo
+	    if (productos) productos.style.display = 'none';
+	    if (usuarios)  usuarios.style.display  = 'none';
+	    if (estadisticas) estadisticas.style.display = 'none';
+	    if (pedidos) pedidos.style.display='none';
+	    // (agregá acá otras secciones si las sumás, p.ej. estadísticas)
+
+	    // Mostrar la elegida
+	    if (name === 'productos' && productos) {
+	      productos.style.display = 'block';
+	      // re-render de tu tabla mock
+	      if (typeof renderProductTable === 'function') renderProductTable();
+	      if (typeof renderPagination   === 'function') renderPagination();
+	    } else if (name === 'usuarios' && usuarios) {
+	      usuarios.style.display = 'block';
+	      // usuarios se renderiza del lado servidor (Thymeleaf): no llamamos a nada
+	    }
+	    else if (name === 'estadisticas' && estadisticas ) {
+	        if (estadisticas) estadisticas.style.display = 'block';
+	    }
+	    else if (name === 'pedidos' && pedidos) {
+	        pedidos.style.display = 'block';
+	        if (typeof window.cargarPedidos === 'function') window.cargarPedidos();
+	      }
+	    
+	    
+	    marcarLinkActivo(name);
+	    
+	    // Mostrar/ocultar botón verde según sección
+	    actualizarFab(name);
+	  }
+
+	  // Enlaces: previene navegación y muestra sección
+	  //document.querySelectorAll('.js-section').forEach(a => {
+	  //  a.addEventListener('click', (e) => {
+	  //    e.preventDefault(); // evita el salto por href="#"
+	   //   const section = a.getAttribute('data-section');
+	   //   if (section) showSection(section);
+	  //  });
+	  //});
+	  
+	  document.querySelectorAll('.js-section').forEach(a => {
+		  a.addEventListener('click', (e) => {
+		    const href = a.getAttribute('href') || a.getAttribute('th:href');
+		    // Si es un ancla local (#), evitamos navegación y mostramos la sección
+		   if (!href || href.startsWith('#')) {
+		      e.preventDefault();
+		      const section = a.getAttribute('data-section');
+		      if (section) showSection(section);
+		    }
+		    // si tiene href real (/admin/usuarios), dejamos navegar al servidor
+		  });
+		});
+
+
+	  
+	  const path = window.location.pathname;
+
+	  if (path.includes("/admin/productos")) {
+	    marcarLinkActivo("productos");
+	    actualizarFab("productos");
+	  }
+
+	  else if (path.includes("/admin/usuarios")) {
+	    marcarLinkActivo("usuarios");
+	    actualizarFab("usuarios");
+	  }
+
+	  else {
+	    actualizarFab("");
+	  }
+
+	  window.showSection = showSection;
+	  
+	  
+})();
+
+	  // Mostrar por defecto según el servidor (opcional)
+	  // Si tu controlador manda seccion="gestion" para usuarios, podés detectar con Thymeleaf:
+	  // Ejemplo: en el body, agrega data desde servidor y leelo aquí.
+	  // Si no, podés elegir una por defecto:
+	  // showSection('productos');
+	
+
+ 
+
+  
+  
+
+
+ 
+
+// //    // -----------------------------
+// //   // Navegación del panel (mostrar/ocultar secciones)
+// //   // -----------------------------
+//    document.querySelectorAll('#gestion-productos, #gestion-usuarios, #estadisticas').forEach(link => {
+//      link.addEventListener('click', () => {
+//        const welcome = document.getElementById('welcome-message');
+//        if (welcome) welcome.style.display = 'none';
+
+//        const productos = document.getElementById('gestion-productos-contenido');      
+//        const usuarios  = document.getElementById('gestion-usuarios-contenido');
+//        if (link.id === 'gestion-productos') {
+//          if (productos) productos.style.display = 'block';
+//          if (usuarios)  usuarios.style.display  = 'none';
+//          renderProductTable();
+//          renderPagination();
+//       } else if (link.id === 'gestion-usuarios') {
+//          if (productos) productos.style.display = 'none';
+//          if (usuarios)  usuarios.style.display  = 'block';
+//          // ❗ Nada de renderUserTable/renderUserPagination:
+//         // la tabla de usuarios la renderiza el servidor con Thymeleaf (Page<Usuario>).
+//        } else {
+//          if (productos) productos.style.display = 'none';
+//          if (usuarios)  usuarios.style.display  = 'none';
+//       }
+//     });
+//   }); 
+
+  
+  
+//Modal: confirmar eliminación de PRODUCTO
+  (function () {
+    const modalEl = document.getElementById('confirmDeleteProductModal');
+    if (!modalEl) return;
+
+    modalEl.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget; // botón que abrió el modal
+      const action = button.getAttribute('data-action');
+      const name   = button.getAttribute('data-name') || '';
+
+      // Setear el texto del nombre en el modal
+      modalEl.querySelector('#delProductName').textContent = name;
+
+      // Setear la acción del form al endpoint correcto
+      const form = modalEl.querySelector('#deleteProductForm');
+      form.setAttribute('action', action);
+    });
+  })();
+  
+  //modal para ver ventana despues de eliminar
+  (function () {
+    const modalEl = document.getElementById('confirmDeleteModal');
+    if (!modalEl) return;
+
+    modalEl.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;               // botón que abrió el modal
+      const action = button.getAttribute('data-action');
+      const name   = button.getAttribute('data-user-name') || '';
+
+      // setear datos en el modal
+      modalEl.querySelector('#delUserName').textContent = name;
+      modalEl.querySelector('#deleteForm').setAttribute('action', action);
+    });
+  })();
+  (function () {
+	  const modalEl = document.getElementById('editUserModal');
+	  if (!modalEl) return;
+
+	  modalEl.addEventListener('show.bs.modal', function (event) {
+	    const btn    = event.relatedTarget;                 // botón "Editar" clickeado
+	    const action = btn.getAttribute('data-action');
+
+	    // Poblar el form y setear la URL POST
+	    const form = modalEl.querySelector('#editUserForm');
+	    form.setAttribute('action', action);
+
+	    // Cargar valores
+	    modalEl.querySelector('#edtNombre').value   = btn.getAttribute('data-nombre')   || '';
+	    modalEl.querySelector('#edtApellido').value = btn.getAttribute('data-apellido') || '';
+	    modalEl.querySelector('#edtEmail').value    = btn.getAttribute('data-email')    || '';
+	    modalEl.querySelector('#edtTelefono').value = btn.getAttribute('data-telefono') || '';
+	    modalEl.querySelector('#edtDireccion').value= btn.getAttribute('data-direccion')|| '';
+	  });
+	})();
+  
+  (() => {
+	  const modalEl = document.getElementById('newUserModal');
+	  if (!modalEl) return;
+
+	  modalEl.addEventListener('show.bs.modal', () => {
+	    const form = document.getElementById('newUserForm');
+	    form.reset(); // limpia todos los campos
+	  });
+	})();
+  
+  (() => {
+	  const modalEl = document.getElementById('newProductModal');
+	  if (!modalEl) return;
+
+	  modalEl.addEventListener('show.bs.modal', () => {
+	    const form = document.getElementById('newProductForm');
+	    if (form) form.reset();
+	  });
+	})();
+ 
+  // Abrir modal EDITAR producto con datos
+  (function () {
+    const modalEl = document.getElementById('editProductModal');
+    if (!modalEl) return;
+
+    modalEl.addEventListener('show.bs.modal', function (event) {
+      const btn    = event.relatedTarget;
+      const action = btn.getAttribute('data-action');
+
+      const form = modalEl.querySelector('#editProductForm');
+      form.setAttribute('action', action);
+
+      // Campos
+      modalEl.querySelector('#prodNombre').value      = btn.getAttribute('data-nombre') || '';
+      modalEl.querySelector('#prodDescripcion').value = btn.getAttribute('data-descripcion') || '';
+      modalEl.querySelector('#prodPrecio').value      = btn.getAttribute('data-precio') || 0;
+      modalEl.querySelector('#prodStock').value       = btn.getAttribute('data-stock') || 0;
+      modalEl.querySelector('#prodMarca').value       = btn.getAttribute('data-marca') || '';
+      modalEl.querySelector('#prodModelo').value      = btn.getAttribute('data-modelo') || '';
+      modalEl.querySelector('#prodTalle').value       = btn.getAttribute('data-talle') || '';
+      modalEl.querySelector('#prodEstado').value      = btn.getAttribute('data-estado') || 'activo';
+
+      // Categorías múltiples
+      const catSel = modalEl.querySelector('#prodCategorias');
+      const idsStr = btn.getAttribute('data-categoria-ids') || ''; // ej: "1,3,5"
+      const ids    = idsStr.split(',').map(s => s.trim()).filter(Boolean);
+
+      if (catSel) {
+        [...catSel.options].forEach(opt => {
+          opt.selected = ids.includes(opt.value);
+        });
+      }
+    });
+  })();
+
+  
+
+
+
+//   // Mostrar sección productos con render del lado servidor (sin mocks)
+//   function showProductsSection() {
+//     const welcome = document.getElementById('welcome-message');
+//     const productos = document.getElementById('gestion-productos-contenido');
+//     const usuarios = document.getElementById('gestion-usuarios-contenido');
+//     if (welcome) welcome.style.display = 'none';
+//     if (usuarios) usuarios.style.display = 'none';
+//     if (productos) productos.style.display = 'block';
+//   }
+
+
+//--- Reloj en vivo ---
+  (function liveClock(){
+    const el = document.getElementById('clock');
+    if (!el) return;
+    const pad = n => n.toString().padStart(2,'0');
+    const tick = () => {
+      const d = new Date();
+      const hh = pad(d.getHours()), mm = pad(d.getMinutes()), ss = pad(d.getSeconds());
+      el.textContent = `${hh}:${mm}:${ss}`;
+    };
+    tick();
+    setInterval(tick, 1000);
+  })();
+  
+  
+ 
+
+  
+  
+  document.querySelectorAll('.stat-card').forEach(card => {
+	    card.addEventListener('click', () => {
+	        const destino = card.getAttribute('data-open');
+
+	        if (destino === 'usuarios')
+	            showSection('usuarios');
+	        else if (destino === 'productos')
+	            showSection('productos');
+	        else if (destino === 'stock')
+	            window.location.href = "/admin/productos?stock=bajo";
+	        else if (destino === 'ventas')
+	            window.location.href = "/admin/pedidos";
+	    });
+	});
+  
+//Modal: HISTORIAL DE COMPRAS DEL USUARIO
+  (function () {
+    const modalEl = document.getElementById('modalHistorial');
+    if (!modalEl) return;
+
+    const spanNombre = modalEl.querySelector('#historialNombreUsuario');
+    const tbody      = modalEl.querySelector('#tbodyHistorialCompras');
+
+    modalEl.addEventListener('show.bs.modal', function (event) {
+      const btn = event.relatedTarget; // botón "Ver historial" que abrió el modal
+
+      const idUsuario = btn.getAttribute('data-user-id');
+      const nombre    = btn.getAttribute('data-user-nombre')   || '';
+      const apellido  = btn.getAttribute('data-user-apellido') || '';
+      const nombreCompleto = (nombre + ' ' + apellido).trim();
+
+      spanNombre.textContent = nombreCompleto;
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="text-center">Cargando historial...</td>
+        </tr>
+      `;
+
+      // Llamada al backend
+      fetch(`/admin/usuarios/${idUsuario}/compras`)
+        .then(response => {
+          if (!response.ok) throw new Error("Error al obtener historial");
+          return response.json();
+        })
+        .then(compras => {
+          if (!compras || compras.length === 0) {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="4" class="text-center text-muted">
+                  Este usuario aún no tiene compras registradas.
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          tbody.innerHTML = "";
+          compras.forEach(c => {
+            const monto = (typeof c.montoTotal === 'number')
+                          ? c.montoTotal.toFixed(2)
+                          : c.montoTotal;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${c.id}</td>
+              <td>${c.fecha}</td>
+              <td>$ ${monto}</td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-primary"
+                        onclick="verDetalleCompra(${c.id})"
+                        title="Ver detalle de productos">
+                  👁 Ver
+                </button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4" class="text-center text-danger">
+                Ocurrió un error al cargar el historial.
+              </td>
+            </tr>
+          `;
+        });
+    });
+  })();
+  
+//Abre el modal con el detalle de una compra (productos)
+  function verDetalleCompra(idCompra) {
+    const modalEl = document.getElementById('modalDetalleCompra');
+    if (!modalEl) return;
+
+    const spanIdCompra = modalEl.querySelector('#detalleIdCompra');
+    const tbody        = modalEl.querySelector('#tbodyDetalleCompra');
+
+    spanIdCompra.textContent = idCompra;
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" class="text-center">Cargando detalle...</td>
+      </tr>
+    `;
+
+    fetch(`/admin/usuarios/compras/${idCompra}/detalle`)
+      .then(response => {
+        if (!response.ok) throw new Error("Error al obtener detalle");
+        return response.json();
+      })
+      .then(productos => {
+        if (!productos || productos.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4" class="text-center text-muted">
+                No se encontraron productos para esta compra.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = "";
+        productos.forEach(p => {
+          const precio = (typeof p.precioUnitario === 'number')
+                         ? p.precioUnitario
+                         : parseFloat(p.precioUnitario || 0);
+          const subtotal = precio * p.cantidad;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${p.nombreProducto}</td>
+            <td>${p.cantidad}</td>
+            <td>$ ${precio.toFixed(2)}</td>
+            <td>$ ${subtotal.toFixed(2)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="text-center text-danger">
+              Ocurrió un error al cargar el detalle de la compra.
+            </td>
+          </tr>
+        `;
+      });
+
+    const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl)
+    bsModal.show();
+  }
+  
+  function fmtMoney(v){
+	  const n = (typeof v === "number") ? v : Number(String(v).replace(",", "."));
+	  return Number.isFinite(n) ? "$ " + n.toLocaleString("es-AR") : "$ 0";
+	}
+
+	/* // ⬇️ llamada para traer pedidos
+	window.cargarPedidos=async function cargarPedidos(){
+	  const estado = document.getElementById("filtroEstado")?.value || "";
+	  const res = await fetch(`/admin/pedidos/lista?estado=${encodeURIComponent(estado)}`);
+	  const data = await res.json();
+
+	  const tbody = document.getElementById("tbodyPedidos");
+	  tbody.innerHTML = "";
+
+	  if(!data || data.length === 0){
+	    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No hay pedidos.</td></tr>`;
+	    return;
+	  }
+
+	  data.forEach(p => {
+	    const badgeClass =
+	      p.estado === "PENDIENTE" ? "bg-warning text-dark" :
+	      p.estado === "PREPARANDO" ? "bg-success" :
+	      p.estado === "CANCELACION_SOLICITADA" ? "bg-secondary" :
+	      p.estado === "CANCELADO" ? "bg-danger" : "bg-primary";
+
+	    tbody.innerHTML += `
+	      <tr>
+	        <td class="text-center">${p.fecha}</td>
+	        <td class="text-center fw-bold">#${p.id}</td>
+	        <td class="text-center">${p.usuario}</td>
+	        <td class="text-center"><span class="badge ${badgeClass}">${p.estado}</span></td>
+	        <td class="text-end fw-bold">${fmtMoney(p.total)}</td>
+	        <td class="text-end">
+	          <button class="btn btn-sm btn-outline-dark" onclick="verDetallePedido(${p.id})">Ver detalle</button>
+	          <button class="btn btn-sm btn-outline-primary ms-2" onclick="abrirCambiarEstado(${p.id}, '${p.estado}')">Cambiar estado</button>
+	        </td>
+	      </tr>
+	    `;
+	    
+	  });
+	  
+	} */
+	
+	// ======================================================
+	// PEDIDOS - LISTADO PREMIUM
+	// ======================================================
+
+	window.cargarPedidos = async function cargarPedidos(page = 0) {
+	  const estado = document.getElementById("filtroEstado")?.value || "";
+	  const size = parseInt(
+	    document.getElementById("pedidosSize")?.value || "10",
+	    10
+	  );
+
+	  /*
+	   * Estos filtros quedan enviados al backend.
+	   * Estado, page y size ya funcionan.
+	   * Para fecha y usuario vamos a adaptar luego el controller.
+	   */
+	  const desde = document.getElementById("pedidosDesde")?.value || "";
+	  const hasta = document.getElementById("pedidosHasta")?.value || "";
+	  const usuario = document.getElementById("pedidosUsuario")?.value?.trim() || "";
+
+	  const params = new URLSearchParams();
+
+	  params.append("estado", estado);
+	  params.append("page", String(page));
+	  params.append("size", String(size));
+
+	  if (desde) params.append("desde", desde);
+	  if (hasta) params.append("hasta", hasta);
+	  if (usuario) params.append("usuario", usuario);
+
+	  const tbody = document.getElementById("tbodyPedidos");
+
+	  tbody.innerHTML = `
+	    <tr>
+	      <td colspan="6" class="text-center text-muted py-4">
+	        Cargando pedidos...
+	      </td>
+	    </tr>
+	  `;
+
+	  try {
+	    const res = await fetch(`/admin/pedidos/lista?${params.toString()}`);
+
+	    if (!res.ok) {
+	      throw new Error("No se pudo cargar la lista de pedidos.");
+	    }
+
+	    const json = await res.json();
+	    const data = json.content || [];
+	    actualizarResumenPedidos(json.resumen);
+	    tbody.innerHTML = "";
+
+	    actualizarResumenEstadoPedidos(estado);
+
+	    if (data.length === 0) {
+	      tbody.innerHTML = `
+	        <tr>
+	          <td colspan="6" class="text-center text-muted py-4">
+	            No se encontraron pedidos.
+	          </td>
+	        </tr>
+	      `;
+
+	      renderPedidosPagination(0, 0);
+	      actualizarContadorPedidos(json, 0);
+	      return;
+	    }
+
+	    data.forEach(p => {
+	      const estadoNormalizado = p.estado || "PENDIENTE";
+
+	      const botonCambiarDeshabilitado =
+	        estadoNormalizado === "ENTREGADO" ||
+	        estadoNormalizado === "CANCELADO";
+
+	      tbody.innerHTML += `
+	        <tr>
+	          <td class="text-center">
+	            <span class="admin-order-number">
+	              #${p.id}
+	            </span>
+	          </td>
+
+	          <td class="text-center">
+	            <span class="admin-order-date">
+	              📅 ${formatearFechaPedido(p.fecha)}
+	            </span>
+	          </td>
+
+	          <td class="text-center">
+	            <div class="admin-order-user">
+	              <span class="admin-order-user-icon">👤</span>
+
+	              <div>
+	                <strong>${escapeHtml(p.usuario || "Usuario")}</strong>
+	              </div>
+	            </div>
+	          </td>
+
+	          <td class="text-center">
+	            ${renderBadgeEstadoPedido(estadoNormalizado)}
+	          </td>
+
+	          <td class="text-end">
+	            <strong class="admin-order-total">
+	              ${fmtMoney(p.total)}
+	            </strong>
+	          </td>
+
+	          <td class="text-end">
+	            <div class="admin-order-actions">
+
+	              <button type="button"
+	                      class="btn admin-order-detail-btn"
+	                      onclick="verDetallePedido(${p.id})">
+	                👁 Ver detalle
+	              </button>
+
+	              <button type="button"
+	                      class="btn admin-order-status-btn"
+	                      onclick="abrirCambiarEstado(${p.id}, '${estadoNormalizado}')"
+	                      ${botonCambiarDeshabilitado ? "disabled" : ""}>
+	                ✏ Cambiar estado
+	              </button>
+
+	            </div>
+	          </td>
+	        </tr>
+	      `;
+	    });
+
+	    renderPedidosPagination(json.page, json.totalPages);
+	    actualizarContadorPedidos(json, data.length);
+
+	  } catch (error) {
+	    console.error(error);
+
+	    tbody.innerHTML = `
+	      <tr>
+	        <td colspan="6" class="text-center text-danger py-4">
+	          Ocurrió un error al cargar los pedidos.
+	        </td>
+	      </tr>
+	    `;
+	  }
+	};
+	
+	
+	function actualizarResumenPedidos(resumen) {
+		  if (!resumen) return;
+
+		  const total = document.getElementById("pedidosTotalResumen");
+		  const hoy = document.getElementById("pedidosHoyResumen");
+		  const pendientes = document.getElementById("pedidosPendientesResumen");
+		  const cancelados = document.getElementById("pedidosCanceladosResumen");
+
+		  if (total) total.textContent = resumen.totalPedidos ?? 0;
+		  if (hoy) hoy.textContent = resumen.pedidosHoy ?? 0;
+		  if (pendientes) pendientes.textContent = resumen.pendientes ?? 0;
+		  if (cancelados) cancelados.textContent = resumen.cancelados ?? 0;
+		}
+	
+	
+	
+	function renderBadgeEstadoPedido(estado) {
+		  const estilos = {
+		    PENDIENTE: {
+		      clase: "admin-order-status-pending",
+		      texto: "PENDIENTE",
+		      icono: "⏱"
+		    },
+
+		    PREPARANDO: {
+		      clase: "admin-order-status-preparing",
+		      texto: "PREPARANDO",
+		      icono: "📦"
+		    },
+
+		    ENTREGADO: {
+		      clase: "admin-order-status-delivered",
+		      texto: "ENTREGADO",
+		      icono: "✓"
+		    },
+
+		    CANCELACION_SOLICITADA: {
+		      clase: "admin-order-status-requested",
+		      texto: "CANCELACIÓN SOLICITADA",
+		      icono: "↻"
+		    },
+
+		    CANCELADO: {
+		      clase: "admin-order-status-cancelled",
+		      texto: "CANCELADO",
+		      icono: "×"
+		    }
+		  };
+
+		  const item = estilos[estado] || estilos.PENDIENTE;
+
+		  return `
+		    <span class="admin-order-status ${item.clase}">
+		      <span>${item.icono}</span>
+		      ${item.texto}
+		    </span>
+		  `;
+		}
+
+		function formatearFechaPedido(fecha) {
+		  if (!fecha) return "—";
+
+		  const date = new Date(fecha);
+
+		  if (Number.isNaN(date.getTime())) {
+		    return fecha;
+		  }
+
+		  return date.toLocaleString("es-AR", {
+		    day: "2-digit",
+		    month: "2-digit",
+		    year: "numeric",
+		    hour: "2-digit",
+		    minute: "2-digit"
+		  });
+		}
+
+		function escapeHtml(valor) {
+		  return String(valor ?? "")
+		    .replaceAll("&", "&amp;")
+		    .replaceAll("<", "&lt;")
+		    .replaceAll(">", "&gt;")
+		    .replaceAll('"', "&quot;")
+		    .replaceAll("'", "&#039;");
+		}
+
+		function actualizarResumenEstadoPedidos(estado) {
+		  const el = document.getElementById("pedidosEstadoResumen");
+
+		  if (!el) return;
+
+		  el.textContent = estado
+		    ? estado.replaceAll("_", " ")
+		    : "Todos";
+		}
+
+		function limpiarFiltrosPedidos() {
+		  const estado = document.getElementById("filtroEstado");
+		  const desde = document.getElementById("pedidosDesde");
+		  const hasta = document.getElementById("pedidosHasta");
+		  const usuario = document.getElementById("pedidosUsuario");
+
+		  if (estado) estado.value = "";
+		  if (desde) desde.value = "";
+		  if (hasta) hasta.value = "";
+		  if (usuario) usuario.value = "";
+
+		  cargarPedidos(0);
+		}
+
+		function actualizarContadorPedidos(json, cantidadPagina) {
+		  const el = document.getElementById("pedidosCount");
+
+		  if (!el) return;
+
+		  const total = Number(json.totalElements || 0);
+		  const pagina = Number(json.page || 0);
+		  const size = Number(json.size || cantidadPagina || 10);
+
+		  if (total === 0) {
+		    el.textContent = "Sin resultados";
+		    return;
+		  }
+
+		  const desde = pagina * size + 1;
+		  const hasta = Math.min(desde + cantidadPagina - 1, total);
+
+		  el.textContent = `Mostrando ${desde} a ${hasta} de ${total} pedidos`;
+		}
+		
+
+	// reutiliza tu /pedido/{id} JSON
+	async function verDetallePedido(id){
+	  const res = await fetch(`/pedido/${id}`);
+	  const p = await res.json();
+
+	  document.getElementById("pd-numero").textContent = "#" + p.id;
+	  document.getElementById("pd-fecha").textContent = new Date(p.fecha).toLocaleString("es-AR");
+	  document.getElementById("pd-estado").textContent = p.estado;
+	  document.getElementById("pd-total").textContent = fmtMoney(p.total);
+	  document.getElementById("pd-pdf").href = `/pedido/${p.id}/pdf`;
+
+	  const tbody = document.getElementById("pd-items");
+	  tbody.innerHTML = "";
+	  (p.items || []).forEach(i => {
+	    tbody.innerHTML += `
+	      <tr>
+	        <td>${i.producto}</td>
+	        <td class="text-center">${i.cantidad}</td>
+	        <td class="text-end">${fmtMoney(i.precio)}</td>
+	        <td class="text-end">${fmtMoney(i.subtotal)}</td>
+	      </tr>`;
+	  });
+
+	  new bootstrap.Modal(document.getElementById("pedidoDetalleModal")).show();
+	}
+
+	function claseEstadoDetalle(estado) {
+		  const clases = {
+		    PENDIENTE: "peq-order-state-pending",
+		    PREPARANDO: "peq-order-state-preparing",
+		    ENTREGADO: "peq-order-state-delivered",
+		    CANCELACION_SOLICITADA: "peq-order-state-requested",
+		    CANCELADO: "peq-order-state-cancelled"
+		  };
+
+		  return clases[estado] || "peq-order-state-default";
+		}
+	
+	
+	function abrirCambiarEstado(id, estado) {
+		  document.getElementById("pe-id").value = id;
+		  document.getElementById("pe-numero").textContent = "#" + id;
+		  document.getElementById("pe-estado").value = estado;
+
+		  actualizarAvisoEstadoPedido(estado);
+
+		  const modalEl =
+		    document.getElementById("pedidoEstadoModal");
+
+		  const modal =
+		    bootstrap.Modal.getOrCreateInstance(modalEl);
+
+		  modal.show();
+		}
+	function actualizarAvisoEstadoPedido(estado) {
+		  const aviso = document.getElementById("pe-aviso");
+
+		  if (!aviso) return;
+
+		  const contenido = {
+		    PENDIENTE: {
+		      clase: "peq-order-alert-info",
+		      icono: "ℹ️",
+		      titulo: "El pedido quedará pendiente.",
+		      texto: "Todavía no comenzó la preparación."
+		    },
+
+		    PREPARANDO: {
+		      clase: "peq-order-alert-warning",
+		      icono: "📦",
+		      titulo: "El pedido pasará a preparación.",
+		      texto: "Indicará que el pedido ya está siendo procesado."
+		    },
+
+		    ENTREGADO: {
+		      clase: "peq-order-alert-success",
+		      icono: "✅",
+		      titulo: "El pedido quedará entregado.",
+		      texto: "Utilizá este estado cuando la compra ya fue recibida."
+		    },
+
+		    CANCELACION_SOLICITADA: {
+		      clase: "peq-order-alert-warning",
+		      icono: "↻",
+		      titulo: "Se registrará una solicitud de cancelación.",
+		      texto: "Después podés confirmar la cancelación o volver a preparación."
+		    },
+
+		    CANCELADO: {
+		      clase: "peq-order-alert-danger",
+		      icono: "⚠️",
+		      titulo: "El pedido será cancelado.",
+		      texto: "El stock de los productos será repuesto automáticamente."
+		    }
+		  };
+
+		  const item = contenido[estado] || contenido.PENDIENTE;
+
+		  aviso.className =
+		    `peq-order-state-alert ${item.clase}`;
+
+		  aviso.innerHTML = `
+		    <div class="peq-order-state-alert-icon">
+		      ${item.icono}
+		    </div>
+
+		    <div>
+		      <strong>${item.titulo}</strong>
+		      <p>${item.texto}</p>
+		    </div>
+		  `;
+		}
+	 
+
+	async function guardarEstadoPedido(){
+	  const id = document.getElementById("pe-id").value;
+	  const estado = document.getElementById("pe-estado").value;
+
+	  const body = new URLSearchParams();
+	  body.append("estado", estado);
+
+	  const res = await fetch(`/admin/pedidos/${id}/estado`, {
+	    method: "POST",
+	    headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+	    body
+	  });
+
+	  const data = await res.json().catch(()=> ({}));
+
+	  if(!res.ok || data.ok === false){
+	    alert(data.error || "No se pudo cambiar el estado");
+	    return;
+	  }
+
+	  bootstrap.Modal.getInstance(document.getElementById("pedidoEstadoModal")).hide();
+	  await cargarPedidos();
+	}
+
+	//marcar ñink activo
+	function marcarLinkActivo(name) {
+		  document.querySelectorAll('.js-section').forEach(a => {
+		    a.classList.remove('active');
+
+		    if (a.getAttribute('data-section') === name) {
+		      a.classList.add('active');
+		    }
+		  });
+		}
+	
+	//actuaizar boton de agregar dependiendo donde estemosparados
+	function actualizarFab(name) {
+		  if (fabProductos) {
+		    fabProductos.style.display = (name === 'productos') ? 'block' : 'none';
+		  }
+
+		  if (fabUsuarios) {
+		    fabUsuarios.style.display = (name === 'usuarios') ? 'block' : 'none';
+		  }
+		}
+	
+	 let graficoVentasObj = null;
+
+	  function fechaIso(date) {
+	    return date.toISOString().slice(0, 10);
+	  }
+
+	  function configurarFechasIniciales() {
+	    const desdeInput = document.getElementById("ventasDesde");
+	    const hastaInput = document.getElementById("ventasHasta");
+
+	    if (!desdeInput || !hastaInput) return;
+
+	    const hoy = new Date();
+	    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+
+	    if (!desdeInput.value) desdeInput.value = fechaIso(inicioMes);
+	    if (!hastaInput.value) hastaInput.value = fechaIso(hoy);
+	  }
+
+	  function formatoDinero(valor) {
+	    return "$ " + Number(valor || 0).toLocaleString("es-AR");
+	  }
+
+	  async function cargarGraficoVentas() {
+	    const canvas = document.getElementById("graficoVentas");
+	    const tipo = document.getElementById("tipoGrafico")?.value || "dia";
+	    const desde = document.getElementById("ventasDesde")?.value;
+	    const hasta = document.getElementById("ventasHasta")?.value;
+	    const empty = document.getElementById("graficoVentasVacio");
+	    const exportBtn = document.getElementById("btnExportGrafico");
+
+	    if (!canvas) return;
+
+	    const hoy = new Date();
+	    const anio = hoy.getFullYear();
+
+	    let url;
+	    let tipoChart = "line";
+	    let etiqueta = "Ventas por día";
+
+	    if (tipo === "mes") {
+	      url = `/admin/estadisticas/serie-mes?anio=${anio}`;
+	      tipoChart = "bar";
+	      etiqueta = "Ventas por mes";
+	    } else if (tipo === "anio") {
+	      url = `/admin/estadisticas/serie-anio?inicio=${anio - 5}&fin=${anio}`;
+	      tipoChart = "line";
+	      etiqueta = "Ventas por año";
+	    } else {
+	      url = `/admin/estadisticas/serie-dia?desde=${desde}&hasta=${hasta}`;
+	      tipoChart = "line";
+	      etiqueta = "Ventas por día";
+	    }
+
+	    try {
+	      const res = await fetch(url);
+
+	      if (!res.ok) {
+	        throw new Error("No se pudo cargar el gráfico.");
+	      }
+
+	      const datos = await res.json();
+
+	      const labels = (datos || []).map(item => item.etiqueta);
+	      const valores = (datos || []).map(item => Number(item.valor || 0));
+	      const tieneDatos = valores.some(valor => valor > 0);
+
+	      if (empty) {
+	        empty.style.display = tieneDatos ? "none" : "flex";
+	      }
+
+	      if (graficoVentasObj) {
+	        graficoVentasObj.destroy();
+	      }
+
+	      const contexto = canvas.getContext("2d");
+	      const gradiente = contexto.createLinearGradient(0, 0, 0, 280);
+	      gradiente.addColorStop(0, "rgba(255, 152, 0, .30)");
+	      gradiente.addColorStop(1, "rgba(255, 152, 0, .03)");
+
+	      graficoVentasObj = new Chart(contexto, {
+	        type: tipoChart,
+	        data: {
+	          labels,
+	          datasets: [{
+	            label: etiqueta,
+	            data: valores,
+	            borderColor: "#ff9800",
+	            backgroundColor: tipoChart === "bar"
+	              ? "rgba(255, 152, 0, .58)"
+	              : gradiente,
+	            borderWidth: 3,
+	            tension: .35,
+	            fill: tipoChart === "line",
+	            pointRadius: tipoChart === "line" ? 4 : 0,
+	            pointHoverRadius: tipoChart === "line" ? 6 : 0,
+	            pointBackgroundColor: "#ff9800",
+	            pointBorderColor: "#fff",
+	            pointBorderWidth: 2,
+	            borderRadius: tipoChart === "bar" ? 8 : 0
+	          }]
+	        },
+	        options: {
+	          responsive: true,
+	          maintainAspectRatio: false,
+
+	          plugins: {
+	            legend: {
+	              display: false
+	            },
+
+	            tooltip: {
+	              callbacks: {
+	                label: function(context) {
+	                  return formatoDinero(context.raw);
+	                }
+	              }
+	            }
+	          },
+
+	          scales: {
+	            x: {
+	              grid: {
+	                display: false
+	              },
+	              ticks: {
+	                color: "#7a6a55"
+	              }
+	            },
+
+	            y: {
+	              beginAtZero: true,
+	              grid: {
+	                color: "rgba(122, 106, 85, .12)"
+	              },
+	              ticks: {
+	                color: "#7a6a55",
+	                callback: function(value) {
+	                  return formatoDinero(value);
+	                }
+	              }
+	            }
+	          }
+	        }
+	      });
+
+	      /*
+	       * Exportamos el período visible usando tu endpoint actual.
+	       * No hace falta crear otra ruta en backend.
+	       */
+	      if (exportBtn && desde && hasta) {
+	        exportBtn.href =
+	          `/admin/export/ventas-dia?desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}`;
+	      }
+
+	    } catch (error) {
+	      console.error(error);
+
+	      if (empty) {
+	        empty.style.display = "flex";
+	      }
+	    }
+	  }
+
+	  document.addEventListener("DOMContentLoaded", function() {
+	    configurarFechasIniciales();
+
+	    document.getElementById("btnAplicarGrafico")
+	      ?.addEventListener("click", cargarGraficoVentas);
+
+	    document.getElementById("tipoGrafico")
+	      ?.addEventListener("change", cargarGraficoVentas);
+	  });
+	  
+	  function renderPedidosPagination(currentPage, totalPages) {
+		  const ul = document.getElementById("pedidosPagination");
+
+		  if (!ul) return;
+
+		  ul.innerHTML = "";
+
+		  if (!totalPages || totalPages <= 1) return;
+
+		  ul.innerHTML += `
+		    <li class="page-item ${currentPage === 0 ? "disabled" : ""}">
+		      <button class="page-link"
+		              onclick="cargarPedidos(${currentPage - 1})">
+		        « Anterior
+		      </button>
+		    </li>
+		  `;
+
+		  for (let i = 0; i < totalPages; i++) {
+		    ul.innerHTML += `
+		      <li class="page-item ${i === currentPage ? "active" : ""}">
+		        <button class="page-link"
+		                onclick="cargarPedidos(${i})">
+		          ${i + 1}
+		        </button>
+		      </li>
+		    `;
+		  }
+
+		  ul.innerHTML += `
+		    <li class="page-item ${currentPage >= totalPages - 1 ? "disabled" : ""}">
+		      <button class="page-link"
+		              onclick="cargarPedidos(${currentPage + 1})">
+		        Siguiente »
+		      </button>
+		    </li>
+		  `;
+		}
+	  
+	  
+	  async function cargarNotificaciones() {
+	    const lista = document.getElementById("notificacionesLista");
+	    const badge = document.getElementById("notificacionesBadge");
+
+	    if (!lista || !badge) return;
+
+	    try {
+	      const response = await fetch("/notificaciones/mias");
+	      const json = await response.json();
+
+	      if (!json.ok) {
+	        if (json.redirect) {
+	          window.location.href = json.redirect;
+	        }
+
+	        return;
+	      }
+
+	      actualizarBadgeNotificaciones(json.noLeidas);
+
+	      const notificaciones = json.notificaciones || [];
+
+	      if (notificaciones.length === 0) {
+	        lista.innerHTML = `
+	          <div class="peq-notification-empty">
+	            No tenés notificaciones por el momento.
+	          </div>
+	        `;
+
+	        return;
+	      }
+
+	      lista.innerHTML = "";
+
+	      notificaciones.forEach(n => {
+	        const item = document.createElement("div");
+
+	        item.className =
+	          "peq-notification-item"
+	          + (!n.leida ? " is-unread" : "");
+
+	        item.onclick = () => abrirNotificacion(
+	          n.id,
+	          n.pedidoId
+	        );
+
+	        item.innerHTML = `
+	          <div class="peq-notification-icon">
+	            ${iconoNotificacion(n.descripcion)}
+	          </div>
+
+	          <div class="peq-notification-body">
+	            <p class="peq-notification-text">
+	              ${escapeHtmlNotificacion(n.descripcion)}
+	            </p>
+
+	            <span class="peq-notification-date">
+	              ${formatearFechaNotificacion(n.fecha)}
+	            </span>
+	          </div>
+	        `;
+
+	        lista.appendChild(item);
+	      });
+
+	    } catch (error) {
+	      console.error(error);
+
+	      lista.innerHTML = `
+	        <div class="peq-notification-empty">
+	          No se pudieron cargar las notificaciones.
+	        </div>
+	      `;
+	    }
+	  }
+
+	  async function abrirNotificacion(id, pedidoId) {
+	    try {
+	      await fetch(`/notificaciones/${id}/leer`, {
+	        method: "POST"
+	      });
+
+	      await cargarNotificaciones();
+
+	      /*
+	       * Por ahora solo recargamos la campanita.
+	       * Luego podemos navegar directamente al pedido
+	       * o abrir el modal correspondiente.
+	       */
+	      if (pedidoId) {
+	        console.log("Pedido relacionado:", pedidoId);
+	      }
+
+	    } catch (error) {
+	      console.error(error);
+	    }
+	  }
+
+	  async function marcarTodasLeidas() {
+	    try {
+	      await fetch("/notificaciones/leer-todas", {
+	        method: "POST"
+	      });
+
+	      await cargarNotificaciones();
+
+	    } catch (error) {
+	      console.error(error);
+	    }
+	  }
+
+	  function actualizarBadgeNotificaciones(cantidad) {
+	    const badge =
+	      document.getElementById("notificacionesBadge");
+
+	    if (!badge) return;
+
+	    const numero = Number(cantidad || 0);
+
+	    badge.textContent =
+	      numero > 99 ? "99+" : String(numero);
+
+	    badge.style.display =
+	      numero > 0 ? "inline-block" : "none";
+	  }
+
+	  function formatearFechaNotificacion(fecha) {
+	    if (!fecha) return "";
+
+	    const date = new Date(fecha);
+
+	    if (Number.isNaN(date.getTime())) {
+	      return fecha;
+	    }
+
+	    return date.toLocaleString("es-AR", {
+	      day: "2-digit",
+	      month: "2-digit",
+	      year: "numeric",
+	      hour: "2-digit",
+	      minute: "2-digit"
+	    });
+	  }
+
+	  function iconoNotificacion(texto) {
+	    const valor = String(texto || "").toLowerCase();
+
+	    if (valor.includes("cancel")) return "⚠️";
+	    if (valor.includes("usuario")) return "👤";
+	    if (valor.includes("entregado")) return "✅";
+	    if (valor.includes("pedido")) return "🧾";
+
+	    return "🔔";
+	  }
+
+	  function escapeHtmlNotificacion(valor) {
+	    return String(valor ?? "")
+	      .replaceAll("&", "&amp;")
+	      .replaceAll("<", "&lt;")
+	      .replaceAll(">", "&gt;")
+	      .replaceAll('"', "&quot;")
+	      .replaceAll("'", "&#039;");
+	  }
+
+	  document.addEventListener(
+	    "DOMContentLoaded",
+	    cargarNotificaciones
+	  );
+	  
+	
+	
+  </script>
+  
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<!-- <script> 
+
+ let chartDiaObj = null;
+ let chartMesObj = null;
+ let chartAnioObj = null;
+
+// Cuando se muestra la sección estadísticas
+//document.querySelector("[data-section='estadisticas']")
+   .addEventListener("click", () => setTimeout(cargarGraficos, 300));
+    
+    
+// async function cargarGraficos() {
+
+//     const loader = document.getElementById("estad-loader");
+//     loader.style.display = "block";
+
+//     const hoy = new Date();
+//     const year = hoy.getFullYear();
+
+//     try {
+//         // === SERIE DIARIA ===
+//         let rDia = await fetch(`/admin/estadisticas/serie-dia?desde=${year}-01-01&hasta=${year}-12-31`);
+//         let dDia = await rDia.json();
+
+//         new Chart(document.getElementById("chartDia"), {
+//             type: "line",
+//             data: {
+//                 labels: dDia.map(d => d.etiqueta),
+//                 datasets: [{
+//                     label: "Ventas por día",
+//                     data: dDia.map(d => d.valor),
+//                     borderColor: "#ffbc00",
+//                     backgroundColor: "rgba(255,188,0,0.20)",
+//                     borderWidth: 3,
+//                     tension: .35
+//                 }]
+//             }
+//         });
+
+//         // === SERIE MENSUAL ===
+//         let rMes = await fetch(`/admin/estadisticas/serie-mes?anio=${year}`);
+//         let dMes = await rMes.json();
+
+//         new Chart(document.getElementById("chartMes"), {
+//             type: "bar",
+//             data: {
+//                 labels: dMes.map(d => d.etiqueta),
+//                 datasets: [{
+//                     label: "Ventas por mes",
+//                     data: dMes.map(d => d.valor),
+//                     backgroundColor: "#ffcf33",
+//                     borderWidth: 1
+//                 }]
+//             }
+//         });
+
+//         // === SERIE ANUAL ===
+//         let rAnio = await fetch(`/admin/estadisticas/serie-anio?inicio=${year-5}&fin=${year}`);
+//         let dAnio = await rAnio.json();
+
+//         new Chart(document.getElementById("chartAnio"), {
+//             type: "line",
+//             data: {
+//                 labels: dAnio.map(d => d.etiqueta),
+//                 datasets: [{
+//                     label: "Ventas anuales",
+//                     data: dAnio.map(d => d.valor),
+//                     borderColor: "#6f42c1",
+//                     backgroundColor: "rgba(111,66,193,0.15)",
+//                     borderWidth: 3,
+//                     tension: .35
+//                 }]
+//             }
+//         });
+
+//     } finally {
+//         loader.style.display = "none";
+//     }
+// }
+
+
+
+<!-- </script> -->
+   <style>
+.loader-wrapper {
+    text-align:center;
+    padding:20px;
+}
+.loader {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #ffbc00;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  animation: spin 0.9s linear infinite;
+  margin: auto;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
+/* ==================================================
+   PANEL ADMIN - ESTILO PEQUELANDIA PREMIUM
+   PEGAR ABAJO DE TODO
+   ================================================== */
+
+body{
+  background: #fff7df;
+}
+
+/* Contenido principal */
+main{
+  animation: adminFadeIn .25s ease both;
+}
+
+@keyframes adminFadeIn{
+  from{
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to{
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Sidebar admin */
+.sidebar{
+  background: linear-gradient(180deg, #fff3cd 0%, #fff8e8 100%) !important;
+  border-radius: 0 24px 24px 0;
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  min-height: calc(100vh - 180px) !important;
+}
+
+.sidebar h5{
+  color: #b85f22;
+  font-weight: 900;
+  margin-top: 8px;
+}
+
+.sidebar .nav-link,
+.offcanvas-body .nav-link{
+  color: #3f2b16;
+  font-weight: 800;
+  border-radius: 16px;
+  padding: 13px 16px;
+  margin-bottom: 8px;
+  transition: all .18s ease;
+}
+
+.sidebar .nav-link:hover,
+.offcanvas-body .nav-link:hover{
+  background: rgba(255, 179, 0, .18);
+  color: #b85f22;
+  transform: translateX(3px);
+}
+
+.sidebar .nav-link.active,
+.offcanvas-body .nav-link.active{
+  background: linear-gradient(135deg, #ffb300 0%, #ff9800 100%);
+  color: #fff !important;
+  box-shadow: 0 8px 18px rgba(255,152,0,.25);
+}
+
+/* Separación cerrar sesión */
+.sidebar .logout-container,
+.offcanvas-body .logout-container{
+  margin-top: 42px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(184,95,34,.18);
+}
+
+.btn-logout{
+  border-radius: 14px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #ff9800, #ff7a00);
+  color: #fff;
+  border: none;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(255,128,0,.22);
+}
+
+.btn-logout:hover{
+  background: linear-gradient(135deg, #ff7a00, #ef5b00);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Bienvenida */
+#welcome-message{
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  border: 1px solid rgba(255,179,0,.22);
+  border-radius: 24px;
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+}
+
+#welcome-message h2{
+  color: #b85f22;
+  font-weight: 900;
+}
+
+#welcome-message p{
+  color: #555;
+  font-weight: 600;
+}
+
+/* Títulos de secciones */
+#gestion-productos-contenido h2,
+#gestion-usuarios-contenido h2,
+#gestion-pedidos-contenido h2,
+#estadisticas-contenido h2{
+  color: #b85f22 !important;
+  font-weight: 900;
+  font-size: 2rem;
+}
+
+/* Barra superior de cada sección */
+#gestion-productos-contenido > .d-flex,
+#gestion-usuarios-contenido > .d-flex,
+#gestion-pedidos-contenido > .d-flex{
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  border: 1px solid rgba(255,179,0,.20);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.05);
+}
+
+/* Inputs y selects */
+#gestion-productos-contenido .form-control,
+#gestion-productos-contenido .form-select,
+#gestion-usuarios-contenido .form-control,
+#gestion-usuarios-contenido .form-select,
+#gestion-pedidos-contenido .form-control,
+#gestion-pedidos-contenido .form-select{
+  border-radius: 14px;
+  border: 1px solid #ead9b8;
+  min-height: 40px;
+}
+
+#gestion-productos-contenido .form-control:focus,
+#gestion-productos-contenido .form-select:focus,
+#gestion-usuarios-contenido .form-control:focus,
+#gestion-usuarios-contenido .form-select:focus,
+#gestion-pedidos-contenido .form-control:focus,
+#gestion-pedidos-contenido .form-select:focus{
+  border-color: #ffb300;
+  box-shadow: 0 0 0 .20rem rgba(255,179,0,.16);
+}
+
+/* Tablas */
+.table-responsive{
+  background: #fffdf8;
+  border: 1px solid rgba(255,179,0,.20);
+  border-radius: 22px;
+  padding: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  overflow: hidden;
+}
+
+.table{
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table thead th{
+  background: linear-gradient(135deg, #ffbf00 0%, #ffae00 100%) !important;
+  color: #fff !important;
+  font-weight: 900;
+  border: none;
+  padding: 14px 12px;
+  vertical-align: middle;
+}
+
+.table tbody td{
+  padding: 14px 12px;
+  vertical-align: middle;
+  border-color: rgba(0,0,0,.06);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > *{
+  background-color: rgba(255, 248, 230, .75);
+}
+
+.table-striped > tbody > tr:nth-of-type(even) > *{
+  background-color: rgba(255,255,255,.9);
+}
+
+.table tbody tr:hover td{
+  background: #fff3cd !important;
+}
+
+/* Badges estados */
+.badge{
+  border-radius: 999px;
+  padding: 8px 11px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* Botones generales */
+.btn{
+  font-weight: 800;
+}
+
+.btn-primary,
+.btn-info{
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+  color: #fff;
+}
+
+.btn-danger{
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+.btn-outline-secondary,
+.btn-outline-dark,
+.btn-outline-primary{
+  border-radius: 10px;
+  font-weight: 800;
+}
+
+.btn-warning{
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ffb300 0%, #ff9800 100%);
+  color: #fff;
+  font-weight: 900;
+}
+
+.btn-warning:hover{
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Paginación */
+.pagination{
+  margin-top: 22px;
+}
+
+.page-link{
+  border-radius: 10px;
+  margin: 0 3px;
+  color: #b85f22;
+  border: 1px solid #efd7a2;
+  font-weight: 800;
+}
+
+.page-item.active .page-link{
+  background: linear-gradient(135deg, #ffb300, #ff9800);
+  border-color: #ff9800;
+  color: #fff;
+}
+
+/* FAB agregar */
+#fabProductos,
+#fabUsuarios,
+#gestion-productos-contenido > button.position-fixed{
+  background: linear-gradient(135deg, #ffb300 0%, #ff7a00 100%) !important;
+  border: none !important;
+  box-shadow: 0 14px 28px rgba(255,128,0,.32) !important;
+  transition: all .18s ease;
+}
+
+#fabProductos:hover,
+#fabUsuarios:hover,
+#gestion-productos-contenido > button.position-fixed:hover{
+  transform: translateY(-3px) scale(1.03);
+}
+
+/* Dashboard stats */
+.stat-card,
+#estadisticas-contenido .card{
+  border: 1px solid rgba(255,179,0,.20);
+  border-radius: 22px !important;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  transition: all .18s ease;
+}
+
+.stat-card:hover,
+#estadisticas-contenido .card:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(0,0,0,.09);
+}
+
+.stat-card h6{
+  color: #8f4d19;
+  font-weight: 900;
+}
+
+.stat-card h3{
+  color: #e65f18;
+  font-weight: 900;
+}
+
+/* Títulos internos dashboard */
+#estadisticas-contenido h5{
+  color: #b85f22;
+  font-weight: 900;
+}
+
+/* Responsive */
+@media (max-width: 992px){
+  .table-responsive{
+    padding: 8px;
+  }
+
+  #gestion-productos-contenido > .d-flex,
+  #gestion-usuarios-contenido > .d-flex,
+  #gestion-pedidos-contenido > .d-flex{
+    align-items: stretch !important;
+  }
+
+  #gestion-productos-contenido form,
+  #gestion-usuarios-contenido form{
+    width: 100%;
+  }
+  
+  
+}
+
+/* ==================================================
+   MODALES ADMIN PREMIUM - PRODUCTO / USUARIO
+   ================================================== */
+
+.peq-admin-modal .modal-dialog{
+  max-width: 860px;
+}
+
+.peq-admin-modal-card{
+  border: none;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #fffdf8;
+  box-shadow:
+    0 24px 60px rgba(0,0,0,.22),
+    0 0 0 1px rgba(255,179,0,.10);
+  animation: peqAdminModalIn .24s ease both;
+}
+
+@keyframes peqAdminModalIn{
+  from{
+    opacity: 0;
+    transform: translateY(14px) scale(.97);
+  }
+  to{
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.peq-admin-modal-header{
+  position: relative;
+  padding: 24px 28px;
+  border-bottom: 1px solid rgba(255,179,0,.22);
+  background:
+    radial-gradient(circle at 88% 70%, rgba(255,225,160,.45) 0 48px, transparent 50px),
+    radial-gradient(circle at 8% 100%, rgba(255,225,160,.40) 0 60px, transparent 62px),
+    linear-gradient(135deg, #fff7df 0%, #fff2c7 52%, #fffaf0 100%);
+}
+
+.peq-admin-modal-title-wrap{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.peq-admin-modal-icon{
+  width: 62px;
+  height: 62px;
+  min-width: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffe082, #fff8d8);
+  box-shadow: 0 8px 18px rgba(255,179,0,.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.peq-admin-modal-title{
+  margin: 0;
+  color: #7b3f14;
+  font-size: 1.55rem;
+  font-weight: 900;
+}
+
+.peq-admin-modal-subtitle{
+  margin: 4px 0 0;
+  color: #a16f36;
+  font-weight: 600;
+  font-size: .95rem;
+}
+
+.peq-admin-modal-close{
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(159,99,40,.18);
+  background: rgba(255,255,255,.88);
+  color: #a35a1c;
+  font-size: 30px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 18px rgba(0,0,0,.10);
+  transition: all .18s ease;
+}
+
+.peq-admin-modal-close:hover{
+  background: #fff;
+  color: #ff8f00;
+  transform: rotate(8deg) scale(1.06);
+}
+
+.peq-admin-modal-body{
+  padding: 26px 30px 12px;
+  background: linear-gradient(180deg, #fffdf8 0%, #fffaf1 100%);
+}
+
+.peq-form-section{
+  background: rgba(255,255,255,.74);
+  border: 1px solid #f1dfb8;
+  border-radius: 22px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 18px rgba(0,0,0,.04);
+}
+
+.peq-form-section-title{
+  margin: 0 0 16px;
+  color: #8f4d19;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.peq-admin-label{
+  color: #744019;
+  font-weight: 900;
+  font-size: .92rem;
+  margin-bottom: 7px;
+}
+
+.peq-admin-input{
+  min-height: 46px;
+  border-radius: 15px;
+  border: 1px solid #ead9b8;
+  background: rgba(255,255,255,.92);
+  font-weight: 500;
+  transition: all .18s ease;
+}
+
+.peq-admin-input:hover{
+  border-color: #f6c15d;
+}
+
+.peq-admin-input:focus{
+  border-color: #ff9800;
+  box-shadow:
+    0 0 0 .22rem rgba(255,179,0,.18),
+    0 8px 18px rgba(255,152,0,.10);
+}
+
+.peq-admin-select-multiple{
+  min-height: 132px;
+}
+
+.peq-help-text{
+  display: block;
+  margin-top: 6px;
+  color: #8a7a62;
+  font-weight: 600;
+  font-size: .82rem;
+}
+
+.peq-input-money{
+  position: relative;
+}
+
+.peq-input-money span{
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8f4d19;
+  font-weight: 900;
+  z-index: 2;
+}
+
+.peq-input-with-prefix{
+  padding-left: 34px;
+}
+
+.peq-admin-modal-footer{
+  border-top: 1px solid rgba(255,179,0,.18);
+  padding: 20px 30px 24px;
+  background:
+    radial-gradient(circle at 5% 100%, rgba(255,225,160,.42) 0 62px, transparent 64px),
+    radial-gradient(circle at 100% 95%, rgba(255,225,160,.42) 0 55px, transparent 58px),
+    #fff8e9;
+  gap: 12px;
+}
+
+.peq-btn-cancel{
+  min-width: 130px;
+  border-radius: 999px;
+  padding: 11px 22px;
+  border: 1px solid #e5d2aa;
+  background: rgba(255,255,255,.92);
+  color: #744019;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(0,0,0,.07);
+}
+
+.peq-btn-cancel:hover{
+  background: #fff;
+  color: #744019;
+  transform: translateY(-1px);
+}
+
+.peq-btn-save{
+  min-width: 170px;
+  border-radius: 999px;
+  padding: 11px 24px;
+  border: 0;
+  color: #fff;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffb300 0%, #ff9800 48%, #ff7a1a 100%);
+  box-shadow: 0 12px 24px rgba(255,152,0,.32);
+}
+
+.peq-btn-save:hover{
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(255,152,0,.40);
+}
+
+.peq-btn-save span{
+  margin-right: 5px;
+}
+
+/* Fondo oscuro más premium */
+.modal-backdrop.show{
+  opacity: .55;
+}
+
+/* Responsive */
+@media (max-width: 768px){
+  .peq-admin-modal .modal-dialog{
+    width: calc(100vw - 22px);
+    max-width: calc(100vw - 22px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .peq-admin-modal-header{
+    padding: 22px 20px;
+  }
+
+  .peq-admin-modal-icon{
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    font-size: 24px;
+  }
+
+  .peq-admin-modal-title{
+    font-size: 1.3rem;
+  }
+
+  .peq-admin-modal-subtitle{
+    font-size: .85rem;
+  }
+
+  .peq-admin-modal-body{
+    padding: 20px 18px 10px;
+  }
+
+  .peq-form-section{
+    padding: 16px;
+  }
+
+  .peq-admin-modal-footer{
+    padding: 18px;
+    flex-direction: column-reverse;
+  }
+
+  .peq-btn-cancel,
+  .peq-btn-save{
+    width: 100%;
+  }
+}
+
+/* ==================================================
+   MODAL ELIMINAR PRODUCTO PREMIUM
+   ================================================== */
+
+.peq-delete-modal .modal-dialog{
+  max-width: 460px;
+}
+
+.peq-delete-card{
+  border: none;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #fffdf8;
+  box-shadow:
+    0 24px 60px rgba(0,0,0,.24),
+    0 0 0 1px rgba(220,53,69,.10);
+  animation: peqAdminModalIn .24s ease both;
+}
+
+.peq-delete-header{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 30px 24px 12px;
+  background:
+    radial-gradient(circle at 50% 100%, rgba(255,210,210,.7) 0 70px, transparent 72px),
+    linear-gradient(135deg, #fff7df 0%, #fff2c7 100%);
+}
+
+.peq-delete-icon{
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff1c9 0%, #ffe082 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  box-shadow: 0 10px 24px rgba(255,179,0,.24);
+}
+
+.peq-delete-close{
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(159,99,40,.18);
+  background: rgba(255,255,255,.88);
+  color: #a35a1c;
+  font-size: 28px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.peq-delete-close:hover{
+  background: #fff;
+  color: #ff8f00;
+}
+
+.peq-delete-body{
+  padding: 18px 30px 22px;
+  text-align: center;
+}
+
+.peq-delete-body h5{
+  color: #7b3f14;
+  font-size: 1.45rem;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.peq-delete-body p{
+  color: #4d4033;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.peq-delete-body strong{
+  color: #dc3545;
+  font-weight: 900;
+}
+
+.peq-delete-warning{
+  background: #fff1f1;
+  border: 1px solid rgba(220,53,69,.20);
+  color: #9f2532;
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.peq-delete-footer{
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px 28px 26px;
+  background: #fff8e9;
+  border-top: 1px solid rgba(255,179,0,.18);
+}
+
+.peq-btn-danger{
+  min-width: 145px;
+  border-radius: 999px;
+  padding: 11px 22px;
+  border: none;
+  color: #fff;
+  font-weight: 900;
+  background: linear-gradient(135deg, #dc3545 0%, #b91f2e 100%);
+  box-shadow: 0 12px 24px rgba(220,53,69,.28);
+}
+
+.peq-btn-danger:hover{
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(220,53,69,.36);
+}
+
+@media (max-width: 576px){
+  .peq-delete-modal .modal-dialog{
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .peq-delete-footer{
+    flex-direction: column-reverse;
+  }
+
+  .peq-delete-footer .btn,
+  .peq-delete-footer form,
+  .peq-btn-danger{
+    width: 100%;
+  }
+}
+
+
+/* ==============================
+   ADMIN - DASHBOARD ESTADÍSTICAS
+   ============================== */
+
+#estadisticas-contenido{
+  padding-bottom: 40px;
+}
+
+#estadisticas-contenido h2{
+  color: #b85f22;
+  font-size: 2rem;
+  font-weight: 900;
+  margin-bottom: 26px;
+}
+
+/* Cards superiores */
+#estadisticas-contenido .stat-card{
+  min-height: 120px;
+  border: 1px solid rgba(255,179,0,.26);
+  border-radius: 22px;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  position: relative;
+  overflow: hidden;
+}
+
+#estadisticas-contenido .stat-card::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(180deg, #ffb300, #ff7a00);
+}
+
+#estadisticas-contenido .stat-card h6{
+  color: #8f4d19;
+  font-size: .9rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+#estadisticas-contenido .stat-card h3{
+  color: #e65f18;
+  font-size: 1.8rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+#estadisticas-contenido .stat-card .btn{
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+/* Card del gráfico */
+.admin-chart-card{
+  min-height: auto !important;
+  border: 1px solid rgba(255,179,0,.24);
+  border-radius: 24px !important;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+}
+
+.admin-chart-card h5{
+  color: #b85f22;
+  font-weight: 900;
+}
+
+.admin-chart-wrap{
+  position: relative;
+  width: 100%;
+  height: 300px;
+  max-height: 300px;
+  margin-top: 16px;
+  background: rgba(255,255,255,.72);
+  border: 1px solid #f1dfb8;
+  border-radius: 18px;
+  padding: 14px;
+}
+
+#graficoVentas{
+  width: 100% !important;
+  height: 270px !important;
+  max-height: 270px !important;
+}
+
+/* Cards de tablas laterales */
+#estadisticas-contenido .col-md-4 .card{
+  border: 1px solid rgba(255,179,0,.24);
+  border-radius: 24px !important;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+}
+
+#estadisticas-contenido .col-md-4 .card h5{
+  color: #b85f22;
+  font-weight: 900;
+  margin-bottom: 16px;
+}
+
+#estadisticas-contenido .table{
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+#estadisticas-contenido .table thead th{
+  background: linear-gradient(135deg, #ffb300, #ff9800) !important;
+  color: #fff !important;
+  border: none;
+  font-weight: 900;
+  padding: 12px;
+}
+
+#estadisticas-contenido .table tbody td{
+  padding: 11px 12px;
+  border-color: rgba(0,0,0,.06);
+}
+
+#estadisticas-contenido .table tbody tr:hover td{
+  background: #fff3cd;
+}
+
+/* Botones exportar */
+#estadisticas-contenido .btn-warning{
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffb300, #ff7a00);
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(255,128,0,.20);
+}
+
+#estadisticas-contenido .btn-warning:hover{
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 1200px){
+  #estadisticas-contenido .col-md-2{
+    flex: 0 0 auto;
+    width: 33.3333%;
+  }
+}
+
+@media (max-width: 768px){
+  #estadisticas-contenido .col-md-2{
+    width: 50%;
+  }
+
+  .admin-chart-wrap{
+    height: 240px;
+    max-height: 240px;
+  }
+
+  #graficoVentas{
+    height: 210px !important;
+    max-height: 210px !important;
+  }
+}
+
+@media (max-width: 576px){
+  #estadisticas-contenido .col-md-2{
+    width: 100%;
+  }
+}
+
+
+/* ==============================
+   EXPORTAR REPORTES ADMIN
+   ============================== */
+
+.admin-stats-header{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.admin-stats-title{
+  color: #b85f22;
+  font-size: 2rem;
+  font-weight: 900;
+  margin: 0;
+}
+
+.admin-stats-subtitle{
+  margin: 6px 0 0;
+  color: #6c5a42;
+  font-weight: 600;
+}
+
+.admin-export-btn{
+  border: none;
+  border-radius: 16px;
+  padding: 13px 22px;
+  background: linear-gradient(135deg, #ff9800 0%, #ff7a00 100%);
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 0 12px 24px rgba(255, 128, 0, .28);
+}
+
+.admin-export-btn:hover,
+.admin-export-btn:focus{
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(255, 128, 0, .36);
+}
+
+.admin-export-menu{
+  min-width: 230px;
+  border: 1px solid rgba(255,179,0,.24);
+  border-radius: 18px;
+  padding: 10px;
+  background: #fffdf8;
+  box-shadow: 0 18px 40px rgba(0,0,0,.16);
+}
+
+.admin-export-menu .dropdown-item{
+  border-radius: 12px;
+  padding: 11px 14px;
+  color: #5a3216;
+  font-weight: 800;
+}
+
+.admin-export-menu .dropdown-item:hover{
+  background: #fff3cd;
+  color: #e65f18;
+}
+
+/* Íconos de cards superiores */
+.stat-icon{
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 8px;
+  border-radius: 50%;
+  background: #fff1c9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 6px 14px rgba(255,179,0,.14);
+}
+
+/* Botón exportar de tablas */
+.admin-table-export-btn{
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #ffb300, #ff7a00);
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(255,128,0,.20);
+}
+
+.admin-table-export-btn:hover{
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px){
+  .admin-stats-header{
+    flex-direction: column;
+  }
+
+  .admin-export-btn{
+    width: 100%;
+  }
+
+  .admin-stats-title{
+    font-size: 1.6rem;
+  }
+}
+
+/* ==============================
+   ADMIN DASHBOARD - CARDS PREMIUM
+   ============================== */
+
+.admin-stat-grid{
+  margin-top: 8px;
+}
+
+.admin-stat-card{
+  min-height: 155px;
+  border: 1px solid rgba(255,179,0,.24);
+  border-radius: 24px !important;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 90% 15%, rgba(255,225,160,.45) 0 38px, transparent 40px),
+    linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  position: relative;
+  overflow: hidden;
+  transition: all .18s ease;
+}
+
+.admin-stat-card::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 5px;
+  height: calc(100% - 36px);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffb300, #ff7a00);
+}
+
+.admin-stat-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px rgba(0,0,0,.10);
+}
+
+.admin-stat-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.admin-stat-icon{
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #fff1c9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 6px 14px rgba(255,179,0,.18);
+}
+
+.admin-stat-tag{
+  font-size: .75rem;
+  font-weight: 900;
+  color: #b85f22;
+  background: rgba(255,179,0,.16);
+  border: 1px solid rgba(255,179,0,.22);
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+
+.admin-stat-card h6{
+  color: #8f4d19;
+  font-size: .88rem;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.admin-stat-card h3{
+  color: #e65f18;
+  font-size: 1.9rem;
+  line-height: 1.1;
+  font-weight: 900;
+  margin: 0;
+}
+
+.admin-stat-card p{
+  margin: 8px 0 0;
+  color: #7a6a55;
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+.admin-stat-money h3{
+  font-size: 1.45rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px){
+  .admin-stat-card{
+    min-height: 145px;
+  }
+
+  .admin-stat-card h3{
+    font-size: 1.55rem;
+  }
+
+  .admin-stat-money h3{
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 768px){
+  .admin-stat-card{
+    min-height: auto;
+  }
+}
+
+/* ==============================
+   ADMIN DASHBOARD - CARDS PREMIUM
+   ============================== */
+
+.admin-stat-grid{
+  margin-top: 8px;
+}
+
+.admin-stat-card{
+  min-height: 155px;
+  border: 1px solid rgba(255,179,0,.24);
+  border-radius: 24px !important;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 90% 15%, rgba(255,225,160,.45) 0 38px, transparent 40px),
+    linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  position: relative;
+  overflow: hidden;
+  transition: all .18s ease;
+}
+
+.admin-stat-card::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 5px;
+  height: calc(100% - 36px);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffb300, #ff7a00);
+}
+
+.admin-stat-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px rgba(0,0,0,.10);
+}
+
+.admin-stat-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.admin-stat-icon{
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #fff1c9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 6px 14px rgba(255,179,0,.18);
+}
+
+.admin-stat-tag{
+  font-size: .75rem;
+  font-weight: 900;
+  color: #b85f22;
+  background: rgba(255,179,0,.16);
+  border: 1px solid rgba(255,179,0,.22);
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+
+.admin-stat-card h6{
+  color: #8f4d19;
+  font-size: .88rem;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.admin-stat-card h3{
+  color: #e65f18;
+  font-size: 1.9rem;
+  line-height: 1.1;
+  font-weight: 900;
+  margin: 0;
+}
+
+.admin-stat-card p{
+  margin: 8px 0 0;
+  color: #7a6a55;
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+.admin-stat-money h3{
+  font-size: 1.45rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px){
+  .admin-stat-card{
+    min-height: 145px;
+  }
+
+  .admin-stat-card h3{
+    font-size: 1.55rem;
+  }
+
+  .admin-stat-money h3{
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 768px){
+  .admin-stat-card{
+    min-height: auto;
+  }
+}
+
+/* ==================================================
+   FIX CARDS DASHBOARD COMPACTAS COMO REFERENCIA
+   PEGAR ABAJO DE TODO
+   ================================================== */
+
+#estadisticas-contenido .admin-stat-grid{
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+#estadisticas-contenido .admin-stat-grid > div{
+  width: calc(100% / 6);
+  flex: 1 1 0;
+  max-width: none;
+}
+
+#estadisticas-contenido .admin-stat-card{
+  min-height: 108px !important;
+  height: 108px !important;
+  padding: 16px 16px 12px 18px !important;
+  border-radius: 18px !important;
+  background: #fffaf0 !important;
+  border: 1px solid rgba(255,179,0,.24) !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.06) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+#estadisticas-contenido .admin-stat-card::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  width: 4px;
+  height: calc(100% - 28px);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffb300, #ff7a00);
+}
+
+#estadisticas-contenido .admin-stat-top{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 12px !important;
+}
+
+#estadisticas-contenido .admin-stat-icon{
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  border-radius: 50%;
+  background: #fff1d6 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px !important;
+  box-shadow: none !important;
+}
+
+#estadisticas-contenido .admin-stat-tag{
+  display: none !important;
+}
+
+#estadisticas-contenido .admin-stat-card h6{
+  position: absolute;
+  top: 24px;
+  left: 70px;
+  margin: 0 !important;
+  color: #4b2b16 !important;
+  font-size: .82rem !important;
+  font-weight: 800 !important;
+  line-height: 1.1;
+}
+
+#estadisticas-contenido .admin-stat-card h3{
+  position: absolute;
+  left: 18px;
+  bottom: 15px;
+  margin: 0 !important;
+  color: #e65f18 !important;
+  font-size: 1.65rem !important;
+  font-weight: 900 !important;
+  line-height: 1;
+}
+
+#estadisticas-contenido .admin-stat-money h3{
+  font-size: 1.45rem !important;
+}
+
+#estadisticas-contenido .admin-stat-card p{
+  display: none !important;
+}
+
+/* Iconito chiquito decorativo abajo derecha */
+#estadisticas-contenido .admin-stat-card::after{
+  position: absolute;
+  right: 15px;
+  bottom: 15px;
+  color: #ff9800;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+#estadisticas-contenido .admin-stat-card:nth-child(1)::after{
+  content: "👥";
+}
+
+#estadisticas-contenido .admin-stat-card:nth-child(2)::after{
+  content: "🛍️";
+}
+
+#estadisticas-contenido .admin-stat-card:nth-child(3)::after{
+  content: "📋";
+}
+
+#estadisticas-contenido .admin-stat-card:nth-child(4)::after{
+  content: "💲";
+}
+
+#estadisticas-contenido .admin-stat-card:nth-child(5)::after{
+  content: "🟣";
+}
+
+#estadisticas-contenido .admin-stat-card:nth-child(6)::after{
+  content: "🟠";
+}
+
+/* Responsive */
+@media (max-width: 1200px){
+  #estadisticas-contenido .admin-stat-grid{
+    flex-wrap: wrap;
+  }
+
+  #estadisticas-contenido .admin-stat-grid > div{
+    width: calc(33.333% - 10px);
+    flex: 0 0 calc(33.333% - 10px);
+  }
+}
+
+@media (max-width: 768px){
+  #estadisticas-contenido .admin-stat-grid > div{
+    width: calc(50% - 8px);
+    flex: 0 0 calc(50% - 8px);
+  }
+}
+
+@media (max-width: 520px){
+  #estadisticas-contenido .admin-stat-grid > div{
+    width: 100%;
+    flex: 0 0 100%;
+  }
+}
+
+
+/* ==============================
+   ADMIN DASHBOARD - TABLAS LATERALES
+   ============================== */
+
+#estadisticas-contenido .admin-side-card{
+  border: 1px solid rgba(255,179,0,.24);
+  border-radius: 22px !important;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+}
+
+.admin-side-card-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.admin-side-card-head h5{
+  margin: 0;
+  color: #b85f22;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.admin-side-card-head p{
+  margin: 4px 0 0;
+  color: #7a6a55;
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+.admin-mini-export{
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 14px;
+  border: 1px solid #f0d7a2;
+  background: #fff;
+  color: #e65f18;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-weight: 900;
+  box-shadow: 0 6px 14px rgba(0,0,0,.06);
+  transition: all .18s ease;
+}
+
+.admin-mini-export:hover{
+  background: #fff3cd;
+  color: #e65f18;
+  transform: translateY(-1px);
+}
+
+.admin-mini-table-wrap{
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: none;
+  border: 1px solid rgba(255,179,0,.16);
+  background: #fff;
+}
+
+.admin-mini-table{
+  margin: 0;
+  overflow: hidden;
+}
+
+.admin-mini-table thead th{
+  background: linear-gradient(135deg, #ffb300, #ff9800) !important;
+  color: #fff !important;
+  border: none !important;
+  font-weight: 900;
+  padding: 12px 10px;
+}
+
+.admin-mini-table tbody td{
+  padding: 12px 10px;
+  border-color: rgba(0,0,0,.06);
+  background: rgba(255,255,255,.92);
+}
+
+.admin-mini-table tbody tr:hover td{
+  background: #fff3cd !important;
+}
+
+.admin-rank-badge{
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #fff1c9;
+  color: #b85f22;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  border: 1px solid #f0d7a2;
+}
+
+.admin-product-name{
+  color: #3f2b16;
+  font-weight: 800;
+}
+
+.admin-sold-badge{
+  min-width: 42px;
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: #eaf8df;
+  color: #3f8f20;
+  font-weight: 900;
+  display: inline-block;
+  border: 1px solid #cceeb6;
+}
+
+.admin-stock-badge{
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-weight: 900;
+  display: inline-block;
+  min-width: 70px;
+}
+
+.admin-stock-zero{
+  background: #ffe3e3;
+  color: #c62828;
+  border: 1px solid #ffc0c0;
+}
+
+.admin-stock-low{
+  background: #fff1c9;
+  color: #b85f22;
+  border: 1px solid #f0d7a2;
+}
+
+.admin-side-link{
+  margin-top: 14px;
+  width: 100%;
+  border-radius: 999px;
+  padding: 10px 14px;
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  color: #b85f22;
+  background: rgba(255,255,255,.72);
+  border: 1px solid #f0d7a2;
+  font-weight: 900;
+  transition: all .18s ease;
+}
+
+.admin-side-link:hover{
+  background: #fff3cd;
+  color: #e65f18;
+  transform: translateY(-1px);
+}
+
+/* ==========================================
+   ADMIN DASHBOARD - GRÁFICO DE VENTAS PREMIUM
+   ========================================== */
+
+.admin-sales-card{
+  border: 1px solid rgba(255,179,0,.24);
+  border-radius: 24px !important;
+  padding: 20px;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  overflow: hidden;
+}
+
+.admin-sales-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.admin-sales-title-wrap{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-sales-icon{
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  background: #fff1c9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  box-shadow: 0 6px 14px rgba(255,179,0,.14);
+}
+
+.admin-sales-head h5{
+  color: #8f4d19;
+  font-size: 1.1rem;
+  font-weight: 900;
+  margin: 0;
+}
+
+.admin-sales-head p{
+  color: #7a6a55;
+  font-size: .84rem;
+  font-weight: 600;
+  margin: 4px 0 0;
+}
+
+.admin-sales-select{
+  width: auto;
+  min-width: 120px;
+  border: 1px solid #ecd8aa;
+  border-radius: 12px;
+  background: #fff;
+  font-weight: 800;
+  color: #75431b;
+}
+
+.admin-sales-filters{
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 14px;
+  border: 1px solid #f0ddb4;
+  border-radius: 18px;
+  background: rgba(255,255,255,.66);
+}
+
+.admin-sales-filter-field{
+  flex: 1;
+  min-width: 160px;
+}
+
+.admin-sales-filter-field label{
+  display: block;
+  margin-bottom: 6px;
+  color: #8f4d19;
+  font-size: .82rem;
+  font-weight: 900;
+}
+
+.admin-sales-filter-field .form-control{
+  min-height: 40px;
+  border: 1px solid #ead9b8;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.admin-sales-filter-field .form-control:focus,
+.admin-sales-select:focus{
+  border-color: #ffb300;
+  box-shadow: 0 0 0 .18rem rgba(255,179,0,.16);
+}
+
+.admin-sales-apply{
+  min-height: 40px;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 22px;
+  background: linear-gradient(135deg, #ffb300 0%, #ff7a00 100%);
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(255,128,0,.20);
+}
+
+.admin-sales-apply:hover{
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.admin-sales-chart-wrap{
+  position: relative;
+  width: 100%;
+  height: 300px;
+  max-height: 300px;
+  padding: 12px;
+  border: 1px solid #f0ddb4;
+  border-radius: 18px;
+  background: rgba(255,255,255,.72);
+  overflow: hidden;
+}
+
+#graficoVentas{
+  width: 100% !important;
+  height: 275px !important;
+  max-height: 275px !important;
+}
+
+.admin-sales-empty{
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: rgba(255,253,248,.94);
+  color: #8f4d19;
+  text-align: center;
+}
+
+.admin-sales-empty-icon{
+  font-size: 34px;
+}
+
+.admin-sales-empty span{
+  color: #7a6a55;
+  font-size: .88rem;
+  font-weight: 600;
+}
+
+.admin-sales-footer{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.admin-sales-updated{
+  color: #7a6a55;
+  font-size: .84rem;
+  font-weight: 700;
+}
+
+.admin-sales-updated span{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: #eaf8df;
+  color: #4f8a22;
+  border: 1px solid #cceeb6;
+}
+
+.admin-sales-export{
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #ffb300 0%, #ff7a00 100%);
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(255,128,0,.20);
+}
+
+.admin-sales-export:hover{
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px){
+  .admin-sales-head{
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-sales-select{
+    width: 100%;
+  }
+
+  .admin-sales-filters{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-sales-filter-field{
+    width: 100%;
+  }
+
+  .admin-sales-chart-wrap{
+    height: 240px;
+    max-height: 240px;
+  }
+
+  #graficoVentas{
+    height: 215px !important;
+    max-height: 215px !important;
+  }
+
+  .admin-sales-footer{
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-sales-export{
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ==========================================
+   ADMIN - GESTIÓN DE PEDIDOS PREMIUM
+   ========================================== */
+
+.admin-orders-section{
+  padding: 22px 0 42px;
+}
+
+.admin-orders-header{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.admin-orders-header h2{
+  margin: 0;
+  color: #8f4d19;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.admin-orders-header p{
+  margin: 6px 0 0;
+  color: #75634d;
+  font-weight: 600;
+}
+
+.admin-orders-export{
+  border: 1px solid #f0d7a2;
+  border-radius: 14px;
+  padding: 11px 18px;
+  background: #fff;
+  color: #e65f18;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(0,0,0,.06);
+}
+
+.admin-orders-export:hover{
+  background: #fff3cd;
+  color: #e65f18;
+  transform: translateY(-1px);
+}
+
+/* Resumen superior */
+.admin-orders-summary{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(190px, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.admin-order-summary-card{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 130px;
+  padding: 18px;
+  border: 1px solid rgba(255,179,0,.22);
+  border-radius: 22px;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+}
+
+.admin-order-summary-icon{
+  width: 54px;
+  height: 54px;
+  min-width: 54px;
+  border-radius: 50%;
+  background: #fff1c9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+}
+
+.admin-icon-green{
+  background: #e9f8dc;
+}
+
+.admin-icon-yellow{
+  background: #fff1c9;
+}
+
+.admin-order-summary-card span{
+  display: block;
+  color: #8f4d19;
+  font-size: .88rem;
+  font-weight: 900;
+}
+
+.admin-order-summary-card strong{
+  display: block;
+  margin-top: 5px;
+  color: #e65f18;
+  font-size: 1.7rem;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.admin-order-summary-card small{
+  display: block;
+  margin-top: 8px;
+  color: #7a6a55;
+  font-weight: 600;
+}
+
+.admin-summary-green{
+  color: #3f8f20 !important;
+}
+
+/* Filtros */
+.admin-orders-filter-card{
+  display: grid;
+  grid-template-columns: 150px 150px minmax(220px, 1fr) 220px auto;
+  gap: 14px;
+  align-items: end;
+  padding: 18px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255,179,0,.22);
+  border-radius: 22px;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  box-shadow: 0 10px 24px rgba(0,0,0,.05);
+}
+
+.admin-orders-filter-field label{
+  display: block;
+  margin-bottom: 7px;
+  color: #75431b;
+  font-size: .84rem;
+  font-weight: 900;
+}
+
+.admin-orders-filter-field .form-control,
+.admin-orders-filter-field .form-select{
+  min-height: 42px;
+  border: 1px solid #ead9b8;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.admin-orders-filter-actions{
+  display: flex;
+  gap: 9px;
+}
+
+.admin-orders-filter-btn,
+.admin-orders-clear-btn{
+  min-height: 42px;
+  border-radius: 12px;
+  padding: 9px 15px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.admin-orders-filter-btn{
+  border: none;
+  background: linear-gradient(135deg, #ffb300, #ff7a00);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(255,128,0,.20);
+}
+
+.admin-orders-filter-btn:hover{
+  color: #fff;
+}
+
+.admin-orders-clear-btn{
+  border: 1px solid #e4d4b2;
+  background: #fff;
+  color: #6f5b43;
+}
+
+/* Card tabla */
+.admin-orders-table-card{
+  padding: 18px;
+  border: 1px solid rgba(255,179,0,.22);
+  border-radius: 24px;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff7df 100%);
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+}
+
+.admin-orders-table-head{
+  margin-bottom: 15px;
+}
+
+.admin-orders-table-head h5{
+  margin: 0;
+  color: #8f4d19;
+  font-size: 1.16rem;
+  font-weight: 900;
+}
+
+.admin-orders-table-head p{
+  margin: 4px 0 0;
+  color: #7a6a55;
+  font-size: .85rem;
+  font-weight: 600;
+}
+
+.admin-orders-table-wrap{
+  overflow: hidden;
+  border: 1px solid #f0ddb4;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.admin-orders-table{
+  margin: 0;
+}
+
+.admin-orders-table thead th{
+  padding: 14px 12px;
+  border: none;
+  background: linear-gradient(135deg, #fff3d3, #ffe5b7) !important;
+  color: #75431b !important;
+  font-size: .88rem;
+  font-weight: 900;
+}
+
+.admin-orders-table tbody td{
+  padding: 14px 12px;
+  vertical-align: middle;
+  border-color: rgba(0,0,0,.06);
+  background: rgba(255,255,255,.94);
+}
+
+.admin-orders-table tbody tr:hover td{
+  background: #fff8e7;
+}
+
+.admin-order-number{
+  color: #2f2a24;
+  font-weight: 900;
+}
+
+.admin-order-date{
+  color: #655848;
+  font-size: .88rem;
+  font-weight: 700;
+}
+
+.admin-order-user{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.admin-order-user-icon{
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff1c9;
+  font-size: 14px;
+}
+
+.admin-order-total{
+  color: #2f2a24;
+  font-size: .95rem;
+}
+
+/* Estados */
+.admin-order-status{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 118px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-size: .74rem;
+  font-weight: 900;
+}
+
+.admin-order-status-pending{
+  border: 1px solid #f5d58b;
+  background: #fff3cc;
+  color: #b77700;
+}
+
+.admin-order-status-preparing{
+  border: 1px solid #ffd0a4;
+  background: #fff0e2;
+  color: #df6b00;
+}
+
+.admin-order-status-delivered{
+  border: 1px solid #cceeb6;
+  background: #eaf8df;
+  color: #3f8f20;
+}
+
+.admin-order-status-requested{
+  border: 1px solid #dfc9f7;
+  background: #f3e9ff;
+  color: #7c39b8;
+}
+
+.admin-order-status-cancelled{
+  border: 1px solid #ffc0c0;
+  background: #ffe3e3;
+  color: #c62828;
+}
+
+/* Acciones */
+.admin-order-actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.admin-order-detail-btn,
+.admin-order-status-btn{
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-size: .78rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.admin-order-detail-btn{
+  border: 1px solid #ded5c8;
+  background: #fff;
+  color: #4b4238;
+}
+
+.admin-order-status-btn{
+  border: 1px solid #f2c986;
+  background: #fff8e7;
+  color: #e65f18;
+}
+
+.admin-order-status-btn:disabled{
+  border-color: #e2e2e2;
+  background: #f5f5f5;
+  color: #aaa;
+}
+
+/* Footer tabla */
+.admin-orders-table-footer{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.admin-orders-size{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6f5b43;
+  font-size: .84rem;
+  font-weight: 700;
+}
+
+.admin-orders-size .form-select{
+  width: auto;
+  border-radius: 9px;
+}
+
+.admin-orders-count{
+  color: #6f5b43;
+  font-size: .84rem;
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 1200px){
+  .admin-orders-filter-card{
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+
+  .admin-orders-filter-actions{
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px){
+  .admin-orders-summary{
+    grid-template-columns: 1fr;
+  }
+
+  .admin-orders-filter-card{
+    grid-template-columns: 1fr;
+  }
+
+  .admin-orders-filter-actions{
+    flex-direction: column;
+  }
+
+  .admin-orders-filter-btn,
+  .admin-orders-clear-btn{
+    width: 100%;
+  }
+
+  .admin-orders-table-footer{
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-order-actions{
+    flex-direction: column;
+  }
+}
+
+
+/* ==========================================
+   RESUMEN DE PEDIDOS - 5 CARDS
+   ========================================== */
+
+.admin-orders-summary-five{
+  grid-template-columns: repeat(5, minmax(170px, 1fr));
+}
+
+.admin-icon-purple{
+  background: #eee5ff;
+}
+
+.admin-icon-red{
+  background: #ffe3e3;
+}
+
+.admin-summary-red{
+  color: #c62828 !important;
+}
+
+@media (max-width: 1400px){
+  .admin-orders-summary-five{
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 900px){
+  .admin-orders-summary-five{
+    grid-template-columns: repeat(2, minmax(170px, 1fr));
+  }
+}
+
+@media (max-width: 576px){
+  .admin-orders-summary-five{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   ADMIN PEDIDOS - MODALES PREMIUM
+   ========================================== */
+
+.peq-order-modal-card{
+  border: none;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #fffdf8;
+  box-shadow:
+    0 28px 70px rgba(0,0,0,.24),
+    0 0 0 1px rgba(255,179,0,.10);
+  animation: peqOrderModalEnter .22s ease both;
+}
+
+@keyframes peqOrderModalEnter{
+  from{
+    opacity: 0;
+    transform: translateY(12px) scale(.98);
+  }
+
+  to{
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Encabezado */
+.peq-order-modal-header{
+  position: relative;
+  padding: 22px 26px;
+  border-bottom: 1px solid rgba(255,179,0,.20);
+  background:
+    radial-gradient(circle at 92% 100%, rgba(255,224,150,.48) 0 60px, transparent 62px),
+    linear-gradient(135deg, #fff7df 0%, #fff1c4 100%);
+}
+
+.peq-order-modal-heading{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.peq-order-modal-icon{
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ffe082 0%, #fff6cc 100%);
+  box-shadow: 0 8px 18px rgba(255,179,0,.22);
+  font-size: 25px;
+}
+
+.peq-order-modal-overline{
+  color: #d46c14;
+  font-size: .74rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.peq-order-modal-heading h5{
+  margin: 2px 0 0;
+  color: #713a14;
+  font-size: 1.45rem;
+  font-weight: 900;
+}
+
+.peq-order-modal-heading p{
+  margin: 3px 0 0;
+  color: #977040;
+  font-size: .88rem;
+  font-weight: 600;
+}
+
+.peq-order-modal-close{
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(159,99,40,.18);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,.88);
+  color: #a35a1c;
+  font-size: 28px;
+  line-height: 1;
+  box-shadow: 0 8px 18px rgba(0,0,0,.08);
+  transition: all .18s ease;
+}
+
+.peq-order-modal-close:hover{
+  background: #fff;
+  color: #ff7a00;
+  transform: rotate(8deg) scale(1.05);
+}
+
+/* Cuerpo */
+.peq-order-modal-body{
+  padding: 24px 26px;
+  background: linear-gradient(180deg, #fffdf8 0%, #fffaf0 100%);
+}
+
+/* Resumen del detalle */
+.peq-order-detail-summary{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.peq-order-detail-info{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 82px;
+  padding: 14px;
+  border: 1px solid #f0ddb4;
+  border-radius: 18px;
+  background: rgba(255,255,255,.74);
+}
+
+.peq-order-detail-info-icon{
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff1c9;
+  font-size: 19px;
+}
+
+.peq-order-detail-info span{
+  display: block;
+  margin-bottom: 5px;
+  color: #8f4d19;
+  font-size: .8rem;
+  font-weight: 900;
+}
+
+.peq-order-detail-info strong{
+  color: #4c3a29;
+  font-size: .94rem;
+  font-weight: 900;
+}
+
+/* Tabla detalle */
+.peq-order-detail-table-card{
+  overflow: hidden;
+  border: 1px solid #f0ddb4;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.peq-order-detail-table-title{
+  padding: 15px 16px 10px;
+  background: #fffaf0;
+}
+
+.peq-order-detail-table-title h6{
+  margin: 0;
+  color: #8f4d19;
+  font-weight: 900;
+}
+
+.peq-order-detail-table-title p{
+  margin: 4px 0 0;
+  color: #7a6a55;
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+.peq-order-detail-table{
+  margin: 0;
+}
+
+.peq-order-detail-table thead th{
+  padding: 12px;
+  border: none;
+  background: linear-gradient(135deg, #ffb300, #ff9800) !important;
+  color: #fff !important;
+  font-size: .84rem;
+  font-weight: 900;
+}
+
+.peq-order-detail-table tbody td{
+  padding: 13px 12px;
+  border-color: rgba(0,0,0,.06);
+}
+
+/* Total */
+.peq-order-detail-total{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 17px 18px;
+  border: 1px solid #f0ddb4;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fff5d7 0%, #fffaf0 100%);
+}
+
+.peq-order-detail-total span,
+.peq-order-detail-total small{
+  display: block;
+}
+
+.peq-order-detail-total span{
+  color: #8f4d19;
+  font-weight: 900;
+}
+
+.peq-order-detail-total small{
+  margin-top: 3px;
+  color: #7a6a55;
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+.peq-order-detail-total strong{
+  color: #e65f18;
+  font-size: 1.65rem;
+  font-weight: 900;
+}
+
+/* Badge detalle */
+.peq-order-state-badge{
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-size: .74rem !important;
+  font-weight: 900 !important;
+}
+
+.peq-order-state-default{
+  border: 1px solid #ded5c8;
+  background: #f7f4ef;
+  color: #655848 !important;
+}
+
+.peq-order-state-pending{
+  border: 1px solid #f5d58b;
+  background: #fff3cc;
+  color: #b77700 !important;
+}
+
+.peq-order-state-preparing{
+  border: 1px solid #ffd0a4;
+  background: #fff0e2;
+  color: #df6b00 !important;
+}
+
+.peq-order-state-delivered{
+  border: 1px solid #cceeb6;
+  background: #eaf8df;
+  color: #3f8f20 !important;
+}
+
+.peq-order-state-requested{
+  border: 1px solid #dfc9f7;
+  background: #f3e9ff;
+  color: #7c39b8 !important;
+}
+
+.peq-order-state-cancelled{
+  border: 1px solid #ffc0c0;
+  background: #ffe3e3;
+  color: #c62828 !important;
+}
+
+/* Modal cambiar estado */
+.peq-order-state-field label{
+  display: block;
+  margin-bottom: 8px;
+  color: #75431b;
+  font-size: .9rem;
+  font-weight: 900;
+}
+
+.peq-order-state-select{
+  min-height: 46px;
+  border: 1px solid #ead9b8;
+  border-radius: 13px;
+  background: #fff;
+  color: #5b4126;
+  font-weight: 800;
+}
+
+.peq-order-state-select:focus{
+  border-color: #ffb300;
+  box-shadow: 0 0 0 .20rem rgba(255,179,0,.17);
+}
+
+.peq-order-state-alert{
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 16px;
+}
+
+.peq-order-state-alert-icon{
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,.72);
+}
+
+.peq-order-state-alert strong{
+  display: block;
+  margin-bottom: 3px;
+  font-size: .9rem;
+  font-weight: 900;
+}
+
+.peq-order-state-alert p{
+  margin: 0;
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+.peq-order-alert-info{
+  border: 1px solid #cfe3ff;
+  background: #eef6ff;
+  color: #285f9d;
+}
+
+.peq-order-alert-success{
+  border: 1px solid #cceeb6;
+  background: #eaf8df;
+  color: #3f8f20;
+}
+
+.peq-order-alert-warning{
+  border: 1px solid #f5d58b;
+  background: #fff3cc;
+  color: #9b6b00;
+}
+
+.peq-order-alert-danger{
+  border: 1px solid #ffc0c0;
+  background: #ffe3e3;
+  color: #b72230;
+}
+
+.peq-order-flow{
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  color: #9b754b;
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.peq-order-flow span{
+  border: 1px solid #f0ddb4;
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: rgba(255,255,255,.70);
+}
+
+/* Footer */
+.peq-order-modal-footer{
+  gap: 10px;
+  padding: 18px 26px 22px;
+  border-top: 1px solid rgba(255,179,0,.18);
+  background: #fff8e9;
+}
+
+.peq-order-btn-secondary,
+.peq-order-btn-primary{
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-weight: 900;
+}
+
+.peq-order-btn-secondary{
+  border: 1px solid #e2d1ad;
+  background: #fff;
+  color: #6f5b43;
+}
+
+.peq-order-btn-primary{
+  border: none;
+  background: linear-gradient(135deg, #ffb300, #ff7a00);
+  color: #fff;
+  box-shadow: 0 9px 18px rgba(255,128,0,.22);
+}
+
+.peq-order-btn-primary:hover{
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px){
+  .peq-order-detail-summary{
+    grid-template-columns: 1fr;
+  }
+
+  .peq-order-modal-header,
+  .peq-order-modal-body,
+  .peq-order-modal-footer{
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .peq-order-modal-footer{
+    flex-direction: column-reverse;
+  }
+
+  .peq-order-modal-footer .btn{
+    width: 100%;
+  }
+
+  .peq-order-modal-footer a{
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ==========================================
+   PEQUELANDIA - CAMPANITA DE NOTIFICACIONES
+   ========================================== */
+
+.peq-notification-dropdown{
+  position: relative;
+}
+
+.peq-notification-button{
+  position: relative;
+  width: 45px;
+  height: 45px;
+  border: 1px solid rgba(255,179,0,.28);
+  border-radius: 50%;
+  background: #fff8e7;
+  box-shadow: 0 7px 16px rgba(0,0,0,.07);
+  transition: all .18s ease;
+}
+
+.peq-notification-button:hover{
+  background: #fff1c9;
+  transform: translateY(-1px);
+}
+
+.peq-notification-bell{
+  font-size: 19px;
+}
+
+.peq-notification-badge{
+  position: absolute;
+  top: -4px;
+  right: -5px;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 5px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #e53935;
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 900;
+  line-height: 17px;
+  text-align: center;
+}
+
+.peq-notification-menu{
+  width: min(390px, calc(100vw - 24px));
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid rgba(255,179,0,.22);
+  border-radius: 18px;
+  background: #fffdf8;
+  box-shadow: 0 20px 46px rgba(0,0,0,.17);
+}
+
+.peq-notification-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 15px 16px;
+  border-bottom: 1px solid #f0ddb4;
+  background: linear-gradient(135deg, #fff7df, #fff1c4);
+}
+
+.peq-notification-header strong{
+  display: block;
+  color: #75431b;
+  font-weight: 900;
+}
+
+.peq-notification-header small{
+  display: block;
+  margin-top: 2px;
+  color: #977040;
+  font-size: .76rem;
+  font-weight: 600;
+}
+
+.peq-notification-read-all{
+  border: 1px solid #e8ce9c;
+  border-radius: 999px;
+  background: rgba(255,255,255,.74);
+  color: #a55b18;
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.peq-notification-list{
+  max-height: 390px;
+  overflow-y: auto;
+}
+
+.peq-notification-item{
+  display: flex;
+  gap: 10px;
+  padding: 13px 15px;
+  border-bottom: 1px solid rgba(0,0,0,.055);
+  background: #fffdf8;
+  cursor: pointer;
+  transition: background .16s ease;
+}
+
+.peq-notification-item:hover{
+  background: #fff8e7;
+}
+
+.peq-notification-item.is-unread{
+  background: #fff4d5;
+}
+
+.peq-notification-icon{
+  width: 35px;
+  height: 35px;
+  min-width: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff1c9;
+}
+
+.peq-notification-body{
+  min-width: 0;
+}
+
+.peq-notification-text{
+  margin: 0;
+  color: #584530;
+  font-size: .84rem;
+  font-weight: 700;
+}
+
+.peq-notification-date{
+  display: block;
+  margin-top: 4px;
+  color: #a3896a;
+  font-size: .73rem;
+  font-weight: 600;
+}
+
+.peq-notification-empty{
+  padding: 25px 15px;
+  color: #947c61;
+  font-size: .86rem;
+  font-weight: 700;
+  text-align: center;
+}
+</style>     
+</body>
+</html>

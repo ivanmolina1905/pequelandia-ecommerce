@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="tienda,online,pequelandia,tiendaropa,tiendaropainfantil">
+    <meta name="author" content="Ivan Molina Moglia" />
+    <title>Pequelandia</title>
+    <link rel="stylesheet" href="/bootstrap-5.3.5-dist/bootstrap-5.3.5-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Cabecera fija -->
+<div name="menu" class="mt-5"> 
+  <nav class="navbar navbar-expand-sm  fixed-top shadow" style="top: 35px;" style="top: 35px; background-color: #ffe0b2;"> 
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="indexv1.html">
+        <img src="/imagenes/peq.png.jpg" width="120" height="90" class="d-inline-block align-text-auto">
+      </a>
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo03" >
+        <form class="d-flex ms-auto" role="search" style="width: 30%;">
+          <input class="form-control  me-2   w-100 w-sm-110 w-md-100 w-lg-100 " type="search" placeholder="Buscar" aria-label="Search" >
+          <button class="btn btn-outline-info" style="border: none;" type="submit"><img src="/imagenes/search.svg" alt=""></button>
+        </form>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="carrito.html" target="_self" aria-label="Ver carrito" title="Ver carrito">
+             <img src="/imagenes/carritooriginal.png" alt="Carrito" width="65" height="65">
+            </a>
+          </li>
+          <li class="nav-item me-5">
+            <a class="nav-link" href="login.html" target="_self" title="Login">
+              <img src="/imagenes/editar-informacion.png" alt="cuenta" width="65" height="65">
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
+
+<!--
+Login
+
+<section class="container-fluid bg-light-amber min-vh-100 d-flex align-items-center justify-content-center">
+  <div class="card shadow login-card" style="max-width: 420px; width: 100%;">
+    <div class="card-body p-4 p-md-5">
+      <h1 class="h4 text-center mb-4" id="title">Iniciar sesión</h1>
+
+      !-- ===== VISTA: LOGIN ===== -->
+      <div data-view="login">
+        <form action="/auth/login" method="post" novalidate>
+          <div class="mb-3">
+            <label for="username" class="form-label">Usuario o email</label>
+            <input type="text" class="form-control" id="username" name="username"
+                   placeholder="tuusuario" autocomplete="username" required>
+          </div>
+
+          <div class="mb-2">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="password" name="password"
+                   placeholder="••••••••" autocomplete="current-password" required>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="form-check">
+              <!-- Spring Security espera 'remember-me' -->
+              <input class="form-check-input" type="checkbox" id="remember" name="remember-me">
+              <label class="form-check-label" for="remember">Recordarme</label>
+            </div>
+
+            <!-- Abrir la vista "forgot" en la misma página -->
+            <a class="link-amber" href="/login.html?view=forgot" target="_self">Olvidé mi contraseña</a>
+          </div>
+
+          <!-- mensajes opcionales por query (?reset=ok, ?error=badcred) -->
+          <div id="loginMsg" class="alert alert-success d-none"></div>
+          <div id="loginErr" class="alert alert-danger d-none"></div>
+
+          <button type="submit" class="btn btn-amber w-100 mb-2">Ingresar</button>
+        </form>
+
+        <hr class="my-4">
+        <p class="text-center mb-2">¿No tenés cuenta?</p>
+        <a class="btn btn-outline-amber w-100" href="/auth/register" target="_self">Crear cuenta</a>
+      </div>
+
+      <!-- ===== VISTA: OLVIDÉ (FORGOT) ===== -->
+      <div data-view="forgot" class="d-none">
+        <p class="text-muted mb-4">Ingresá tu email o usuario y te enviaremos un enlace para restablecer tu contraseña.</p>
+
+        <form action="/auth/forgot" method="post" novalidate>
+          <div class="mb-3">
+            <label for="forgotInput" class="form-label">Email o usuario</label>
+            <input type="text" class="form-control" id="forgotInput" name="email"
+                   placeholder="tuemail@ejemplo.com" required>
+          </div>
+          <button type="submit" class="btn btn-amber w-100">Enviar enlace</button>
+        </form>
+
+        <div id="forgotMsg" class="alert alert-success mt-3 d-none">
+          Si el correo/usuario existe, te enviamos un enlace (revisá SPAM).
+        </div>
+
+        <hr class="my-4">
+        <a href="/login.html?view=login" class="btn btn-outline-amber w-100">Volver al login</a>
+      </div>
+
+      <!-- ===== VISTA: RESET ===== -->
+      <div data-view="reset" class="d-none">
+        <form action="/auth/reset" method="post" id="resetForm" novalidate>
+          <input type="hidden" name="token" id="token">
+          <div class="mb-3">
+            <label for="newpass" class="form-label">Contraseña nueva</label>
+            <input type="password" class="form-control" id="newpass" name="password"
+                   required minlength="6" placeholder="••••••••">
+          </div>
+        <div class="mb-3">
+            <label for="confpass" class="form-label">Repetir contraseña</label>
+            <input type="password" class="form-control" id="confpass" name="confirm"
+                   required minlength="6" placeholder="••••••••">
+          </div>
+          <div id="resetErr" class="alert alert-danger d-none"></div>
+          <button type="submit" class="btn btn-amber w-100">Guardar</button>
+        </form>
+
+        <hr class="my-4">
+        <a href="/login.html?view=login" class="btn btn-outline-amber w-100">Volver al login</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const qs = new URLSearchParams(location.search);
+    const view = (qs.get('view') || 'login').toLowerCase();
+    const token = qs.get('token');
+
+    // mostrar la vista correcta
+    document.querySelectorAll('[data-view]').forEach(el => {
+      el.classList.toggle('d-none', el.getAttribute('data-view') !== view);
+    });
+
+    // título dinámico
+    const titleMap = { login: 'Iniciar sesión', forgot: 'Recuperar contraseña', reset: 'Nueva contraseña' };
+    const h = document.getElementById('title');
+    if (h) h.textContent = titleMap[view] || 'Iniciar sesión';
+
+    // mensajes en LOGIN (?reset=ok | ?error=badcred)
+    const loginMsg = document.getElementById('loginMsg');
+    const loginErr = document.getElementById('loginErr');
+    if (qs.get('reset') === 'ok' && loginMsg) {
+      loginMsg.textContent = 'Contraseña actualizada correctamente. Iniciá sesión.';
+      loginMsg.classList.remove('d-none');
+    }
+    if (qs.get('error') === 'badcred' && loginErr) {
+      loginErr.textContent = 'Usuario o contraseña incorrectos.';
+      loginErr.classList.remove('d-none');
+    }
+
+    // mensaje en FORGOT (?sent=1)
+    const forgotMsg = document.getElementById('forgotMsg');
+    if (qs.get('sent') === '1' && forgotMsg) {
+      forgotMsg.classList.remove('d-none');
+    }
+
+    // token y validación en RESET
+    if (view === 'reset') {
+      const err = qs.get('error');
+      if (!token) {
+        const div = document.getElementById('resetErr');
+        div.textContent = 'Token faltante o inválido.';
+        div.classList.remove('d-none');
+      } else {
+        const hidden = document.getElementById('token');
+        if (hidden) hidden.value = token;
+      }
+      if (err) {
+        const div = document.getElementById('resetErr');
+        div.textContent = (err === 'nomatch') ? 'Las contraseñas no coinciden' : err;
+        div.classList.remove('d-none');
+      }
+      const form = document.getElementById('resetForm');
+      if (form) {
+        form.addEventListener('submit', function(e){
+          const p = document.getElementById('newpass').value;
+          const c = document.getElementById('confpass').value;
+          if (p !== c) {
+            e.preventDefault();
+            const div = document.getElementById('resetErr');
+            div.textContent = 'Las contraseñas no coinciden';
+            div.classList.remove('d-none');
+          }
+        });
+      }
+    }
+  })();
+</script>
+
+-->
+
+
+
+
+
+
+
+
+
+</html>

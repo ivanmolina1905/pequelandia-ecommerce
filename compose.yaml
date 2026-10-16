@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${PEQUELANDIA_DB_NAME:-pequelandia_demo}
+      POSTGRES_USER: ${PEQUELANDIA_DB_USERNAME:?Definir PEQUELANDIA_DB_USERNAME}
+      POSTGRES_PASSWORD: ${PEQUELANDIA_DB_PASSWORD:?Definir PEQUELANDIA_DB_PASSWORD}
+    ports:
+      - '127.0.0.1:5432:5432'

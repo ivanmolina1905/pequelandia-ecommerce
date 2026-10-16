@@ -1,0 +1,51 @@
+# Maven / Java
+/target/
+/build/
+*.class
+*.log
+*.hprof
+# Eclipse (se conservan localmente)
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated/
+.springBeans
+.sts4-cache/
+# Otros IDE
+.idea/
+*.iml
+.vscode/
+# Windows / temporales
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.tmp
+*.swp
+*~
+# Configuración privada
+.env
+.env.*
+!.env.example
+/config/*
+!/config/.gitkeep
+application-local.properties
+application-local.yml
+application-local.yaml
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+# Datos y exportaciones
+*.sql
+*.dump
+*.backup
+*.bak
+*.db
+*.sqlite*
+*.xlsx
+/uploads/
+/backups/
+/logs/
+/.tools/

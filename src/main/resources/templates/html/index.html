@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="tienda,online,pequelandia,tiendaropa,tiendaropainfantil">
+    <meta name="author" content="Ivan Molina Moglia" />
+    <title>Pequelandia</title>
+    <link rel="stylesheet" href="/bootstrap-5.3.5-dist/bootstrap-5.3.5-dist/css/bootstrap.min.css">
+   
+</head>
+<body>
+    <!-- Cabecera fija -->
+<div name="cabecera fija">
+  <div class="container-fluid" >
+     <nav class="navbar navbar-expand-sm bg-body-tertiary fixed-top shadow"> 
+      <div class="container-fluid" style="height: 20px; display: flex; align-items: center;" >
+        <a class="navbar-brand" href="#" >
+          <img src="/imagenes/osito.jpg" width="30" height="30" class="d-inline-block align-text-auto">O.S.I
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto ">
+            <li class="nav-item">
+              <a class="nav-link" href="#">Español/Ingles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Modo Noche</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" aria-disabled="true">Hora</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- Menú fijo -->
+<div name="menu" class="mt-5"> 
+  <nav class="navbar navbar-expand-sm bg-body-tertiary fixed-top shadow" style="top: 35px;"> 
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="#">
+        <img src="/imagenes/peq.png.jpg" width="120" height="90" class="d-inline-block align-text-auto">
+      </a>
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo03" >
+        <form class="d-flex ms-auto" role="search" style="width: 30%;">
+          <input class="form-control  me-2   w-100 w-sm-110 w-md-100 w-lg-100 " type="search" placeholder="Buscar" aria-label="Search" >
+          <button class="btn btn-outline-success" type="submit"><img src="/imagenes/search.svg" alt=""></button>
+        </form>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="#">
+              <img src="/imagenes/cart4.svg" alt="carrito" width="65" height="65">
+            </a>
+          </li>
+          <li class="nav-item me-5">
+            <a class="nav-link" href="#">
+              <img src="/imagenes/person.svg" alt="cuenta" width="65" height="65">
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
+
+    <div name="carrucel" style="margin-top: 180px;">
+    <div class ="container my-5" style="max-width: 90%;" >
+        <div id="carouselExampleIndicators" class="carousel slide">
+            <div class="carousel-indicators">
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+            <div class="carousel-inner">
+              <div class="carousel-item active" style="max-height:550px;">
+                <img src="/imagenes/slider1.png" class="d-block w-100" alt="...">
+              </div>
+              <div class="carousel-item" style="max-height:550px;">
+                <img src="/imagenes/slider2.png" class="d-block w-100" alt="...">
+              </div>
+              <div class="carousel-item" style="max-height:550px;">
+                <img src="/imagenes/slider3.png" class="d-block w-100" alt="...">
+              </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+    </div>
+    </div>
+    <div>
+      <div class="container bg-light py-5 text-center" style="max-width: 89%;">
+        <div class="row  ">
+          <div class="col-sm-6 col-md-4 col-lg-2"> <a class="nav-link" href="#"><img src="/imagenes/nene.png" class="img-fluid mb-2 "style="width: 50px;" alt=""><div>Hombre</div></div></a>
+          <div class="col-sm-6 col-md-4 col-lg-2"> <a class="nav-link"href="#"><img src="/imagenes/muchacha.png" class="img-fluid mb-2"style="width: 50px;"  alt=""><div>Mujer</div></div></a>
+          <div class="col-sm-6 col-md-4 col-lg-2"> <a class="nav-link" href="#"><img src="/imagenes/calzado.png" class="img-fluid mb-2" style="width: 50px;" alt=""><div>Calzado</div></div></a>
+          <div class="col-sm-6 col-md-4 col-lg-2"> <a class="nav-link" href="#"><img src="/imagenes/remera.png" class="img-fluid mb-2" style="width: 50px;" alt=""><div>Remeras</div></div></a>
+          <div class="col-sm-6 col-md-4 col-lg-2"> <a class="nav-link" href="#"><img src="/imagenes/abrigo.png" class="img-fluid mb-2" style="width: 50px;" alt=""><div>Abrigo</div></div></a>
+          <div class="col-sm-6 col-md-4 col-lg-2"> <a class="nav-link" href="#"><img src="/imagenes/accesorio.png" class="img-fluid mb-2" style="width: 50px;" alt=""><div>Accesorios</div></div></a>
+        </div>
+      </div>
+    </div>
+    <footer name="footer" class="mt-5">
+      <div class="container-fluid bg-light py-5">
+        <div class="row text-center">
+          <div class="col-md-4 mb-3">
+            <h5>Contacto</h5>
+            <p>correo@example.com</p>
+            <p>+54 341 1234567</p>
+          </div>
+          <div class="col-md-4 mb-3">
+            <h5>Sobre Nosotros</h5>
+            <p>Somos una empresa dedicada a...</p>
+          </div>
+          <div class="col-md-4 mb-3">
+            <h5>Información</h5>
+            <p>Términos y condiciones</p>
+            <p>Política de privacidad</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+    
+    <script src="/bootstrap-5.3.5-dist/bootstrap-5.3.5-dist/js/bootstrap.min.js"></script>
+</body>
+</html>

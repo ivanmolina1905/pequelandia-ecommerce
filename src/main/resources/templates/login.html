@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="tienda,online,pequelandia,tiendaropa,tiendaropainfantil">
+  <meta name="author" content="Ivan Molina Moglia" />
+  <title>Pequelandia - Iniciar sesión</title>
+  <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+  <!-- Cabecera fija -->
+<div name="cabecera fija" >
+  <div class="container-fluid">
+     <nav class="navbar navbar-expand-sm  fixed-top shadow " style="background-color:  #fff3cd;"> 
+      <div class="container-fluid" style="height: 20px; display: flex; align-items: center;" >
+        <a class="navbar-brand" href="#" >
+          <img src="/imagenes/osito.jpg" width="30" height="30" class="d-inline-block align-text-auto">O.S.I
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto ">
+            <li class="nav-item">
+              <a class="nav-link" href="#">Español/Ingles</a>
+            </li>
+           <li class="nav-item d-flex align-items-center">
+  			<button id="btnDarkMode" class="nav-link btn btn-link p-0 m-0 text-center">Modo Noche</button>
+			</li>
+				<li class="nav-item">
+  				<span class="nav-link" id="clock">--:--</span>
+			</li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- Menú fijo -->
+<div name="menu" class="mt-5"> 
+  <nav class="navbar navbar-expand-sm  fixed-top shadow" style="top: 35px; " >
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+       <a class="navbar-brand" href="/" th:href="@{/}">
+        <img src="/imagenes/peq.png.jpg" width="120" height="90" class="d-inline-block align-text-auto">
+      </a>
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo03" >
+        <form class="d-flex ms-auto" role="search" style="width: 30%;">
+          <input class="form-control  me-2   w-100 w-sm-110 w-md-100 w-lg-100 " type="search" placeholder="Buscar" aria-label="Search" >
+          <button class="btn btn-outline-info" style="border: none;" type="button"
+        	onclick="window.location.href='/productos?categoriaId=0'">
+    		<img src="/imagenes/search.svg" alt="Buscar">
+			</button>
+        </form>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/carrito/vercarrito}" target="_self" aria-label="Ver carrito" title="Ver carrito">
+             <img src="/imagenes/carritooriginal.png" alt="Carrito" width="65" height="65">
+            </a>
+          </li>
+          <!-- Si no hay usuario logueado -->
+<li class="nav-item me-5" th:if="${session.usuario == null}">
+  <a class="nav-link" th:href="@{/auth/login}" title="Iniciar sesión">
+    <img src="/imagenes/editar-informacion.png" alt="cuenta" width="65" height="65">
+  </a>
+</li>
+<!-- Si hay usuario logueado -->
+<li class="nav-item dropdown me-5" th:if="${session.usuario != null}">
+  <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">
+    <img src="/imagenes/editar-informacion.png" alt="cuenta" width="65" height="65">
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+    <li class="dropdown-item-text">Hola, <b th:text="${session.usuario.nombre_usuario}"></b></li>
+    <li><hr class="dropdown-divider"></li>
+    <li th:if="${#strings.equalsIgnoreCase(session.usuario.nombre_usuario, 'admin')}">
+      <a class="dropdown-item" th:href="@{/panel/admin}">Panel de administración</a>
+    </li>
+    <li th:if="${!#strings.equalsIgnoreCase(session.usuario.nombre_usuario, 'admin')}">
+      <a class="dropdown-item" th:href="@{/panel/usuario}">Mi panel</a>
+    </li>
+    <li><a class="dropdown-item text-danger" th:href="@{/auth/logout}">Cerrar sesión</a></li>
+  </ul>
+</li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
+
+
+  <!-- FORMULARIO DE LOGIN -->
+  <section class="container-fluid bg-light-amber min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="card shadow login-card" style="max-width:420px; width:100%;">
+      <div class="card-body p-4 p-md-5">
+        <h1 class="h4 text-center mb-4">Iniciar sesión</h1>
+		
+		<div th:if="${param.registroExitoso}"
+     	class="alert alert-success">
+ 	 	Cuenta creada correctamente. Ya podés iniciar sesión.
+		</div>
+        
+        <form th:action="@{/auth/login}" method="post" novalidate>
+          <div class="mb-3">
+            <label for="username" class="form-label">Usuario o email</label>
+            <input type="text" class="form-control" id="username" name="username"
+                   placeholder="tuusuario" autocomplete="username" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="password" name="password"
+                   placeholder="••••••••" autocomplete="current-password" required>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="remember" name="remember">
+              <label class="form-check-label" for="remember">Recordarme</label>
+            </div>
+            <a class="link-amber" href="#" title="Recuperar contraseña">Olvidé mi contraseña</a>
+          </div>
+
+          <button type="submit" class="btn btn-amber w-100 mb-2">Ingresar</button>
+
+          <!-- Mensaje de error -->
+          <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
+        </form>
+
+        <hr class="my-4">
+        <p class="text-center mb-2">¿No tenés cuenta?</p>
+        <a class="btn btn-outline-amber w-100" th:href="@{/auth/registro}">Crear cuenta</a>
+      </div>
+    </div>
+  </section>
+
+  <script th:src="@{/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js}"></script>
+  <script>
+//--- Reloj en vivo ---
+  (function liveClock(){
+    const el = document.getElementById('clock');
+    if (!el) return;
+    const pad = n => n.toString().padStart(2,'0');
+    const tick = () => {
+      const d = new Date();
+      const hh = pad(d.getHours()), mm = pad(d.getMinutes()), ss = pad(d.getSeconds());
+      el.textContent = `${hh}:${mm}:${ss}`;
+    };
+    tick();
+    setInterval(tick, 1000);
+  })();
+  </script>
+</body>
+</html>

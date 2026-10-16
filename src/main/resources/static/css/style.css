@@ -1,0 +1,467 @@
+
+        /* Fondo de la página */
+        body {
+            background-color: #fff8e1; /* Amarillo claro */
+        }
+
+        /* Barra fija (Cabecera y menú) */
+        .navbar {
+            background-color: #fff8e1; /* Naranja suave */
+        }
+
+        .navbar-nav .nav-link {
+            color: #0a0000; /* Blanco para los enlaces */
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #ff9800; /* Naranja más fuerte al pasar el mouse */
+        }
+
+        /* Menú fijo */
+        .navbar-toggler-icon {
+            background-color: #fff; /* Icono blanco */
+        }
+
+        /* Fondo del Footer */
+        footer {
+            background-color: #ffcc80; /* Amarillo pastel */
+            color: #333; /* Texto oscuro */
+        }
+
+        footer a {
+            color: #333; /* Enlaces oscuros */
+        }
+
+        footer a:hover {
+            color: #ff9800; /* Naranja más fuerte al pasar el mouse */
+        }
+
+        /* Categorías (Íconos y textos) */
+        .container .row .col {
+            text-align: center;
+            color: #333;
+        }
+
+        .container .row .col img {
+            width: 60px;
+            height: 60px;
+        }
+
+        .container .row .col div {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #ff5722; /* Naranja fuerte */
+        }
+
+        .container .row .col:hover {
+            background-color: #ffecb3; /* Fondo amarillo suave al pasar el ratón */
+            border-radius: 10px;
+        }
+
+        .filtros-productos .row {
+            background-color: #1b1203;
+        }
+
+        .sidebar .nav-link {
+            color: #4e342e; /* Marrón oscuro */
+            font-weight: 500;
+            border-radius: 5px;
+          }
+          
+          .sidebar .nav-link:hover,
+          .sidebar .nav-link.active {
+            background-color: #ffcc80; /* Fondo suave al pasar o estar activo */
+            color: #e65100; /* Naranja fuerte */
+          }
+          
+          .sidebar h5 {
+            color: #bf360c; /* Título del panel */
+          }
+
+          /* Título de la tabla */
+    .table th {
+    background-color: #f7c200; /* Un tono amarillo anaranjado */
+    color: white; /* Blanco para el texto */
+    text-align: center;
+    font-weight: bold;
+    }
+
+    :root {
+  --amber-100: #fff8e1;  /* fondo claro */
+  --amber-300: #ffcc80;
+  --amber-500: #ff9800;  /* naranja principal */
+  --amber-700: #e65100;  /* naranja fuerte */
+}
+
+.bg-light-amber { background-color: var(--amber-100); }
+
+.login-card {
+  border-radius: 1rem;
+  background-color: #ffffff;
+}
+
+.btn-amber {
+  background-color: var(--amber-500);
+  border-color: var(--amber-500);
+  color: #fff;
+}
+.btn-amber:hover,
+.btn-amber:focus {
+  background-color: var(--amber-700);
+  border-color: var(--amber-700);
+  color: #fff;
+}
+
+.btn-outline-amber {
+  border-color: var(--amber-500);
+  color: var(--amber-700);
+}
+.btn-outline-amber:hover,
+.btn-outline-amber:focus {
+  background-color: var(--amber-500);
+  border-color: var(--amber-500);
+  color: #fff;
+}
+
+.link-amber {
+  color: var(--amber-700);
+  text-decoration: none;
+}
+.link-amber:hover,
+.link-amber:focus {
+  color: var(--amber-500);
+  text-decoration: underline;
+}
+
+  .animate-down {
+  opacity: 0;
+  transform: translateY(-50px);
+}
+
+.animate-down.active {
+  animation: slideDown 1s ease forwards;
+}
+
+@keyframes slideDown {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* Card base */
+.producto-card {
+  border: 1px solid #eee;
+  border-radius: 1rem;
+  background: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 480px;                /* <<< más alta */
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  transition: border-color .25s ease, box-shadow .25s ease;
+  overflow: hidden;
+}
+.producto-card:hover {
+  border-color: var(--amber-700);
+  box-shadow: 0 6px 16px rgba(0,0,0,.12);
+   
+}
+
+/* La zona de imagen ocupa el 90% de la card */
+.producto-thumb{
+  flex:0 0 45%;
+  padding:0;               /* quita cualquier padding que achique la foto */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+/* >>> Forzar que la imagen LLENE el contenedor <<< */
+.producto-card .producto-thumb img{
+  width:90% !important;
+  height:100% !important;
+  max-width:none !important;
+  max-height:none !important;
+  object-fit:cover;        /* cover = llena y recorta lo que sobre */
+  display:block;
+}
+
+
+/* Info compacta abajo */
+.producto-info {
+  padding: .8rem 1rem 4rem;     /* deja lugar a los botones */
+  text-align: center;
+  
+}
+.producto-info h5 {
+  font-size: 1rem;
+  margin-bottom: .5rem;
+  color: var(--amber-700);
+}
+.producto-precio {
+  color: #2e7d32;
+  font-weight: 700;
+}
+
+/* Botones pegados abajo */
+.producto-actions {
+  position: absolute;
+  left: 1rem; right: 1rem; bottom: 1rem;
+  display: flex; justify-content: center; gap: .5rem;
+  opacity: 0; transform: translateY(12px);
+  transition: opacity .25s ease, transform .25s ease;
+  pointer-events: none;
+}
+.producto-card:hover .producto-actions {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+
+
+/* Botones */
+.btn-add {
+  background: var(--amber-700);
+  color: #fff;
+  border: none;
+  padding: .45rem 1.2rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.btn-add:hover {
+  background: var(--amber-500);
+}
+
+.btn-view {
+  border: 1px solid var(--amber-700);
+  color: var(--amber-700);
+  background: #fff;
+  padding: .45rem 1.2rem;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.btn-view:hover {
+  background: var(--amber-700);
+  color: #fff;
+}
+
+/* ===== CATEGORÍAS ===== */
+.cat-card {
+  border: none;
+  border-radius: 1rem;
+  /*background: #fff;*/
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  transition: transform .25s ease, box-shadow .25s ease;
+  overflow: hidden;
+  
+  
+  
+}
+
+/* Hover: efecto de elevación */
+.cat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.12);
+}
+
+/* Contenedor de imágenes */
+.cat-media {
+  position: relative;
+  padding:0; 
+ 
+  display:flex;
+   align-items:center;
+  justify-content:center;
+  width: 100%;
+  height:100%;
+  aspect-ratio: 1 / 1; /* cuadradas */
+  background: #fafafa;
+  overflow: hidden;
+}
+
+/* Imágenes */
+.cat-media img {
+  position: absolute;
+ padding:0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  transition: opacity .4s ease-in-out, transform .4s ease-in-out;
+	display:block;
+}
+
+
+
+
+
+/* Imagen hover con leve zoom */
+.cat-media .img-hover {
+  opacity: 0;
+  transform: scale(1);
+}
+.cat-card:hover .cat-media .img-hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+/* Texto inferior */
+.cat-body {
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Título */
+.cat-title {
+  font-weight: 700;
+  color: var(--amber-700);
+  margin: 0;
+  font-size: 1.1rem;
+  transition: transform .3s ease, color .3s ease;
+}
+
+/* Efecto al pasar el mouse */
+.cat-card:hover .cat-title {
+  transform: translateY(-4px);
+  color: #ff8f00; /* tono más intenso de naranja */
+}
+
+
+.btn-logout {
+  background-color: #ff8f00;      /* naranja fuerte */
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.6rem 1rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-logout:hover {
+  background-color: #ffa733;      /* tono más claro */
+  transform: translateY(-2px);
+}
+
+.btn-logout:active {
+  background-color: #e67e00;      /* tono más oscuro al clickear */
+  transform: translateY(0);
+}
+
+
+
+/* ============================
+   DASHBOARD (colores empáticos)
+   ============================ */
+
+/* Tarjetas del dashboard */
+.stat-card {
+    background: #fff3cd;
+    border: 2px solid #f1d78c;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    background: #ffe8a9;
+    box-shadow: 0px 6px 18px rgba(0,0,0,.15);
+}
+
+/* Títulos */
+#estadisticas-contenido h2,
+#estadisticas-contenido h5 {
+    color: #a93512bb;
+}
+
+/* Contenedor de gráficos */
+#estadisticas-contenido .card-chart {
+    background: #fffef6;
+    border: 1px solid #f1d78c;
+    border-radius: 16px;
+    padding: 15px;
+}
+
+
+/* ====== ESTADÍSTICAS – NUEVO DASHBOARD ====== */
+
+.dashboard-container {
+    padding: 20px;
+    animation: fadeIn .5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* TARJETAS */
+.stat-card {
+    border-radius: 18px !important;
+    padding: 20px;
+    transition: all .25s ease;
+    background: #ffffff;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 5px 18px rgba(0,0,0,.08);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 28px rgba(0,0,0,.15);
+}
+
+/* Colores de borde animados */
+.stat-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 5px;
+    height: 100%;
+    border-radius: 10px 0 0 10px;
+    background: linear-gradient(180deg, #ffcf33, #ffae00);
+}
+
+/* Iconos grandes */
+.stat-icon {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+/* Texto de las tarjetas */
+.stat-card h5 {
+    font-weight: 600;
+    color: #555;
+}
+
+.stat-card h2 {
+    font-weight: 700;
+    color: #222;
+}
+
+/* Contenedor de gráficos */
+.card-chart {
+    padding: 20px;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 5px 15px rgba(0,0,0,.06);
+    margin-bottom: 25px;
+}
+
+/* Loader */
+#estad-loader {
+    animation: fadeIn .3s ease-in-out;
+}
+
+.spinner-border {
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+}

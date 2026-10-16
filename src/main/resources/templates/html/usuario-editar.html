@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar usuario</title>
+  <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
+</head>
+<body class="container py-4">
+
+  <h3 class="mb-3">Editar usuario</h3>
+
+  <form th:action="@{|/admin/usuarios/${usuario.id}/editar|}" method="post" class="row g-3">
+
+
+    <div class="col-md-6">
+      <label class="form-label">Nombre</label>
+      <input class="form-control" name="nombre_usuario" th:value="${usuario.nombre_usuario}">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Apellido</label>
+      <input class="form-control" name="apellido" th:value="${usuario.apellido}">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Email</label>
+      <input class="form-control" name="email" th:value="${usuario.email}">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Teléfono</label>
+      <input class="form-control" name="telefono" th:value="${usuario.telefono}">
+    </div>
+
+    <!-- agrega los campos que necesites… -->
+
+    <div class="d-flex gap-2 mt-3">
+      <a class="btn btn-secondary" th:href="@{/admin/usuarios}">Cancelar</a>
+      <button class="btn btn-primary" type="submit">Guardar cambios</button>
+    </div>
+  </form>
+
+  <script th:src="@{/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

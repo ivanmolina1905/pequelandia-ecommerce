@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="tienda,online,pequelandia,tiendaropa,tiendaropainfantil">
+  <meta name="author" content="Ivan Molina Moglia" />
+  <title>Pequelandia - Iniciar sesión</title>
+  <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+  <!-- Cabecera fija -->
+<div name="cabecera fija" >
+  <div class="container-fluid">
+     <nav class="navbar navbar-expand-sm  fixed-top shadow " style="background-color:  #fff3cd;"> 
+      <div class="container-fluid" style="height: 20px; display: flex; align-items: center;" >
+        <a class="navbar-brand" href="#" >
+          <img src="/imagenes/osito.jpg" width="30" height="30" class="d-inline-block align-text-auto">O.S.I
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto ">
+            <li class="nav-item">
+              <a class="nav-link" href="#">Español/Ingles</a>
+            </li>
+           <li class="nav-item d-flex align-items-center">
+  			<button id="btnDarkMode" class="nav-link btn btn-link p-0 m-0 text-center">Modo Noche</button>
+			</li>
+				<li class="nav-item">
+  				<span class="nav-link" id="clock">--:--</span>
+			</li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>
+
+
+        
+          <!-- ==========================================
+     FORMULARIO CREAR CUENTA
+=========================================== -->
+<section class="container-fluid bg-light-amber min-vh-100 d-flex align-items-center justify-content-center peq-register-page">
+
+  <div class="card shadow peq-register-card">
+
+    <div class="peq-register-header">
+      <div class="peq-register-icon">👤</div>
+
+      <div>
+        <span>Pequelandia</span>
+        <h1>Crear cuenta</h1>
+        <p>Registrate para realizar tus compras y seguir tus pedidos.</p>
+      </div>
+    </div>
+
+    <form th:action="@{/auth/registro}"
+          th:object="${registro}"
+          method="post">
+
+      <div class="card-body peq-register-body">
+
+        <div th:if="${error}"
+             class="alert alert-danger"
+             th:text="${error}">
+        </div>
+
+        <!-- Datos personales -->
+        <div class="peq-register-section">
+          <h5>Datos personales</h5>
+
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label">Nombre *</label>
+              <input type="text"
+                     th:field="*{nombre_usuario}"
+                     class="form-control"
+                     placeholder="Tu nombre"
+                     required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Apellido *</label>
+              <input type="text"
+                     th:field="*{apellido}"
+                     class="form-control"
+                     placeholder="Tu apellido"
+                     required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">DNI *</label>
+              <input type="number"
+                     th:field="*{dni}"
+                     class="form-control"
+                     placeholder="Ej: 30123456"
+                     min="1000000"
+                     max="99999999"
+                     required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Fecha de nacimiento</label>
+              <input type="date"
+                     th:field="*{fecha_nacimiento}"
+                     class="form-control">
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Contacto -->
+        <div class="peq-register-section">
+          <h5>Contacto y ubicación</h5>
+
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label">Email *</label>
+              <input type="email"
+                     th:field="*{email}"
+                     class="form-control"
+                     placeholder="nombre@email.com"
+                     required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Teléfono *</label>
+              <input type="tel"
+                     th:field="*{telefono}"
+                     class="form-control"
+                     placeholder="Ej: 3424280512"
+                     required>
+            </div>
+
+            <div class="col-md-8">
+              <label class="form-label">Dirección *</label>
+              <input type="text"
+                     th:field="*{direccion}"
+                     class="form-control"
+                     placeholder="Calle y número"
+                     required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Localidad *</label>
+
+              <select th:field="*{localidadId}"
+                      class="form-select"
+                      required>
+
+                <option value="">Seleccionar...</option>
+
+                <option th:each="loc : ${localidades}"
+                        th:value="${loc.id_localidad}"
+                        th:text="${loc.nombre_localidad}">
+                </option>
+
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Acceso -->
+        <div class="peq-register-section mb-0">
+          <h5>Datos de acceso</h5>
+
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label">Contraseña *</label>
+
+              <div class="peq-password-wrap">
+                <input type="password"
+                       id="registroPassword"
+                       th:field="*{contraseña}"
+                       class="form-control"
+                       placeholder="Mínimo 6 caracteres"
+                       autocomplete="new-password"
+                       required>
+
+                <button type="button"
+                        class="peq-password-toggle"
+                        onclick="alternarPassword('registroPassword', this)">
+                  👁
+                </button>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Confirmar contraseña *</label>
+
+              <div class="peq-password-wrap">
+                <input type="password"
+                       id="registroPasswordConfirmar"
+                       th:field="*{confirmarContraseña}"
+                       class="form-control"
+                       placeholder="Repetí tu contraseña"
+                       autocomplete="new-password"
+                       required>
+
+                <button type="button"
+                        class="peq-password-toggle"
+                        onclick="alternarPassword('registroPasswordConfirmar', this)">
+                  👁
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="form-check mt-3">
+            <input class="form-check-input"
+                   type="checkbox"
+                   th:field="*{aceptarTerminos}"
+                   id="aceptarTerminos">
+
+            <label class="form-check-label"
+                   for="aceptarTerminos">
+              Acepto los términos y condiciones.
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="peq-register-footer">
+        <a th:href="@{/auth/login}"
+           class="btn peq-register-back-btn">
+          ← Volver al login
+        </a>
+
+        <button type="submit"
+                class="btn peq-register-submit-btn">
+          Crear cuenta
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</section>
+
+  <script th:src="@{/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js}"></script>
+  <script>
+//--- Reloj en vivo ---
+  (function liveClock(){
+    const el = document.getElementById('clock');
+    if (!el) return;
+    const pad = n => n.toString().padStart(2,'0');
+    const tick = () => {
+      const d = new Date();
+      const hh = pad(d.getHours()), mm = pad(d.getMinutes()), ss = pad(d.getSeconds());
+      el.textContent = `${hh}:${mm}:${ss}`;
+    };
+    tick();
+    setInterval(tick, 1000);
+  })();
+  
+  function alternarPassword(inputId, boton) {
+	    const input = document.getElementById(inputId);
+
+	    if (!input) return;
+
+	    const visible = input.type === "text";
+
+	    input.type = visible ? "password" : "text";
+	    boton.textContent = visible ? "👁" : "🙈";
+	  }
+  </script>
+  <style>
+  /* ==========================================
+   PEQUELANDIA - CREAR CUENTA
+   ========================================== */
+
+.peq-register-page{
+  padding-top: 155px;
+  padding-bottom: 45px;
+}
+
+.peq-register-card{
+  width: min(900px, calc(100vw - 28px));
+  overflow: hidden;
+  border: 1px solid rgba(255,179,0,.22);
+  border-radius: 28px;
+  background: #fffdf8;
+  box-shadow: 0 22px 55px rgba(0,0,0,.14) !important;
+}
+
+.peq-register-header{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 25px 30px;
+  border-bottom: 1px solid rgba(255,179,0,.20);
+  background:
+    radial-gradient(circle at 92% 100%, rgba(255,224,150,.48) 0 72px, transparent 74px),
+    linear-gradient(135deg, #fff7df 0%, #fff1c4 100%);
+}
+
+.peq-register-icon{
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffe082, #fff6cc);
+  box-shadow: 0 8px 18px rgba(255,179,0,.22);
+  font-size: 27px;
+}
+
+.peq-register-header span{
+  display: block;
+  color: #d46c14;
+  font-size: .76rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.peq-register-header h1{
+  margin: 2px 0 0;
+  color: #713a14;
+  font-size: 1.7rem;
+  font-weight: 900;
+}
+
+.peq-register-header p{
+  margin: 4px 0 0;
+  color: #977040;
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.peq-register-body{
+  padding: 24px 28px 12px;
+  background: linear-gradient(180deg, #fffdf8, #fffaf0);
+}
+
+.peq-register-section{
+  padding: 18px;
+  margin-bottom: 17px;
+  border: 1px solid #f0ddb4;
+  border-radius: 19px;
+  background: rgba(255,255,255,.72);
+}
+
+.peq-register-section h5{
+  margin: 0 0 15px;
+  color: #8f4d19;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.peq-register-section .form-label{
+  color: #75431b;
+  font-size: .87rem;
+  font-weight: 900;
+}
+
+.peq-register-section .form-control,
+.peq-register-section .form-select{
+  min-height: 44px;
+  border: 1px solid #ead9b8;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.peq-register-section .form-control:focus,
+.peq-register-section .form-select:focus{
+  border-color: #ffb300;
+  box-shadow: 0 0 0 .18rem rgba(255,179,0,.16);
+}
+
+.peq-password-wrap{
+  position: relative;
+}
+
+.peq-password-wrap .form-control{
+  padding-right: 48px;
+}
+
+.peq-password-toggle{
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  width: 35px;
+  height: 35px;
+  border: none;
+  border-radius: 50%;
+  background: #fff1c9;
+  transform: translateY(-50%);
+}
+
+.peq-register-footer{
+  display: flex;
+  justify-content: flex-end;
+  gap: 11px;
+  padding: 18px 28px 23px;
+  border-top: 1px solid rgba(255,179,0,.18);
+  background: #fff8e9;
+}
+
+.peq-register-back-btn,
+.peq-register-submit-btn{
+  border-radius: 999px;
+  padding: 10px 21px;
+  font-weight: 900;
+}
+
+.peq-register-back-btn{
+  border: 1px solid #e2d1ad;
+  background: #fff;
+  color: #6f5b43;
+}
+
+.peq-register-submit-btn{
+  border: none;
+  background: linear-gradient(135deg, #ffb300, #ff7a00);
+  color: #fff;
+  box-shadow: 0 9px 18px rgba(255,128,0,.22);
+}
+
+.peq-register-submit-btn:hover{
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px){
+  .peq-register-page{
+    padding-top: 140px;
+  }
+
+  .peq-register-header,
+  .peq-register-body,
+  .peq-register-footer{
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .peq-register-footer{
+    flex-direction: column-reverse;
+  }
+
+  .peq-register-footer .btn{
+    width: 100%;
+  }
+}
+
+</style>
+</body>
+</html>

@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="tienda,online,pequelandia,tiendaropa,tiendaropainfantil">
+    <meta name="author" content="Ivan Molina Moglia" />
+    <title>Pequelandia</title>
+    <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
+   
+   <link rel="stylesheet" th:href="@{/css/style.css(v=${#dates.createNow().time})}">
+
+</head>
+<body>
+    <!-- Cabecera fija -->
+<div name="cabecera fija" >
+  <div class="container-fluid">
+     <nav class="navbar navbar-expand-sm  fixed-top shadow " style="background-color:  #fff3cd;"> 
+      <div class="container-fluid" style="height: 20px; display: flex; align-items: center;" >
+        <a class="navbar-brand" href="#" >
+          <img src="/imagenes/osito.jpg" width="30" height="30" class="d-inline-block align-text-auto">O.S.I
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto ">
+            <li class="nav-item">
+              <a class="nav-link" href="#">Español/Ingles</a>
+            </li>
+           <li class="nav-item d-flex align-items-center">
+  			<button id="btnDarkMode" class="nav-link btn btn-link p-0 m-0 text-center">Modo Noche</button>
+			</li>
+				<li class="nav-item">
+  				<span class="nav-link" id="clock">--:--</span>
+				</li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- Menú fijo -->
+<div name="menu" class="mt-5"> 
+  <nav class="navbar navbar-expand-sm  fixed-top shadow" style="top: 35px; " >
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="indexv1.html">
+        <img src="/imagenes/peq.png.jpg" width="120" height="90" class="d-inline-block align-text-auto">
+      </a>
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo03" >
+        <!-- barra de busqueda de producto -->
+        <!-- <form class="d-flex ms-auto" role="search" style="width: 30%;">
+          <input class="form-control  me-2   w-100 w-sm-110 w-md-100 w-lg-100 " type="search" placeholder="Buscar" aria-label="Search" >
+          
+         	<button class="btn btn-outline-info" style="border: none;" type="button"
+        	onclick="window.location.href='/productos?categoriaId=0'">
+    		<img src="/imagenes/search.svg" alt="Buscar">
+			</button>
+        </form>  -->
+        
+        <form class="d-flex ms-auto" role="search" style="width: 30%;"
+      method="get" th:action="@{/productos}">
+  <input class="form-control me-2 w-100"
+         type="search"
+         name="q"
+         placeholder="Buscar"
+         aria-label="Search">
+  
+  <!-- opcional: si querés mantener categoría -->
+  <input type="hidden" name="categoriaId" value="0">
+
+  <button class="btn btn-outline-info" style="border: none;" type="submit">
+    <img src="/imagenes/search.svg" alt="Buscar">
+  </button>
+</form>
+        
+        
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/carrito/vercarrito}" target="_self" aria-label="Ver carrito" title="Ver carrito">
+             <img src="/imagenes/carritooriginal.png" alt="Carrito" width="65" height="65">
+            </a>
+          </li>
+          <!-- Si no hay usuario logueado -->
+<li class="nav-item me-5" th:if="${session.usuario == null}">
+  <a class="nav-link" th:href="@{/auth/login}" title="Iniciar sesión">
+    <img src="/imagenes/editar-informacion.png" alt="cuenta" width="65" height="65">
+  </a>
+</li>
+<!-- Si hay usuario logueado -->
+<li class="nav-item dropdown me-5" th:if="${session.usuario != null}">
+  <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">
+    <img src="/imagenes/editar-informacion.png" alt="cuenta" width="65" height="65">
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+    <li class="dropdown-item-text">Hola, <b th:text="${session.usuario.nombre_usuario}"></b></li>
+    <li><hr class="dropdown-divider"></li>
+    <li th:if="${#strings.equalsIgnoreCase(session.usuario.nombre_usuario, 'admin')}">
+      <a class="dropdown-item" th:href="@{/panel/admin}">Panel de administración</a>
+    </li>
+    <li th:if="${!#strings.equalsIgnoreCase(session.usuario.nombre_usuario, 'admin')}">
+      <a class="dropdown-item" th:href="@{/panel/usuario}">Mi panel</a>
+    </li>
+    <li><a class="dropdown-item text-danger" th:href="@{/auth/logout}">Cerrar sesión</a></li>
+  </ul>
+</li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
+
+    <div name="carrucel" style="margin-top: 180px;">
+    <div class ="container my-5" style="max-width: 90%;" >
+        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+            <div class="carousel-indicators">
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+            <div class="carousel-inner">
+              <div class="carousel-item active" style="max-height:550px;">
+              <a th:href="@{/productos(categoriaId=6)}">
+      		<img src="/imagenes/slider1.png" class="d-block w-100 img-fluid" style="object-fit:cover; height:550px;" alt="Promo Bebes">
+      		<div class="carousel-caption d-flex h-100 align-items-center justify-content-center">
+       		 <h2 class="peq-caption-title">BEBÉS</h2>
+      		</div>
+      		</a>
+    		</div>
+              <div class="carousel-item" style="max-height:550px;">
+              <a th:href="@{/productos(categoriaId=7)}">
+                <img src="/imagenes/slider2.png" class="d-block w-100 img-fluid" style="object-fit:cover; height:550px;" alt="Promo 2">
+                <div class="carousel-caption d-flex h-100 align-items-center justify-content-center">
+       		<h2 class="peq-caption-title">NIÑOS/NIÑAS</h2>
+       		
+      		</div>
+      		</a>
+              </div>
+              <div class="carousel-item" style="max-height:550px;">
+              <a th:href="@{/productos(categoriaId=9)}">
+                <img src="/imagenes/slider3.png" class="d-block w-100 img-fluid" style="object-fit:cover; height:550px;" alt="Promo 3">
+                <div class="carousel-caption d-flex h-100 align-items-center justify-content-center">
+       		 <h2 class="peq-caption-title">ACCESORIOS</h2>
+      		</div>
+      		</a>
+              </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+              
+            </button>
+          </div>
+    </div>
+    </div>
+    
+   
+    
+
+<section class="container my-5">
+  <div class="row g-4 row-cols-1 row-cols-sm-2 row-cols-lg-4">
+
+    <div class="col" th:each="p : ${productosRandom}">
+      <div class="card peq-card h-100 border-0">
+
+        <!-- Imagen -->
+    <div class="producto-thumb">
+      <img class="peq-card-img"
+           loading="lazy"
+           th:src="${(p.imagenUrl != null and !#strings.isEmpty(p.imagenUrl)) ? p.imagenUrl : '/imagenes/imagendefecto.png'}"
+           th:alt="${p.nombre_producto}">
+
+      <span class="peq-badge-sinstock" th:if="${p.stock != null and p.stock <= 0}">
+        SIN STOCK
+      </span>
+    </div>
+
+         <!-- Info base (siempre visible) -->
+    <div class="producto-info text-center">
+      <div class="fw-semibold" th:text="${p.nombre_producto}">Nombre</div>
+      <div class="fw-bold text-success">
+      <span th:text="'$' + ${#numbers.formatDecimal(p.precio * 0.90,1,'COMMA',0,'POINT')}">$36.000</span>
+      <span> con </span><b>Transferencia</b><span> o </span><b>depósito</b>
+    </div>
+
+    <div class="small text-muted">
+      <span>3 cuotas sin interés de </span>
+      <b th:text="'$' + ${#numbers.formatDecimal(p.precio/3,1,'COMMA',2,'POINT')}">$13.333,33</b>
+    </div>
+      <div class="peq-card-price"
+           th:text="'$' + ${#numbers.formatDecimal(p.precio,1,'COMMA',0,'POINT')}">$0</div>
+    </div>
+
+	<!--     Acciones inferiores -->
+	<div class="peq-card-actions">
+   
+	<!-- boton comprar -->
+    <button type="button"
+        class="btn peq-btn-comprar peq-btn-sm js-open-quick flex-fill"
+        th:disabled="${p.stock != null and p.stock <= 0}">
+  Comprar
+</button>
+
+	<!-- boton ver -->
+    <button type="button"
+        class="btn peq-btn-ver peq-btn-sm flex-fill js-open-product-modalver"
+        data-bs-toggle="modal"
+        data-bs-target="#modalProducto"
+        
+        th:attr="
+          data-name=${p.nombre_producto},
+          data-desc=${p.descripcion_producto},
+         
+          data-price=${p.precio},
+          data-price-off=${p.precio * 0.90},
+         "
+        >
+  		Ver
+	</button>
+</div>
+
+
+        <!-- PANEL QUICK BUY (aparece al click) -->
+  <div class="peq-quick" inert >
+    <div class="peq-quick-box">
+      <div class="peq-quick-top">
+        <div class="peq-quick-title">Talle</div>
+        
+      </div>
+
+      <!-- Form agregar al carrito -->
+      <form th:action="@{/productos/agregar}" method="post" class="peq-quick-form">
+        <input type="hidden" name="productoId" th:value="${p.idProducto}">
+        <input type="hidden" name="cantidad" value="1">
+        <input type="hidden" name="returnUrl"
+               th:value="${(p.imagenUrl != null and !#strings.isEmpty(p.imagenUrl)) ? p.imagenUrl : '/imagenes/imagendefecto.png'}">
+
+        <!-- Select de talle (si tu producto ya tiene talle único, podés ocultarlo) -->
+        <select class="form-select peq-quick-select" name="talle"
+                th:disabled="${p.talle_producto == null or #strings.trim(p.talle_producto) == ''}">
+          <!-- Si tenés talles por lista, lo cambiamos a th:each -->
+          <option th:text="${p.talle_producto != null ? p.talle_producto : 'Sin talle'}">3-6 meses</option>
+        </select>
+
+		<!-- Cantidad -->
+<div class="peq-qty">
+  <label class="peq-qty-label">Cantidad</label>
+  <div class="peq-qty-row">
+    <button type="button" class="peq-qty-btn" onclick="MiniCart.dec(this)">−</button>
+    <input type="number" class="peq-qty-input" min="1" value="1">
+    <button type="button" class="peq-qty-btn" onclick="MiniCart.inc(this)">+</button>
+  </div>
+</div>
+<!-- Botón agregar -->
+        <button type="button" class="btn peq-quick-add"
+        th:attr="data-id=${p.idProducto},
+                 data-name=${p.nombre_producto},
+                 data-img=${p.imagenUrl},
+                 data-price=${p.precio}"
+        onclick="MiniCart.agregarApi(this)"
+                th:disabled="${p.stock != null and p.stock <= 0}">
+          AGREGAR AL CARRITO
+        </button>
+        
+        
+      </form>
+
+      <!-- Botón redondo abajo -->
+      <button type="button" class="peq-quick-close-round js-close-quick" aria-label="Cerrar">×</button>
+    </div>
+  </div>
+    </div>
+
+      </div>
+      
+	
+  </div>
+  
+</section>
+
+
+    <section class="container my-5">
+  <div class="row g-3 row-cols-1 row-cols-md-3">
+  
+    <!-- Categoría Bebés -->
+   <div class="col">
+  <a th:href="@{/productos(categoriaId=6)}" class="text-decoration-none text-dark">
+    <div class="card cat-card h-100">
+      
+      <!-- Contenedor de imágenes -->
+      <div class="cat-media">
+        <img src="/imagenes/bebe1.png" alt="bebes" class="img-main rounded-3">
+        <img src="/imagenes/bebe2.png" alt="bebes Hover" class="img-hover rounded-3">
+      </div>
+
+      <!-- Texto inferior -->
+      <div class="cat-body">
+        <h5 class="cat-title">BEBES</h5>
+        
+      </div>
+    </div>
+  </a>
+</div>
+
+
+<!-- Categoría Niños -->
+<div class="col">
+  <a th:href="@{/productos(categoriaId=7)}" class="text-decoration-none text-dark">
+    <div class="card cat-card h-100">
+      
+      <!-- Contenedor de imágenes -->
+      <div class="cat-media">
+        <img src="/imagenes/nene1.png" alt="Niños" class="img-main rounded-3">
+        <img src="/imagenes/nene2.png" alt="Niños Hover" class="img-hover rounded-3">
+      </div>
+
+      <!-- Texto inferior -->
+      <div class="cat-body">
+        <h5 class="cat-title">NIÑOS</h5>
+        
+      </div>
+    </div>
+  </a>
+</div>
+    
+    <!-- Categoría niñas -->
+    <div class="col">
+  <a th:href="@{/productos(categoriaId=8)}" class="text-decoration-none text-dark">
+    <div class="card cat-card h-100">
+      
+      <!-- Contenedor de imágenes -->
+      <div class="cat-media">
+        <img src="/imagenes/nena1.png" alt="Niñas" class="img-main rounded-3">
+        <img src="/imagenes/nena2.png" alt="Niñas Hover" class="img-hover rounded-3">
+      </div>
+
+      <!-- Texto inferior -->
+      <div class="cat-body">
+        <h5 class="cat-title">NIÑaS</h5>
+        
+      </div>
+    </div>
+  </a>
+</div>
+
+
+
+
+</section>
+
+
+
+      <div class="container  py-5 text-center" style="max-width: 89%;">
+        <div class="row  ">
+          <div class="col-sm-6 col-md-4 col-lg-2"> <a class="nav-link" th:href="@{/productos(categoriaId=7)}"><img src="/imagenes/nene.png" class="img-fluid mb-2 "style="width: 50px;" alt=""><div> Hombre</div></div></a>
+          <div class="col-sm-6 col-md-4 col-lg-2"> <a class="nav-link" th:href="@{/productos(categoriaId=8)}"><img src="/imagenes/muchacha.png" class="img-fluid mb-2"style="width: 50px;"  alt=""><div>Mujer</div></div></a>
+          <div class="col-sm-6 col-md-4 col-lg-2"> <a class="nav-link" th:href="@{/productos(categoriaId=5)}"><img src="/imagenes/calzado.png" class="img-fluid mb-2" style="width: 50px;" alt=""><div>Calzado</div></div></a>
+          <div class="col-sm-6 col-md-4 col-lg-2"> <a class="nav-link" th:href="@{/productos(categoriaId=1)}"><img src="/imagenes/remera.png" class="img-fluid mb-2" style="width: 50px;" alt=""><div>Remeras</div></div></a>
+          <div class="col-sm-6 col-md-4 col-lg-2"> <a class="nav-link" th:href="@{/productos(categoriaId=4)}"><img src="/imagenes/abrigo.png" class="img-fluid mb-2" style="width: 50px;" alt=""><div>Abrigo</div></div></a>
+          <div class="col-sm-6 col-md-4 col-lg-2"> <a class="nav-link" th:href="@{/productos(categoriaId=9)}"><img src="/imagenes/accesorio.png" class="img-fluid mb-2" style="width: 50px;" alt=""><div>Accesorios</div></div></a>
+        </div>
+      </div>
+      
+    </div>
+    
+    <footer name="footer" class="mt-5">
+      <div class="container-fluid  py-5">
+        <div class="row text-center">
+          <div class="col-md-4 mb-3">
+            <h5>Contacto</h5>
+            <p>correo@example.com</p>
+            <p>+54 341 1234567</p>
+          </div>
+          <div class="col-md-4 mb-3">
+            <h5>Sobre Nosotros</h5>
+            <p>Somos una empresa dedicada a...</p>
+          </div>
+          <div class="col-md-4 mb-3">
+            <h5>Información</h5>
+            <p>Términos y condiciones</p>
+            <p>Política de privacidad</p>
+          </div>
+        </div>
+      </div>
+      
+    </footer>
+    
+
+<script th:src="@{/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js}"></script>
+<!-- modal para ventana emergente -->
+<div class="modal fade" id="modalProducto" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content peq-modal">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="m-title">Producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row g-4">
+
+          <!-- IZQUIERDA: galería -->
+          <div class="col-12 col-lg-6">
+            <div class="peq-gallery">
+              <img id="m-main" class="peq-main-img" src="/imagenes/imagendefecto.png" alt="Imagen principal">
+
+              <div class="peq-thumbs">
+                <img id="t1" class="peq-thumb" alt="thumb1">
+                <img id="t2" class="peq-thumb" alt="thumb2">
+                <img id="t3" class="peq-thumb" alt="thumb3">
+              </div>
+            </div>
+          </div>
+
+          <!-- DERECHA: info -->
+          <div class="col-12 col-lg-6">
+            <div class="peq-info">
+              <h3 class="peq-info-title" id="m-name">Nombre</h3>
+
+              <div class="peq-info-detail" id="m-details"></div>
+              <div class="peq-info-desc" id="m-desc"></div>
+
+              <div class="peq-prices">
+                <div class="peq-price-off">
+                  <span id="m-price-off">$0</span>
+                  <span class="peq-muted"> con </span><b>Transferencia</b><span class="peq-muted"> o </span><b>depósito</b>
+                </div>
+
+                <div class="peq-cuotas">
+                  3 cuotas sin interés de <b id="m-cuota">$0</b>
+                </div>
+
+                <div class="peq-price" id="m-price">$0</div>
+              </div>
+
+              <div class="d-flex gap-2 mt-3">
+                <button class="btn peq-btn-comprar flex-fill" type="button">Comprar</button>
+                <button class="btn peq-btn-ver flex-fill" type="button" data-bs-dismiss="modal">Cerrar</button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener("click", (e) => {
+	  const openBtn = e.target.closest(".js-open-quick");
+	  const closeBtn = e.target.closest(".js-close-quick");
+
+	  // ABRIR
+	  if (openBtn) {
+	    const card = openBtn.closest(".peq-card");
+	    if (!card) return;
+
+	    // guardo dónde devolver foco al cerrar
+	    card._lastFocusEl = openBtn;
+
+	    card.classList.add("quick-open");
+
+	    const quick = card.querySelector(".peq-quick");
+	    if (quick) {
+	      // habilitar interacción
+	      try { quick.inert = false; } catch {}
+	      quick.classList.add("is-open");
+
+	      // enfocar primer control dentro del quick
+	      //const focusable = quick.querySelector("select, input, button");
+	      //if (focusable) focusable.focus({ preventScroll: true });
+	    }
+	    return;
+	  }
+
+	  // CERRAR
+	  if (closeBtn) {
+	    const card = closeBtn.closest(".peq-card");
+	    if (!card) return;
+
+	    const quick = card.querySelector(".peq-quick");
+
+	    // 1) sacar foco del botón que se clickeó
+	    closeBtn.blur();
+
+	    // 2) cerrar visual (animación)
+	    if (quick) {
+	      quick.classList.remove("is-open");
+	      // bloquear interacción/foco mientras está cerrado
+	      try { quick.inert = true; } catch {}
+	    }
+
+	    // 3) sacar estado de card
+	    card.classList.remove("quick-open");
+
+	
+	    return;
+	  }
+	});
+  
+ 
+
+  // Delegación de eventos (+, -, eliminar)
+  document.addEventListener("click", async (e) => {
+    const plus = e.target.closest(".js-plus");
+    const minus = e.target.closest(".js-minus");
+    const remove = e.target.closest(".js-remove");
+
+    if (plus)  return changeQty(plus.dataset.id, +1);
+    if (minus) return changeQty(minus.dataset.id, -1);
+    if (remove) return removeLine(remove.dataset.id);
+  });
+
+  async function changeQty(productoId, delta){
+    const qtySpan = document.querySelector(`span[data-id="${productoId}"]`);
+    if (!qtySpan) return;
+
+    const actual = parseInt(qtySpan.textContent || "1", 10);
+    const nueva = Math.max(1, actual + delta);
+
+    const body = new URLSearchParams();
+    body.append("productoId", productoId);
+    body.append("cantidad", String(nueva));
+
+    const res = await fetch("/carrito/api/cantidad", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+      body
+    });
+
+    if(!res.ok){
+      console.error("HTTP", res.status, await res.text().catch(()=> ""));
+      alert("No se pudo actualizar la cantidad.");
+      return;
+    }
+
+    const data = await res.json();
+    if(!data.ok){
+      alert(data.error || "No se pudo actualizar la cantidad.");
+      return;
+    }
+
+    qtySpan.textContent = String(nueva);
+
+    // resumen
+    document.getElementById("sumItems").textContent = data.items;
+    document.getElementById("sumSubtotal").textContent = fmtARS(data.total);
+    document.getElementById("sumTotal").textContent = fmtARS(data.total);
+
+    // burbuja
+    const bubble = document.querySelector(".js-cart-count");
+    if(bubble) bubble.textContent = data.items;
+  }
+
+  async function removeLine(productoId){
+    if(!confirm("¿Eliminar este producto del carrito?")) return;
+
+    const body = new URLSearchParams();
+    body.append("productoId", productoId);
+
+    const res = await fetch("/carrito/api/eliminar", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+      body
+    });
+
+    if(!res.ok){
+      console.error("HTTP", res.status, await res.text().catch(()=> ""));
+      alert("No se pudo eliminar del carrito.");
+      return;
+    }
+
+    const data = await res.json();
+    if(!data.ok){
+      alert(data.error || "No se pudo eliminar del carrito.");
+      return;
+    }
+
+    // borrar card del DOM
+    const card = document.querySelector(`.js-remove[data-id="${productoId}"]`)?.closest(".peq-card");
+    if(card) card.remove();
+
+    // resumen
+    document.getElementById("sumItems").textContent = data.items;
+    document.getElementById("sumSubtotal").textContent = fmtARS(data.total);
+    document.getElementById("sumTotal").textContent = fmtARS(data.total);
+
+    // burbuja
+    const bubble = document.querySelector(".js-cart-count");
+    if(bubble) bubble.textContent = data.items;
+
+    // si quedó vacío, recargar para mostrar estado vacío
+    if(data.items === 0){
+      location.reload();
+    }
+    
+    
+  }
+  const clockEl = document.getElementById("clock");
+  if (clockEl) {
+    const tick = () => {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, "0");
+      const mm = String(now.getMinutes()).padStart(2, "0");
+      const ss = String(now.getSeconds()).padStart(2, "0");
+      clockEl.textContent = `${hh}:${mm}:${ss}`;
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+  
+  
+  const fmtARS = (n) => "$ " + Number(n || 0).toLocaleString("es-AR", {minimumFractionDigits: 0, maximumFractionDigits: 2});
+
+  function setThumb(imgEl, url, onClick){
+    if(!url || url.trim() === ""){
+      imgEl.style.display = "none";
+      imgEl.removeAttribute("src");
+      imgEl.onclick = null;
+      return;
+    }
+    imgEl.style.display = "block";
+    imgEl.src = url;
+    imgEl.onclick = onClick;
+  }
+
+  
+  
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".js-open-product-modalver");
+    if(!btn) return;
+
+    document.querySelectorAll(".peq-card.quick-open").forEach(c => c.classList.remove("quick-open"));
+    const name = btn.dataset.name || "Producto";
+    const desc = btn.dataset.desc || "";
+    const details = btn.dataset.details || "";
+    const price = Number(btn.dataset.price || 0);
+    const priceOff = Number(btn.dataset.priceOff || 0);
+
+    const img1 = btn.dataset.img1 || "/imagenes/imagendefecto.png";
+    const img2 = btn.dataset.img2 || "";
+    const img3 = btn.dataset.img3 || "";
+    const img4 = btn.dataset.img4 || "";
+
+    // títulos/textos
+    document.getElementById("m-title").textContent = name;
+    document.getElementById("m-name").textContent = name;
+    document.getElementById("m-desc").textContent = desc;
+    document.getElementById("m-details").textContent = details;
+
+    // precios
+    document.getElementById("m-price").textContent = fmtARS(price);
+    document.getElementById("m-price-off").textContent = fmtARS(priceOff || (price * 0.90));
+    document.getElementById("m-cuota").textContent = fmtARS(price / 3);
+
+    // galería
+    const main = document.getElementById("m-main");
+    main.src = img1;
+
+    const t1 = document.getElementById("t1");
+    const t2 = document.getElementById("t2");
+    const t3 = document.getElementById("t3");
+
+    // mostramos 3 miniaturas: (img1, img2, img3) y si img3 vacío usamos img4
+    setThumb(t1, img1, () => main.src = img1);
+    //setThumb(t2, img2, () => main.src = img2);
+    //setThumb(t3, (img3 || img4), () => main.src = (img3 || img4));
+
+    // marcar activa al hacer click
+    [t1,t2,t3].forEach(t => t.classList.remove("active"));
+    t1.classList.add("active");
+    [t1,t2,t3].forEach(t => t.onclick = (function(old){
+      return function(){
+        [t1,t2,t3].forEach(x => x.classList.remove("active"));
+        this.classList.add("active");
+        if(old) old.call(this);
+      }
+    })(t.onclick));
+  });
+  
+</script>
+<style>
+/* =========================
+   CARD catálogo (Pequelandia)
+   ========================= */
+
+/* Card */
+.peq-card{
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 14px;
+  padding: 14px;
+ box-shadow: 0 6px 16px rgba(0,0,0,.10);
+  overflow: flex;
+  height: 100%;
+  transition: transform .15s ease, box-shadow .15s ease;
+  padding-bottom: 64px;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+
+
+.peq-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.10);
+}
+
+/* Imagen: caja fija para que TODAS queden iguales */
+.peq-card-imgwrap{
+  position: relative;
+  height: 170px;                /* altura uniforme */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+/* La imagen (real o defecto) */
+.peq-card-img{
+  max-height: 165px;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Badge SIN STOCK */
+.peq-badge-sinstock{
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  color: #fff;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+/* Contenido */
+.peq-card-body{
+  padding: 0 6px 6px;
+  text-align: center;
+}
+
+.peq-card-name{
+  margin-top: 6px;
+  font-size: 13px;
+  color: #222;
+  min-height: 34px;             /* alinea alturas por nombres largos */
+}
+
+.peq-card-price{
+  font-weight: 900;
+  font-size: 20px;
+  color: #2f7d55;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.peq-card-payline{
+  color: #2f7d55;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.peq-card-cuotas{
+  color: #111;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.peq-card-hr{
+  border: 0;
+  border-top: 1px solid rgba(0,0,0,.15);
+  margin: 10px 0 12px;
+}
+
+/* Botón Agregar */
+.peq-btn-add{
+  background: #ffb300;
+  border: 1px solid rgba(0,0,0,.10);
+  font-weight: 800;
+}
+
+.peq-btn-add:disabled{
+  opacity: .55;
+}
+
+/* =========================
+   Opcional: overlay al hover
+   (si después lo querés usar)
+   ========================= */
+.peq-card-hover{
+  margin-top: 10px;
+  opacity: 0;
+  transform: translateY(8px);
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity .18s ease, transform .18s ease, max-height .18s ease;
+}
+
+.peq-card:hover .peq-card-hover{
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 220px;
+}
+
+
+
+
+/* Panel oculto por defecto */
+.peq-hoverpanel{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 5%;
+  background: rgba(255,255,255,.75);   /* semi transparente */
+  backdrop-filter: blur(6px);          /* glass effect */
+  border-top: 1px solid rgba(0,0,0,.08);
+
+  opacity: 0;
+  transform: translateY(100%);
+  pointer-events: none;
+
+  transition: transform .18s ease, opacity .18s ease;
+}
+
+/* Contenido del panel */
+.peq-hoverpanel-inner{
+  height: 100%;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Mostrar al hover */
+.peq-card:hover .peq-hoverpanel{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Botón ver detalle (opcional) */
+.peq-btn-ver{
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.15);
+  font-weight: 800;
+}
+
+
+
+/* Acciones inferiores */
+.peq-card-actions{
+	height: 64px;
+	align-items: center;
+  	justify-content: center;
+   	display: flex;
+   	padding: 12px 14px;
+   gap: 12px;    
+   
+  position: absolute;
+  
+  
+   padding: 12px;
+  background: rgba(255,255,255,.95);
+  border-top: 1px solid rgba(0,0,0,.08);
+
+  opacity: 0;
+  transform: translateY(100%);
+  transition: transform .18s ease, opacity .18s ease;
+
+  pointer-events: none;
+  
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 12px;
+  
+}
+
+/* Mostrar SOLO al hover */
+.peq-card:hover .peq-card-actions{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Botones */
+.peq-btn-comprar{
+  background: #ffb300;
+  font-weight: 800;
+  border: 0;
+}
+
+.peq-btn-ver{
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.2);
+  font-weight: 800;
+}
+
+/* Botones compactos */
+.peq-btn-sm{
+  height: 38px;                 /* ✅ más grandes */
+  font-size: 13.5px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-weight: 800;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+/* Ajuste extra solo para el hover inferior */
+.peq-card-actions .peq-btn-sm{
+  line-height: 1.1;
+  
+}
+
+
+
+
+
+/* Quick-buy overlay dentro de la card */
+.peq-card2{ position: relative; }
+
+.peq-quick{
+  position: absolute;
+  left: 10px;
+  right: 10px;
+ top: auto !important;
+  bottom: 10px;         /* 👈 clave */
+  height: 60%;         /* 👈 no uses 75% */
+  background: rgba(255,255,255,.78);
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 14px;
+  backdrop-filter: blur(2px);
+  box-shadow: 0 10px 22px rgba(0,0,0,.12);
+
+  opacity: 0;
+  transform: translateY(100%);
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+  z-index: 20;
+
+  overflow: hidden;       /* 👈 por si el contenido crece */
+}
+
+
+.peq-card.quick-open .peq-quick{
+  opacity: 1;
+  transform: translateY(0);             /* queda “subida” */
+  pointer-events: auto;
+}
+.peq-quick-box{
+  height: 100%;
+	padding: 20px 18px ;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start; /* todo arriba */
+}
+
+.peq-quick-top{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position: relative;
+  padding-top: 5px;
+  margin-bottom: 22px; /* AIRE entre X y contenido */
+}
+
+.peq-quick-title{
+  font-size: 12px;
+  font-weight: 800;
+  color: #333;
+}
+
+
+
+.peq-quick-form{
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.peq-quick-select{
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.peq-quick-add{
+  border-radius: 999px;
+  background: #ffb300;
+  color: #fff;
+  font-weight: 900;
+  border: 0;
+  padding: 10px 14px;
+  
+}
+
+.peq-quick-close-round{
+ 
+  margin: 10px auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.18);
+  background: #fff;
+  font-weight: 900;
+  
+}
+
+/* MINI CART right panel */
+.peq-miniCart{
+  position: fixed;
+  top: 90px;              /* ajustalo según tus 2 navbars */
+  right: 18px;
+  width: 360px;
+  max-width: calc(100vw - 36px);
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.18);
+  z-index: 9999;
+
+  opacity: 0;
+  transform: translateX(18px);
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+.peq-miniCart.open{
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.peq-miniCart-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 10px 12px;
+}
+
+.peq-miniCart-title{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  font-weight: 800;
+  color: #2b2b2b;
+}
+
+.peq-miniCart-ok{
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 12px;
+  background: #5f8f73;
+  color:#fff;
+}
+
+.peq-miniCart-close{
+  border:0;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  padding: 0 6px;
+  opacity: .65;
+}
+.peq-miniCart-close:hover{ opacity: 1; }
+
+.peq-miniCart-item{
+  display:flex;
+  gap: 10px;
+  padding: 10px 12px 6px;
+}
+
+.peq-miniCart-img{
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,.08);
+  background: #fff;
+}
+
+.peq-miniCart-name{
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.peq-miniCart-detail{
+  font-size: 12px;
+  color: #444;
+}
+
+.peq-miniCart-added{
+  font-size: 12px;
+  font-weight: 800;
+  color: #222;
+  margin-top: 2px;
+}
+
+.peq-miniCart-hr{
+  border:0;
+  border-top: 1px solid rgba(0,0,0,.10);
+  margin: 8px 0;
+}
+
+.peq-miniCart-totalrow{
+  display:flex;
+  justify-content:space-between;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.peq-miniCart-count{ color:#5f8f73; font-weight:700; }
+.peq-miniCart-total{ color:#5f8f73; font-weight:900; }
+
+.peq-miniCart-btn{
+  display:block;
+  margin: 0 12px 12px;
+  border-radius: 999px;
+  background: #5f8f73;
+  color:#fff;
+  font-weight: 900;
+  border:0;
+  padding: 10px 14px;
+}
+.peq-miniCart-btn:hover{ filter: brightness(.98); }
+
+.peq-qty{
+ margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;      /* ⬅️ centra todo */
+  text-align: center;
+  
+  
+
+  
+  
+}
+
+.peq-qty-label{
+  font-size: 12px;
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 6px;
+  display: block;
+  
+  flex-direction: column;
+  align-items: center;      /* ⬅️ centra todo */
+  text-align: center;
+  
+}
+
+.peq-qty-row{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.peq-qty-btn{
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,.18);
+  background: #fff;
+  font-weight: 900;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.peq-qty-input{
+  width: 80px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.18);
+  text-align: center;
+  font-weight: 900;
+  }
+  
+  .peq-modal{
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.peq-gallery{
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.peq-main-img{
+  width: 100%;
+  height: 360px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 14px;
+}
+
+.peq-thumbs{
+  display:flex;
+  gap: 10px;
+}
+
+.peq-thumb{
+  width: 92px;
+  height: 92px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.10);
+}
+
+.peq-thumb.active{
+  border-color: #ffb300;
+}
+
+.peq-info-title{
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.peq-info-detail{
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.peq-info-desc{
+  color: #444;
+  margin-bottom: 12px;
+}
+
+.peq-prices{
+  border-top: 1px solid rgba(0,0,0,.08);
+  padding-top: 12px;
+}
+
+.peq-price{
+  font-weight: 900;
+  font-size: 24px;
+  color: #2f7d55;
+  margin-top: 6px;
+}
+
+.peq-price-off{
+  color: #2f7d55;
+  font-weight: 800;
+}
+
+.peq-cuotas{
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+.peq-muted{ color:#666; font-weight:600; }
+
+/* ===== ESTRUCTURA FIJA PARA EVITAR SALTOS ===== */
+
+
+
+/* Zona imagen: ALTO FIJO (no cambia nunca) */
+.producto-thumb{
+  position: relative;
+  height: 170px;              /* ajustá si querés */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  flex: 0 0 170px;
+}
+
+/* La imagen adentro no cambia el layout */
+.producto-thumb img{
+  max-height: 165px;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Zona info: altura estable (no “salta” con hover/focus) */
+.producto-info{
+  flex: 1 1 auto;
+  min-height: 190px;          /* ajustá según tu contenido */
+  padding-bottom: 70px;       /* reserva SIEMPRE lugar para .peq-card-actions */
+}
+
+/* Panel inferior: sigue siendo overlay, pero ya tiene espacio reservado */
+.peq-card-actions{
+  height: 64px;
+}
+
+/* Evitar que el hover levante la card cuando interactuás */
+.peq-card:focus-within,
+.peq-card:focus-within:hover{
+  transform: none !important;
+}
+
+  </style>
+
+</body>
+</html>
