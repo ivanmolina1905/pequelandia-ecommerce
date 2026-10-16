@@ -24,7 +24,7 @@ Java 22 · Maven Wrapper (Maven 3.9.11) · Spring Boot 3.5.4 · Spring MVC · Sp
 | Notificaciones | Servicio persistente, listado, contador, lectura individual y total; campana en los paneles | Entrega de cada evento y permisos por destinatario |
 | Correos | Bienvenida, avisos de registro/pedido, confirmación, cambios de estado y cancelación | Entrega SMTP real y recuperación ante fallos |
 
-No se presenta como implementada una pasarela de pagos ni un despliegue de producción. Las notificaciones y los correos tienen código existente; su entrega de extremo a extremo sigue pendiente de comprobación.
+No se presenta como implementada una pasarela de pagos ni un despliegue de producción. El flujo de pedidos, stock, notificaciones y cola de correos tiene pruebas automatizadas contra PostgreSQL descartable y SMTP simulado. La entrega a buzones reales sigue pendiente de comprobación. Ver [cambios, configuración y pruebas](docs/NOTIFICACIONES.md).
 
 ## Arquitectura
 
@@ -73,7 +73,7 @@ Copy-Item application-example.properties config/application-local.properties
 
 El comando de clonación estará disponible cuando se publique el repositorio. Editar el archivo local con una base **nueva, vacía y descartable** y sus credenciales. No compartir ese archivo.
 
-El ejemplo utiliza `ddl-auto=update` exclusivamente para generar tablas en desarrollo. La configuración principal usa `validate`: requiere un esquema ya existente. No hay migraciones versionadas ni un conjunto de datos iniciales automatizado; para probar registro y catálogo se necesitan localidades, categorías y productos ficticios. No importar backups de clientes. La cuenta administrativa actual se identifica por el nombre `admin`; debe crearse únicamente en el entorno de demostración controlado.
+El ejemplo utiliza `ddl-auto=update` exclusivamente para generar tablas en desarrollo. La configuración principal usa `validate`: requiere un esquema de negocio ya existente. El script aditivo `src/main/resources/db/notificaciones.sql` crea la cola de correo al arrancar, sin modificar datos existentes. Para probar registro y catálogo se necesitan localidades, categorías y productos ficticios. No importar backups de clientes. Configurar el ID administrativo mediante `PEQUELANDIA_ADMIN_ID`; con valor 0 se conserva la búsqueda de una única cuenta `admin` al iniciar. El ejemplo deja desactivada la entrega SMTP hasta configurar un servidor de pruebas.
 
 También se pueden definir variables de entorno, sin archivo local:
 
@@ -85,6 +85,8 @@ También se pueden definir variables de entorno, sin archivo local:
 | `PEQUELANDIA_MAIL_HOST` / `PEQUELANDIA_MAIL_PORT` | Servidor SMTP (por defecto Gmail:587) |
 | `PEQUELANDIA_MAIL_USERNAME` / `PEQUELANDIA_MAIL_PASSWORD` | Autenticación SMTP |
 | `PEQUELANDIA_ADMIN_EMAIL` | Destinatario administrativo |
+| `PEQUELANDIA_ADMIN_ID` | ID fijo de la cuenta administrativa |
+| `PEQUELANDIA_MAIL_DELIVERY_ENABLED` | Habilita el worker SMTP; `false` conserva mensajes en cola |
 
 El archivo local importado tiene prioridad sobre estos valores. Spring Boot no carga automáticamente archivos `.env`. Docker Compose sí puede utilizarlos para interpolar sus variables; su URL JDBC se configura por separado.
 
@@ -96,7 +98,7 @@ docker compose up -d
 .\mvnw.cmd spring-boot:run
 ```
 
-En Linux/macOS: `chmod +x mvnw` y `./mvnw spring-boot:run`. Abrir `http://localhost:8080/`, `/productos`, `/auth/registro` o `/auth/login`. Para un SMTP de pruebas local usar el ejemplo; nunca usar direcciones reales en una demostración. El test original `contextLoads` necesita una base configurada.
+En Linux/macOS: `chmod +x mvnw` y `./mvnw spring-boot:run`. Abrir `http://localhost:8080/`, `/productos`, `/auth/registro` o `/auth/login`. Para un SMTP de pruebas local usar el ejemplo; nunca usar direcciones reales en una demostración. Los tests de integración requieren `PEQUELANDIA_TEST_DB_URL` apuntando a una base local descartable `pequelandia_verificacion`; sin esa variable se omiten y se ejecutan los unitarios. Ver [instrucciones y resultados de pruebas](docs/NOTIFICACIONES.md#pruebas-reproducibles).
 
 ## Presentación visual
 
@@ -106,14 +108,14 @@ La portada es una ilustración editorial SVG en crema, naranja y blanco; **no es
 
 La configuración privada y los archivos compilados, bases, backups, logs y exportaciones están excluidos de Git. Se añadieron controles de sesión para administración, exportaciones, paneles y pedidos; el acceso a pedidos requiere titularidad o administración. Las contraseñas se excluyen de la serialización JSON. El login renueva el identificador de sesión.
 
-Las contraseñas siguen almacenándose sin hash. El modelo de administración basado en el nombre `admin`, la protección CSRF, los límites de intentos y una revisión integral de autorización requieren mejoras antes de un uso con clientes. Estos controles no sustituyen una auditoría de seguridad. Ver [seguridad](docs/SEGURIDAD.md).
+Las contraseñas siguen almacenándose sin hash por la instrucción vigente de mantenimiento. La administración se autoriza por ID y las operaciones POST están protegidas con CSRF. Quedan pendientes los límites de intentos, un sistema de múltiples roles y una revisión integral de seguridad antes de un uso con clientes. Estos controles no sustituyen una auditoría de seguridad. Ver [seguridad](docs/SEGURIDAD.md).
 
 ## Próximas mejoras
 
 - Migraciones de base de datos y datos de demostración reproducibles.
-- Pruebas integrales de compra, stock, cancelaciones y permisos.
-- Roles explícitos, protección CSRF y límites de intentos.
-- Reintentos y pruebas de entrega SMTP; validación de todos los eventos de notificación.
+- Extender las pruebas a recorridos visuales completos y sesiones distribuidas.
+- Administración de múltiples roles y límites de intentos.
+- Verificar la entrega SMTP real y definir la retención de mensajes enviados.
 - Validación responsive con capturas de escritorio y móvil.
 - Integración de pagos, si se incorpora al alcance.
 

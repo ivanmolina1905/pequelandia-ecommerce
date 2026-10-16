@@ -48,4 +48,9 @@ public interface IPedidoService {
 	    List<Object[]> productosMasVendidos();
 		Pedido cambiarEstadoConReposicion(Long id, String estado);
 		
+
+    Pedido comprar(Long usuarioId, java.util.Map<Long, Integer> items);
+    Pedido solicitarCancelacion(Long pedidoId, Long usuarioId);
+    Pedido confirmarCancelacion(Long pedidoId);
+
 }

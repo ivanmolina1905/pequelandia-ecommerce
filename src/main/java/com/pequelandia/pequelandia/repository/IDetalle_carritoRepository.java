@@ -17,7 +17,7 @@ public interface IDetalle_carritoRepository extends JpaRepository<Detalle_carrit
     // ======================================================
     @EntityGraph(attributePaths = "producto")
     @Query("SELECT d FROM Detalle_carrito d WHERE d.carrito.idCarrito = :idCarrito")
-    List<Detalle_carrito> findAllByCarrito(@Param("idDetalleCarrito") Long idCarrito);
+    List<Detalle_carrito> findAllByCarrito(@Param("idCarrito") Long idCarrito);
 
     // ======================================================
     // ✔ Buscar detalle por carrito + producto (JPQL)
@@ -40,7 +40,7 @@ public interface IDetalle_carritoRepository extends JpaRepository<Detalle_carrit
     @Query(value = """
         SELECT d.*
         FROM detalle_carrito d
-        WHERE d.id_detalle_carrito = :idDetalleCarrito
+        WHERE d.id_carrito = :idDetalleCarrito
     """, nativeQuery = true)
     List<Detalle_carrito> findAllByCarritoNative(@Param("idDetalleCarrito") Long idDetalleCarrito);
 

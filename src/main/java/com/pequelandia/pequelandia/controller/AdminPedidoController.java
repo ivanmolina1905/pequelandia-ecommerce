@@ -30,8 +30,7 @@ public class AdminPedidoController {
 
   @Autowired private IPedidoRepository pedidoRepo;
   @Autowired private IPedidoService pedidoService;
-  @Autowired
-  private INotificacionService notificacionService;
+
   
   
   @GetMapping("/lista")
@@ -133,27 +132,7 @@ public class AdminPedidoController {
   @PostMapping("/{id}/estado")
   @ResponseBody
   public Map<String,Object> cambiarEstado(@PathVariable Long id, @RequestParam String estado){
-	    try{
-	    	Pedido pedidoAntes =
-	                pedidoService.findPedido(id);
-
-	        String estadoAnterior =
-	                pedidoAntes.getEstado_pedido();
-	        
-	    	Pedido pedidoActualizado =
-	    	        pedidoService.cambiarEstadoConReposicion(
-	    	                id,
-	    	                estado
-	    	        );
-
-	    	notificacionService.notificarCambioEstado(
-	    	        pedidoActualizado,estadoAnterior
-	    	);
-
-	    	return Map.of("ok", true);
-	    }catch(Exception e){
-	        return Map.of("ok", false, "error", e.getMessage());
-	    }
-	}
-
+      pedidoService.cambiarEstadoConReposicion(id, estado);
+      return Map.of("ok", true);
+  }
 }

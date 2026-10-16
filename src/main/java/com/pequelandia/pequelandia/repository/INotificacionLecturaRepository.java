@@ -36,8 +36,17 @@ public interface INotificacionLecturaRepository
               WHERE l.id_notificacion = n.id_notificacion
                 AND l.destinatario = :destinatario
           )
+        ON CONFLICT (id_notificacion, destinatario) DO NOTHING
     """, nativeQuery = true)
     void marcarTodasComoLeidas(
             @Param("destinatario") String destinatario
     );
+
+    @Modifying
+    @Query(value = """
+        INSERT INTO notificacion_lectura (id_notificacion, destinatario, fecha_lectura)
+        VALUES (:id, :destinatario, CURRENT_TIMESTAMP)
+        ON CONFLICT (id_notificacion, destinatario) DO NOTHING
+        """, nativeQuery = true)
+    void insertarLectura(@Param("id") Long id, @Param("destinatario") String destinatario);
 }

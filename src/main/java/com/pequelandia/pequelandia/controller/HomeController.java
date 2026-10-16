@@ -32,14 +32,14 @@ public class HomeController {
     // PANEL USUARIO
     // ======================================================
     @GetMapping({"/panelusuario", "/panelusuario.html"})
-    public String panelUsuario() { return "panelusuario"; }
+    public String panelUsuario() { return "redirect:/panelusuarios/panelhistorial"; }
     
     
  // ======================================================
     // PANEL ADMIN
     // ======================================================
     @GetMapping({"/paneladministracion", "/paneladministracion.html"})
-    public String panelAdmin() { return "paneladministracion"; }
+    public String panelAdmin() { return "redirect:/admin/usuarios"; }
 
  // ======================================================
     // CARRITO

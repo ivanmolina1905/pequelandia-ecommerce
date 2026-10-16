@@ -15,9 +15,12 @@ import static org.mockito.Mockito.*;
 
 class AccessInterceptorTest {
     private final IPedidoService pedidos = mock(IPedidoService.class);
-    private final AccessInterceptor access = new AccessInterceptor(pedidos);
+    private final com.pequelandia.pequelandia.repository.IUsuarioRepository usuarios = mock(com.pequelandia.pequelandia.repository.IUsuarioRepository.class);
+    private final com.pequelandia.pequelandia.service.IdentidadService identidad = new com.pequelandia.pequelandia.service.IdentidadService(usuarios, 1L);
+    private final AccessInterceptor access = new AccessInterceptor(pedidos, identidad);
+    { identidad.inicializar(); }
     private Usuario usuario(long id, String nombre) {
-        var u = new Usuario(); u.setId(id); u.setNombre_usuario(nombre); return u;
+        var u = new Usuario(); u.setId(id); u.setNombre_usuario(nombre); when(usuarios.findById(id)).thenReturn(java.util.Optional.of(u)); return u;
     }
     private MockHttpServletRequest request(String path, Usuario u) {
         var req = new MockHttpServletRequest("GET", path); req.setServletPath(path);

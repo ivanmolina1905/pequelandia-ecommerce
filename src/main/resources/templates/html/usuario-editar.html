@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta name="csrf-token" th:content="${csrfToken}">
+  <script th:src="@{/js/seguridad.js}" src="/js/seguridad.js"></script>
   <meta charset="UTF-8">
   <title>Editar usuario</title>
   <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
@@ -10,6 +12,7 @@
   <h3 class="mb-3">Editar usuario</h3>
 
   <form th:action="@{|/admin/usuarios/${usuario.id}/editar|}" method="post" class="row g-3">
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
 
 
     <div class="col-md-6">

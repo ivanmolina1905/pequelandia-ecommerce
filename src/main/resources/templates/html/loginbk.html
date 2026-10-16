@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta name="csrf-token" th:content="${csrfToken}">
+  <script th:src="@{/js/seguridad.js}" src="/js/seguridad.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,6 +56,7 @@ Login
       !-- ===== VISTA: LOGIN ===== -->
       <div data-view="login">
         <form action="/auth/login" method="post" novalidate>
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
           <div class="mb-3">
             <label for="username" class="form-label">Usuario o email</label>
             <input type="text" class="form-control" id="username" name="username"
@@ -94,6 +97,7 @@ Login
         <p class="text-muted mb-4">Ingresá tu email o usuario y te enviaremos un enlace para restablecer tu contraseña.</p>
 
         <form action="/auth/forgot" method="post" novalidate>
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
           <div class="mb-3">
             <label for="forgotInput" class="form-label">Email o usuario</label>
             <input type="text" class="form-control" id="forgotInput" name="email"
@@ -113,6 +117,7 @@ Login
       <!-- ===== VISTA: RESET ===== -->
       <div data-view="reset" class="d-none">
         <form action="/auth/reset" method="post" id="resetForm" novalidate>
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
           <input type="hidden" name="token" id="token">
           <div class="mb-3">
             <label for="newpass" class="form-label">Contraseña nueva</label>

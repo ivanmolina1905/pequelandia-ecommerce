@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta name="csrf-token" th:content="${csrfToken}">
+  <script th:src="@{/js/seguridad.js}" src="/js/seguridad.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="keywords" content="tienda,online,pequelandia,tiendaropa,tiendaropainfantil">
@@ -62,6 +64,7 @@
     <form th:action="@{/auth/registro}"
           th:object="${registro}"
           method="post">
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
 
       <div class="card-body peq-register-body">
 

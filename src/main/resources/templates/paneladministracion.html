@@ -2,6 +2,8 @@
 
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta name="csrf-token" th:content="${csrfToken}">
+  <script th:src="@{/js/seguridad.js}" src="/js/seguridad.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -133,10 +135,10 @@
     <li class="dropdown-item-text">Hola, <b th:text="${session.usuario.nombre_usuario}"></b></li>
     <li><hr class="dropdown-divider"></li>
     <!-- admin => panel admin, resto => panel usuario -->
-    <li th:if="${#strings.equalsIgnoreCase(session.usuario.nombre_usuario,'admin')}">
+    <li th:if="${@identidadService.esAdmin(session.usuario)}">
       <a class="dropdown-item" th:href="@{/panel/admin}">Panel de administración</a>
     </li>
-    <li th:if="${!#strings.equalsIgnoreCase(session.usuario.nombre_usuario,'admin')}">
+    <li th:if="${!@identidadService.esAdmin(session.usuario)}">
       <a class="dropdown-item" th:href="@{/panel/usuario}">Mi panel</a>
     </li>
     <li><a class="dropdown-item text-danger" th:href="@{/auth/logout}">Cerrar sesión</a></li>
@@ -449,6 +451,7 @@
 												method="post"
 												onsubmit="return confirm('¿Eliminar este usuario?');"
 												class="d-inline">
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
 												<!--<input type="hidden" th:name="${_csrf.parameterName}"
 													th:value="${_csrf.token}" />
 												<button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
@@ -609,7 +612,8 @@
         <option value="">Todos los estados</option>
         <option value="PENDIENTE">PENDIENTE</option>
         <option value="PREPARANDO">PREPARANDO</option>
-        <option value="ENTREGADO">ENTREGADO</option>
+        <option value="ENVIADO">ENVIADO</option>
+<option value="ENTREGADO">ENTREGADO</option>
         <option value="CANCELACION_SOLICITADA">CANCELACIÓN SOLICITADA</option>
         <option value="CANCELADO">CANCELADO</option>
       </select>
@@ -1302,7 +1306,8 @@
                   class="form-select peq-order-state-select">
             <option value="PENDIENTE">PENDIENTE</option>
             <option value="PREPARANDO">PREPARANDO</option>
-            <option value="ENTREGADO">ENTREGADO</option>
+            <option value="ENVIADO">ENVIADO</option>
+<option value="ENTREGADO">ENTREGADO</option>
             <option value="CANCELACION_SOLICITADA">CANCELACIÓN SOLICITADA</option>
             <option value="CANCELADO">CANCELADO</option>
           </select>
@@ -1370,6 +1375,7 @@
       </div>
 
       <form id="newUserForm" method="post" th:action="@{/admin/usuarios/nuevo}">
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
         <div class="modal-body peq-admin-modal-body">
 
           <input th:if="${_csrf != null}" type="hidden"
@@ -1477,6 +1483,7 @@
       </div>
 
       <form id="editUserForm" method="post">
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
         <div class="modal-body peq-admin-modal-body">
 
           <input th:if="${_csrf != null}"
@@ -1575,6 +1582,7 @@
       </div>
 
       <form id="newProductForm" method="post" th:action="@{/admin/productos/nuevo}">
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
         <div class="modal-body peq-admin-modal-body">
 
           <input th:if="${_csrf != null}" type="hidden"
@@ -1696,6 +1704,7 @@
       </div>
 
       <form id="editProductForm" method="post">
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
         <div class="modal-body peq-admin-modal-body">
 
           <div class="peq-form-section">
@@ -1857,6 +1866,7 @@
         </button>
 
         <form id="deleteProductForm" method="post">
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
           <button type="submit" class="btn peq-btn-danger">
             Sí, eliminar
           </button>
@@ -1907,6 +1917,7 @@
         </button>
 
         <form id="deleteForm" method="post">
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
           <button type="submit" class="btn peq-btn-danger">
             Sí, eliminar
           </button>
@@ -2793,6 +2804,7 @@
 	async function verDetallePedido(id){
 	  const res = await fetch(`/pedido/${id}`);
 	  const p = await res.json();
+      if (!res.ok || p.ok === false) { alert(p.error || "No se pudo cargar el pedido"); return; }
 
 	  document.getElementById("pd-numero").textContent = "#" + p.id;
 	  document.getElementById("pd-fecha").textContent = new Date(p.fecha).toLocaleString("es-AR");
@@ -2805,7 +2817,7 @@
 	  (p.items || []).forEach(i => {
 	    tbody.innerHTML += `
 	      <tr>
-	        <td>${i.producto}</td>
+	        <td>${escapeHtmlNotificacion(i.producto)}</td>
 	        <td class="text-center">${i.cantidad}</td>
 	        <td class="text-end">${fmtMoney(i.precio)}</td>
 	        <td class="text-end">${fmtMoney(i.subtotal)}</td>
@@ -2831,7 +2843,15 @@
 	function abrirCambiarEstado(id, estado) {
 		  document.getElementById("pe-id").value = id;
 		  document.getElementById("pe-numero").textContent = "#" + id;
-		  document.getElementById("pe-estado").value = estado;
+		  const selector = document.getElementById("pe-estado");
+          const transiciones = {
+            PENDIENTE: ["PREPARANDO", "CANCELACION_SOLICITADA", "CANCELADO"],
+            PREPARANDO: ["ENVIADO", "ENTREGADO", "CANCELACION_SOLICITADA", "CANCELADO"],
+            ENVIADO: ["ENTREGADO", "CANCELACION_SOLICITADA", "CANCELADO"],
+            CANCELACION_SOLICITADA: ["PREPARANDO", "ENVIADO", "CANCELADO"]
+          };
+          for (const option of selector.options) option.disabled = option.value !== estado && !(transiciones[estado] || []).includes(option.value);
+          selector.value = estado;
 
 		  actualizarAvisoEstadoPedido(estado);
 
@@ -3241,19 +3261,15 @@
 
 	  async function abrirNotificacion(id, pedidoId) {
 	    try {
-	      await fetch(`/notificaciones/${id}/leer`, {
-	        method: "POST"
-	      });
+	      const respuesta = await fetch(`/notificaciones/${id}/leer`, { method: "POST" });
+        const resultado = await respuesta.json();
+        if (!respuesta.ok || !resultado.ok) throw new Error(resultado.error || "No se pudo marcar como leída");
 
 	      await cargarNotificaciones();
 
-	      /*
-	       * Por ahora solo recargamos la campanita.
-	       * Luego podemos navegar directamente al pedido
-	       * o abrir el modal correspondiente.
-	       */
+	      // Abrir el detalle con los mismos controles de acceso que el historial.
 	      if (pedidoId) {
-	        console.log("Pedido relacionado:", pedidoId);
+	        await verDetallePedido(pedidoId);
 	      }
 
 	    } catch (error) {
@@ -3263,9 +3279,9 @@
 
 	  async function marcarTodasLeidas() {
 	    try {
-	      await fetch("/notificaciones/leer-todas", {
-	        method: "POST"
-	      });
+	      const respuesta = await fetch("/notificaciones/leer-todas", { method: "POST" });
+        const resultado = await respuesta.json();
+        if (!respuesta.ok || !resultado.ok) throw new Error(resultado.error || "No se pudieron marcar como leídas");
 
 	      await cargarNotificaciones();
 
@@ -3318,7 +3334,11 @@
 	    return "🔔";
 	  }
 
-	  function escapeHtmlNotificacion(valor) {
+	  // Actualizar avisos mientras el panel está visible.
+    setInterval(() => { if (!document.hidden) cargarNotificaciones(); }, 30000);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) cargarNotificaciones(); });
+
+    function escapeHtmlNotificacion(valor) {
 	    return String(valor ?? "")
 	      .replaceAll("&", "&amp;")
 	      .replaceAll("<", "&lt;")

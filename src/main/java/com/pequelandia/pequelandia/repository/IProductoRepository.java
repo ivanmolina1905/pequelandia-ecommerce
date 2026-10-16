@@ -118,4 +118,9 @@ LIMIT :limite
 """, nativeQuery = true)
 List<Producto> obtenerAleatorios(@Param("limite") int limite);
 
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from Producto e where e.idProducto = :id")
+    java.util.Optional<Producto> bloquear(@Param("id") Long id);
+
 }

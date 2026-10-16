@@ -304,5 +304,14 @@ long contarPedidosDelDia(@Param("fecha") LocalDate fecha);
 long contarPorEstadoSinDistinguirMayusculas(
       @Param("estado") String estado
 );
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from Pedido e where e.id_pedido = :id")
+    java.util.Optional<Pedido> bloquear(@Param("id") Long id);
+
+
+    @Query("select p from Pedido p where p.carrito.idCarrito = :id")
+    java.util.Optional<Pedido> buscarPorCarrito(@Param("id") Long id);
+
 }
 

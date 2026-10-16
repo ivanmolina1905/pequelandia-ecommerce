@@ -11,24 +11,15 @@ import com.pequelandia.pequelandia.model.Pedido;
 import com.pequelandia.pequelandia.model.Usuario;
 
 @Service
+@org.springframework.transaction.annotation.Transactional
 public class CorreoService implements ICorreoService {
 
     private static final Logger log =
             LoggerFactory.getLogger(CorreoService.class);
 
-    private final JavaMailSender mailSender;
-
-    @Value("${spring.mail.username}")
-    private String correoEmisor;
-
-    @Value("${app.admin.email}")
-    private String correoAdmin;
-
-    public CorreoService(
-            JavaMailSender mailSender
-    ) {
-        this.mailSender = mailSender;
-    }
+    private final ColaCorreoService cola;
+    @Value("${app.admin.email}") private String correoAdmin;
+    public CorreoService(ColaCorreoService cola) { this.cola = cola; }
 
     // ======================================================
     // ENVÍO BASE
@@ -51,45 +42,8 @@ public class CorreoService implements ICorreoService {
             return false;
         }
 
-        try {
-            log.info(
-                    "Intentando enviar correo a: {} | asunto: {}",
-                    destinatario,
-                    asunto
-            );
-
-            SimpleMailMessage mensaje =
-                    new SimpleMailMessage();
-
-            mensaje.setFrom(correoEmisor);
-            mensaje.setTo(destinatario);
-            mensaje.setSubject(asunto);
-            mensaje.setText(contenido);
-
-            mailSender.send(mensaje);
-
-            log.info(
-                    "Correo enviado correctamente a: {}",
-                    destinatario
-            );
-
-            return true;
-
-        } catch (Exception e) {
-            /*
-             * Un problema SMTP no debe bloquear
-             * el registro ni la compra.
-             */
-            log.error(
-                    "No se pudo enviar correo a {}. Tipo: {}. Mensaje: {}",
-                    destinatario,
-                    e.getClass().getName(),
-                    e.getMessage(),
-                    e
-            );
-
-            return false;
-        }
+        cola.encolar(destinatario, asunto, contenido);
+        return true; // Aceptado en cola; la entrega SMTP se confirma por separado.
     }
 
     // ======================================================

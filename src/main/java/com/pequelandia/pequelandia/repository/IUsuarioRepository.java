@@ -101,4 +101,11 @@ public interface IUsuarioRepository extends JpaRepository<Usuario,Long> {
 			
         
         
+
+    @Query("select u.id from Usuario u where lower(u.nombre_usuario) = lower(:nombre)")
+    List<Long> idsPorNombre(@Param("nombre") String nombre);
+
+    @Query("select count(u)>0 from Usuario u where u.id <> :id and (lower(u.nombre_usuario)=lower(:nombre) or lower(u.email)=lower(:email))")
+    boolean identidadEnUso(@Param("id") Long id, @Param("nombre") String nombre, @Param("email") String email);
+
 }

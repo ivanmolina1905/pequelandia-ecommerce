@@ -28,7 +28,7 @@ public class CompraService implements ICompraService {
 	@Autowired
     private  IPedidoRepository pedidoRepo;
 
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private static final java.time.format.DateTimeFormatter SDF = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @Override
     public List<compraResumenDTO> obtenerComprasPorUsuario(Long idUsuario) {
@@ -59,7 +59,7 @@ public class CompraService implements ICompraService {
     private compraResumenDTO mapearAPedidoResumen(Pedido pedido) {
 
         String fecha = pedido.getFecha_pedido() != null
-                ? SDF.format(pedido.getFecha_pedido())
+                ? SDF.format(java.time.Instant.ofEpochMilli(pedido.getFecha_pedido().getTime()).atZone(java.time.ZoneId.systemDefault()))
                 : "-";
 
         double total = calcularTotalPedido(pedido);

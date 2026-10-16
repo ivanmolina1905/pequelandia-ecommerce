@@ -7,10 +7,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     private final AccessInterceptor access;
-    public WebConfig(AccessInterceptor access) { this.access = access; }
+    private final CsrfInterceptor csrf;
+    public WebConfig(AccessInterceptor access, CsrfInterceptor csrf) { this.access = access; this.csrf = csrf; }
     @Override public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(csrf).addPathPatterns("/**");
         registry.addInterceptor(access).addPathPatterns("/admin", "/admin/**", "/usuarios/**",
             "/panel/admin", "/paneladministracion", "/paneladministracion.html",
-            "/panelusuario", "/panelusuario.html", "/panel/usuario", "/panelusuarios/**", "/pedido/**");
+            "/panelusuario", "/panelusuario.html", "/panel/usuario", "/panelusuarios/**", "/pedido/**", "/notificaciones/**", "/carrito/finalizar");
     }
 }

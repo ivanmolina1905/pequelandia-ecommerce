@@ -19,6 +19,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpSession;
 
 @Service
+@org.springframework.transaction.annotation.Transactional
 public class Detalle_carritoService implements IDetalle_carritoService{
 
 		@Autowired
@@ -37,6 +38,7 @@ public class Detalle_carritoService implements IDetalle_carritoService{
 	    @Override
 	   
 	    public Detalle_carrito upsert(Long carritoId, Long productoId, Integer cantidad) {
+            exigirEditable(carritoId);
 	        if (carritoId == null || productoId == null)
 	            throw new IllegalArgumentException("carritoId y productoId son obligatorios");
 	        if (cantidad == null || cantidad <= 0)
@@ -52,12 +54,14 @@ public class Detalle_carritoService implements IDetalle_carritoService{
 	                    return n;
 	                });
 
-	        det.setCantidad(det.getCantidad() + cantidad);
+	        det.setCantidad(Math.addExact(det.getCantidad(), cantidad));
+            det.setPrecio(det.getProducto().getPrecio());
 	        return repo.save(det); // NO recalculamos total del carrito
 	    }
 
 	    @Override
 	    public Detalle_carrito setCantidad(Long carritoId, Long productoId, Integer cantidad) {
+            exigirEditable(carritoId);
 	        if (cantidad == null || cantidad < 0)
 	            throw new IllegalArgumentException("cantidad debe ser >= 0");
 
@@ -85,12 +89,19 @@ public class Detalle_carritoService implements IDetalle_carritoService{
 	    
 	    @Override
 	    public void eliminar(Long carritoId, Long productoId) {
+            exigirEditable(carritoId);
 	        repo.findOneByCarritoAndProductoNative(carritoId, productoId)
 	            .ifPresent(repo::delete);
 	    }
 	    
-	 
-	}
+
+    private void exigirEditable(Long id) {
+        if (id == null) throw new IllegalArgumentException("Carrito requerido");
+        var carrito = carritoRepo.bloquear(id).orElseThrow(() -> new NoSuchElementException("Carrito no encontrado"));
+        em.refresh(carrito, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (carrito.getPedido() != null) throw new IllegalStateException("El carrito ya pertenece a un pedido");
+    }
+}
 	
 	
 

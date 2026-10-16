@@ -30,12 +30,11 @@ public class LoginController {
 
 @Autowired
 private IUsuarioService usuarioService;
+@Autowired private com.pequelandia.pequelandia.service.IdentidadService identidad;
 @Autowired 
 private ICarrito_de_compraService carritoService;
-@Autowired
-private CorreoService correoService;
-@Autowired
-private INotificacionService notificacionService;
+
+
 
 //1) Mostrar formulario de login (GET)
 @GetMapping("/login")
@@ -77,7 +76,7 @@ public String procesarLogin(@RequestParam String username,
         session.setAttribute("CARRITO_ID", carritoUsuario.getId_carrito());
     }
 
-    if ("admin".equalsIgnoreCase(usuario.getNombre_usuario())) {
+    if (identidad.esAdmin(usuario)) {
         return "redirect:/panel/admin";
     }
     return "redirect:/panelusuarios/panelhistorial?section=perfil";
@@ -197,10 +196,10 @@ public String registrarUsuario(
     	        usuarioService.registrar(dto, localidad);
 
   // bienvenida al correo del usuario
-     correoService.enviarBienvenida(usuarioCreado);
+     // La bienvenida se encola desde el servicio transaccional.
 
      // campanita y correo para admin
-     notificacionService.notificarNuevoUsuario(usuarioCreado);
+     // La notificación se crea desde el servicio transaccional.
 
      return "redirect:/auth/login?registroExitoso=true";
 

@@ -17,6 +17,7 @@ import com.pequelandia.pequelandia.repository.INotificacionLecturaRepository;
 import com.pequelandia.pequelandia.repository.INotificacionRepository;
 
 @Service
+@Transactional
 public class NotificacionService implements INotificacionService {
 
     private final INotificacionRepository notificacionRepo;
@@ -307,36 +308,7 @@ public class NotificacionService implements INotificacionService {
             );
         }
 
-        boolean yaLeida =
-                lecturaRepo
-                        .buscarLectura(
-                                notificacionId,
-                                destinatario
-                        )
-                        .isPresent();
-
-        if (yaLeida) {
-            return;
-        }
-
-        NotificacionLectura lectura =
-                new NotificacionLectura();
-
-        lectura.setNotificacion(
-                notificacion
-        );
-
-        lectura.setDestinatario(
-                destinatario
-        );
-
-        lectura.setFechaLectura(
-                LocalDateTime.now()
-        );
-
-        lecturaRepo.save(
-                lectura
-        );
+        lecturaRepo.insertarLectura(notificacionId, destinatario);
     }
 
     // ======================================================

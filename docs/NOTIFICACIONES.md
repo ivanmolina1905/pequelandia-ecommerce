@@ -1,0 +1,61 @@
+# Pedidos, stock y notificaciones
+
+## Flujo transaccional
+
+`PedidoService` concentra la compra, los cambios de estado y las cancelaciones. Carrito, detalles, stock, pedido, avisos internos y correos pendientes se guardan en una misma transacción. Si falla la persistencia de cualquiera de esas partes, se revierte la operación completa.
+
+Se conservan ambas rutas de solicitud de cancelación (`/pedido/{id}/cancelar` y `/panelusuarios/{id}/cancelar`), el cambio administrativo y la confirmación de cancelación. Todas delegan en el servicio. La solicitud verifica titularidad; la confirmación exige administrador y una solicitud previa. El administrador también puede cancelar directamente desde el cambio de estado.
+
+Los pedidos y productos se bloquean durante la operación. Los productos se procesan en orden de ID. Se refrescan los valores después de adquirir el bloqueo para no reutilizar un estado viejo cargado por la vista. Repetir el mismo estado no vuelve a modificar stock ni generar avisos. Los carritos confirmados quedan protegidos contra cambios de cantidades.
+
+| Estado actual | Cambios permitidos |
+| --- | --- |
+| PENDIENTE | PREPARANDO, CANCELACION_SOLICITADA, CANCELADO |
+| PREPARANDO | ENVIADO, ENTREGADO, CANCELACION_SOLICITADA, CANCELADO |
+| ENVIADO | ENTREGADO, CANCELACION_SOLICITADA, CANCELADO |
+| CANCELACION_SOLICITADA | PREPARANDO, ENVIADO, CANCELADO |
+| ENTREGADO / CANCELADO | Solo repetir el mismo estado, sin efectos adicionales |
+
+Solicitar cancelación no repone stock. La reposición ocurre al pasar efectivamente a CANCELADO. Una compra repetida para el mismo carrito devuelve el pedido existente. El carrito en sesión se serializa por sesión durante sus modificaciones y el checkout, evitando pedidos duplicados por doble clic dentro de la misma instancia. Una futura instalación con sesiones distribuidas necesitará una clave persistente de checkout compartida entre instancias.
+
+## Administración y formularios
+
+Configurar `app.security.admin-id` en el archivo local o `PEQUELANDIA_ADMIN_ID` con el ID de la cuenta administrativa. Los permisos se comparan por ID, no por el nombre editable.
+
+Por compatibilidad, si vale 0 se busca una única cuenta llamada `admin` al iniciar y se fija su ID en memoria. Sin esa cuenta no se habilita administración; con varias cuentas homónimas se rechaza el arranque y se debe configurar el ID. El nombre `admin` queda reservado. Para renombrar al administrador del modo compatible, primero hay que fijar su ID en configuración. No hay una migración de roles ni cambios en las contraseñas.
+
+Las peticiones POST requieren el token CSRF de la sesión, enviado como `_csrf` en formularios o `X-CSRF-TOKEN` en fetch. Las vistas y `static/js/seguridad.js` lo incorporan. Los permisos se aplican también a PDF, consultas JSON, exportaciones y las rutas alternativas de paneles. Las respuestas de error incluyen un mensaje sin exponer consultas SQL.
+
+## Campanitas
+
+Se mantienen los destinatarios `ADMIN` y `USUARIO_<id>`. Las lecturas se guardan en `NotificacionLectura`, con inserciones que toleran conflictos de unicidad. La entidad `Notificacion.java` permanece intacta.
+
+La campanita muestra los últimos 12 avisos y cuenta todas las notificaciones no leídas. Se actualiza al abrirla, al volver a la pestaña y cada 30 segundos mientras está visible. Al pulsar un aviso se marca como leído y se abre el pedido relacionado mediante el mismo endpoint protegido del historial.
+
+## Correos pendientes
+
+`src/main/resources/db/notificaciones.sql` crea únicamente la tabla nueva `correo_pendiente` y su índice, de forma idempotente al arrancar. No modifica las tablas de pedidos ni notificaciones. El usuario de PostgreSQL debe tener permiso para crear esa tabla; si se aplica el script por separado, se puede desactivar la inicialización automática con `spring.sql.init.mode=never`.
+
+Los mensajes se guardan antes del commit de la operación. El worker solo consume filas confirmadas y usa `FOR UPDATE SKIP LOCKED` para que dos workers no envíen simultáneamente la misma fila. Cada lote procesa hasta 10 mensajes. Los errores SMTP se reintentan con espera creciente, desde 30 segundos hasta una hora. Los mensajes enviados se conservan con `enviado_en`.
+
+- `app.mail.delivery-enabled` / `PEQUELANDIA_MAIL_DELIVERY_ENABLED`: habilita la entrega; `false` conserva la cola sin conectarse a SMTP.
+- `app.mail.poll-ms`: intervalo entre lotes, 5000 ms por defecto.
+- `CorreoService.enviar()` devuelve si el mensaje fue aceptado en la cola; no certifica que haya llegado al buzón.
+
+SMTP no garantiza entrega exactamente una vez: si el servidor acepta un mensaje y el proceso falla antes de registrar el envío, el reintento puede repetir ese correo. La deduplicación de las acciones de pedidos evita generar filas repetidas por solicitudes repetidas; no elimina esa ventana propia del protocolo.
+
+## Pruebas reproducibles
+
+Las pruebas de integración usan exclusivamente una base local descartable llamada `pequelandia_verificacion`, con usuario `pequelandia_test`. Crean y eliminan el esquema de negocio y usan datos ficticios. No apuntar una base existente a este nombre para ejecutar pruebas.
+
+```powershell
+# Con un PostgreSQL de pruebas independiente ya iniciado y la base vacía creada:
+$env:PEQUELANDIA_TEST_DB_URL='jdbc:postgresql://127.0.0.1:55439/pequelandia_verificacion'
+.\mvnw.cmd test
+```
+
+Sin esa variable, se ejecutan los tests unitarios y se omiten explícitamente los de integración. `IntegrationSupport` sobrescribe la configuración local de conexión, desactiva el worker de correo y valida el nombre y host de la base. Las pruebas de entrega sustituyen SMTP por un mock.
+
+Se prueban permisos HTTP, CSRF, registro, renderizado Thymeleaf, PDF, compra y cancelación concurrentes, rollback ante fallos, congelación de carritos históricos, unión del carrito invitado, lecturas concurrentes y reintentos de correo. La entrega a buzones reales y un recorrido visual completo en navegador requieren una comprobación adicional con la configuración del entorno.
+
+Verificación realizada el 16 de octubre de 2026: 28 pruebas Java aprobadas, sin fallos ni omisiones, usando Java 22 y PostgreSQL 18.4 aislado. Otras 4 pruebas JavaScript verifican envío del token CSRF, conservación de headers, ausencia de filtración del token a otros sitios y escape de texto. Se ejecutan con `node --test src/test/js/seguridad.test.cjs`, sin instalar paquetes.

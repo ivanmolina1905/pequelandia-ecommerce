@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta name="csrf-token" th:content="${csrfToken}">
+  <script th:src="@{/js/seguridad.js}" src="/js/seguridad.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -130,10 +132,10 @@
     <li class="dropdown-item-text">Hola, <b th:text="${session.usuario.nombre_usuario}"></b></li>
     <li><hr class="dropdown-divider"></li>
     <!-- admin => panel admin, resto => panel usuario -->
-    <li th:if="${#strings.equalsIgnoreCase(session.usuario.nombre_usuario,'admin')}">
+    <li th:if="${@identidadService.esAdmin(session.usuario)}">
       <a class="dropdown-item" th:href="@{/panel/admin}">Panel de administración</a>
     </li>
-    <li th:if="${!#strings.equalsIgnoreCase(session.usuario.nombre_usuario,'admin')}">
+    <li th:if="${!@identidadService.esAdmin(session.usuario)}">
       <a class="dropdown-item" th:href="@{/panel/usuario}">Mi panel</a>
     </li>
     <li><a class="dropdown-item text-danger" th:href="@{/auth/logout}">Cerrar sesión</a></li>
@@ -987,6 +989,7 @@ const fmtMoney = (v) => {
 	async function abrirDetallePedido(id){
 	  const res = await fetch(`/pedido/${id}`); // tu endpoint JSON
 	  const p = await res.json();
+      if (!res.ok || p.ok === false) { alert(p.error || "No se pudo cargar el pedido"); return; }
 
 	  document.getElementById("pd-numero").textContent = "#" + p.id;
 	  document.getElementById("pd-fecha").textContent = new Date(p.fecha).toLocaleString("es-AR");
@@ -1012,7 +1015,7 @@ const fmtMoney = (v) => {
 	  (p.items || []).forEach(i => {
 	    tbody.innerHTML += `
 	      <tr>
-	        <td>${i.producto}</td>
+	        <td>${escapeHtmlNotificacion(i.producto)}</td>
 	        <td class="text-center">${i.cantidad}</td>
 	        <td class="text-end">${fmtMoney(i.precio)}</td>
 	        <td class="text-end">${fmtMoney(i.subtotal)}</td>
@@ -1243,19 +1246,15 @@ const fmtMoney = (v) => {
 
     async function abrirNotificacion(id, pedidoId) {
       try {
-        await fetch(`/notificaciones/${id}/leer`, {
-          method: "POST"
-        });
+        const respuesta = await fetch(`/notificaciones/${id}/leer`, { method: "POST" });
+        const resultado = await respuesta.json();
+        if (!respuesta.ok || !resultado.ok) throw new Error(resultado.error || "No se pudo marcar como leída");
 
         await cargarNotificaciones();
 
-        /*
-         * Por ahora solo recargamos la campanita.
-         * Luego podemos navegar directamente al pedido
-         * o abrir el modal correspondiente.
-         */
+        // Abrir el detalle con los mismos controles de acceso que el historial.
         if (pedidoId) {
-          console.log("Pedido relacionado:", pedidoId);
+          await abrirDetallePedido(pedidoId);
         }
 
       } catch (error) {
@@ -1265,9 +1264,9 @@ const fmtMoney = (v) => {
 
     async function marcarTodasLeidas() {
       try {
-        await fetch("/notificaciones/leer-todas", {
-          method: "POST"
-        });
+        const respuesta = await fetch("/notificaciones/leer-todas", { method: "POST" });
+        const resultado = await respuesta.json();
+        if (!respuesta.ok || !resultado.ok) throw new Error(resultado.error || "No se pudieron marcar como leídas");
 
         await cargarNotificaciones();
 
@@ -1319,6 +1318,10 @@ const fmtMoney = (v) => {
 
       return "🔔";
     }
+
+    // Actualizar avisos mientras el panel está visible.
+    setInterval(() => { if (!document.hidden) cargarNotificaciones(); }, 30000);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) cargarNotificaciones(); });
 
     function escapeHtmlNotificacion(valor) {
       return String(valor ?? "")

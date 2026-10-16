@@ -69,7 +69,7 @@ public interface ICarrito_de_compraRepository extends JpaRepository<Carrito_de_c
     @Query(value = """
             SELECT d.*
             FROM detalle_carrito d
-            WHERE d.idCarrito = :idCarrito
+            WHERE d.id_carrito = :idCarrito
         """, nativeQuery = true)
         List<Detalle_carrito> findAllByCarritoNative(@Param("idCarrito") Long idCarrito);
         
@@ -80,4 +80,10 @@ public interface ICarrito_de_compraRepository extends JpaRepository<Carrito_de_c
     Optional<Carrito_de_compra> findById(Long id);
     
     Optional<Carrito_de_compra> findByUsuario(Usuario usuario);
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from Carrito_de_compra e where e.idCarrito = :id")
+    java.util.Optional<Carrito_de_compra> bloquear(@Param("id") Long id);
+
+    Optional<Carrito_de_compra> findFirstByUsuarioAndPedidoIsNullOrderByIdCarritoDesc(Usuario usuario);
 }

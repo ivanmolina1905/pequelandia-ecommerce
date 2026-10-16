@@ -39,8 +39,8 @@ private IPedidoRepository pedidoRepo;
 private PanelUsuarioService panelusuarioService;
 @Autowired
 private IUsuarioRepository usuarioRepo;
-@Autowired
-private INotificacionService notificacionService;
+@Autowired private com.pequelandia.pequelandia.service.IdentidadService identidad;
+
 
 @GetMapping("/verpedidos")
 public String panelUsuario(HttpSession session, Model model){
@@ -59,29 +59,7 @@ public Map<String, Object> solicitarCancelacion(@PathVariable Long id, HttpSessi
     Usuario u = (Usuario) session.getAttribute("usuario");
     if(u == null) return Map.of("ok", false, "redirect", "/auth/login");
 
-    Pedido p = pedidoService.findPedido(id);
-
-    // seguridad: que el pedido sea del usuario
-    if (
-    	    p.getUsuario() == null ||
-    	    !Objects.equals(p.getUsuario().getId(), u.getId())
-    	) {
-    	    return Map.of("ok", false, "error", "No autorizado");
-    	}
-
-    // reglas mínimas
-    String estado = p.getEstado_pedido();
-    if(estado != null && (estado.equalsIgnoreCase("ENTREGADO") || estado.equalsIgnoreCase("CANCELADO"))){
-        return Map.of("ok", false, "error", "No se puede cancelar un pedido entregado/cancelado");
-    }
-
-    p.setEstado_pedido("CANCELACION_SOLICITADA");
-    pedidoService.savePedido(p);
-    
-    notificacionService.notificarSolicitudCancelacion(p);
-
-    // opcional: crear Notificacion para admin si ya tenés esa entidad
-    // notificacionService.crearParaAdmin("Solicitud de cancelación pedido #" + p.getId_pedido(), ...);
+    pedidoService.solicitarCancelacion(id, u.getId());
 
     return Map.of("ok", true);
 }
@@ -109,7 +87,7 @@ public String panelUsuario(
   
   Page<Pedido> pedidos = pedidoRepo.findByUsuarioId(
       u.getId(),
-      PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "fecha_pedido"))
+      PageRequest.of(Math.max(0, page), Math.max(1, Math.min(100, size)), Sort.by(Sort.Direction.DESC, "fecha_pedido"))
   );
   
   
@@ -205,8 +183,9 @@ public Map<String, Object> editarPerfil(
     // ======================================================
     // ACTUALIZAR USUARIO
     // ======================================================
-    if ("admin".equalsIgnoreCase(nombre.trim()) && !"admin".equalsIgnoreCase(u.getNombre_usuario())) {
-        return Map.of("ok", false, "error", "Ese nombre de usuario está reservado.");
+    identidad.validarNombre(u, nombre);
+    if (usuarioRepo.identidadEnUso(u.getId(), nombre.trim(), email.trim())) {
+        return Map.of("ok", false, "error", "El nombre o el email ya están registrados");
     }
     u.setNombre_usuario(nombre.trim());
     u.setEmail(email.trim().toLowerCase());

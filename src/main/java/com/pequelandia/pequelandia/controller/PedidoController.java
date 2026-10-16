@@ -32,8 +32,7 @@ public class PedidoController {
         this.pedidoService = pedidoService;
     }
     
-    @Autowired
-    private IProductoRepository productoRepo;
+
 
     
     
@@ -51,7 +50,7 @@ public class PedidoController {
                 "total", p.getCarrito().getTotal(),
                 "items", p.getCarrito().getDetalles().stream().map(d -> {
                     int cant = d.getCantidad() != null ? d.getCantidad() : 0;
-                    BigDecimal precio = BigDecimal.valueOf((double) d.getPrecio()); // precio guardado en detalle
+                    BigDecimal precio = new BigDecimal(Float.toString(d.getPrecio())); // precio guardado en detalle
                     BigDecimal subtotal = precio.multiply(BigDecimal.valueOf(cant));
 
                     return Map.of(
@@ -104,7 +103,7 @@ public class PedidoController {
         for (var d : p.getCarrito().getDetalles()) {
             table.addCell(d.getProducto().getNombre_producto());
             table.addCell(String.valueOf(d.getCantidad()));
-            table.addCell("$ " + String.valueOf(d.getCarrito().getTotal()));
+            table.addCell("$ " + new BigDecimal(Float.toString(d.getPrecio())).multiply(BigDecimal.valueOf(d.getCantidad())).toPlainString());
         }
 
         doc.add(table);
@@ -123,58 +122,19 @@ public class PedidoController {
         Usuario u = (Usuario) session.getAttribute("usuario");
         if(u == null) return Map.of("ok", false, "redirect", "/login");
 
-        Pedido p = pedidoService.findPedido(id);
-
-        if (
-        	    p.getUsuario() == null ||
-        	    p.getUsuario().getId() != u.getId()
-        	) {
-        	    return Map.of("ok", false, "error", "No autorizado");
-        	}
-
-        String est = p.getEstado_pedido() != null ? p.getEstado_pedido().toUpperCase() : "";
-        if(est.equals("ENTREGADO") || est.equals("CANCELADO")){
-            return Map.of("ok", false, "error", "No se puede cancelar este pedido");
-        }
-
-        p.setEstado_pedido("CANCELACION_SOLICITADA");
-        pedidoService.savePedido(p);
-
+        pedidoService.solicitarCancelacion(id, u.getId());
         return Map.of("ok", true);
     }
     
     @PostMapping("/{id}/confirmar-cancelacion")
     @ResponseBody
-    @Transactional
     public Map<String, Object> confirmarCancelacion(@PathVariable Long id, HttpSession session) {
         Usuario u = (Usuario) session.getAttribute("usuario");
         if (u == null) {
             return Map.of("ok", false, "redirect", "/login");
         }
 
-        Pedido p = pedidoService.findPedido(id);
-        if (p == null) {
-            return Map.of("ok", false, "error", "Pedido no encontrado");
-        }
-
-        String est = p.getEstado_pedido() != null ? p.getEstado_pedido().toUpperCase() : "";
-        if (est.equals("CANCELADO")) {
-            return Map.of("ok", false, "error", "El pedido ya está cancelado");
-        }
-
-        // DEVOLVER STOCK SOLO UNA VEZ
-        for (var d : p.getCarrito().getDetalles()) {
-            Producto prod = productoRepo.findById(d.getProducto().getIdProducto())
-                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-
-            int cantidad = d.getCantidad() != null ? d.getCantidad() : 0;
-            prod.setStock(prod.getStock() + cantidad);
-            productoRepo.save(prod);
-        }
-
-        p.setEstado_pedido("CANCELADO");
-        pedidoService.savePedido(p);
-
+        pedidoService.confirmarCancelacion(id);
         return Map.of("ok", true);
     }
 

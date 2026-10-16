@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta name="csrf-token" th:content="${csrfToken}">
+  <script th:src="@{/js/seguridad.js}" src="/js/seguridad.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="keywords" content="tienda,online,pequelandia,tiendaropa,tiendaropainfantil">
@@ -78,10 +80,10 @@
   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
     <li class="dropdown-item-text">Hola, <b th:text="${session.usuario.nombre_usuario}"></b></li>
     <li><hr class="dropdown-divider"></li>
-    <li th:if="${#strings.equalsIgnoreCase(session.usuario.nombre_usuario, 'admin')}">
+    <li th:if="${@identidadService.esAdmin(session.usuario)}">
       <a class="dropdown-item" th:href="@{/panel/admin}">Panel de administración</a>
     </li>
-    <li th:if="${!#strings.equalsIgnoreCase(session.usuario.nombre_usuario, 'admin')}">
+    <li th:if="${!@identidadService.esAdmin(session.usuario)}">
       <a class="dropdown-item" th:href="@{/panel/usuario}">Mi panel</a>
     </li>
     <li><a class="dropdown-item text-danger" th:href="@{/auth/logout}">Cerrar sesión</a></li>
@@ -106,6 +108,7 @@
 		</div>
         
         <form th:action="@{/auth/login}" method="post" novalidate>
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
           <div class="mb-3">
             <label for="username" class="form-label">Usuario o email</label>
             <input type="text" class="form-control" id="username" name="username"

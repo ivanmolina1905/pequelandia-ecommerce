@@ -22,6 +22,9 @@ public class UsuarioService implements IUsuarioService{
 	//generamos la dependenca "inyeccion de dependencia"
 	@Autowired
 	private IUsuarioRepository UsuarioRepo;
+    @Autowired private IdentidadService identidad;
+    @Autowired private INotificacionService notificaciones;
+    @Autowired private CorreoService correos;
 
 	
 	@Override
@@ -33,7 +36,8 @@ public class UsuarioService implements IUsuarioService{
 
 	@Override
 	public void saveUsuario(Usuario usu) {
-		UsuarioRepo.save(usu);
+		identidad.validarNombre(usu, usu.getNombre_usuario());
+        UsuarioRepo.save(usu);
 	}
 
 	@Override
@@ -53,7 +57,9 @@ public class UsuarioService implements IUsuarioService{
 	    Usuario db = findUsuario(id); // lanza si no existe
 
 		 // Strings: solo si no vienen null/blank
-	    setIfHasText(db::setNombre_usuario, cambios.getNombre_usuario());
+	    if (cambios.getNombre_usuario() != null && !cambios.getNombre_usuario().isBlank())
+            identidad.validarNombre(db, cambios.getNombre_usuario());
+        setIfHasText(db::setNombre_usuario, cambios.getNombre_usuario());
 	    setIfHasText(db::setApellido,        cambios.getApellido());
 	    setIfHasText(db::setEmail,           cambios.getEmail());
 	    setIfHasText(db::setTelefono, 		cambios.getTelefono());
@@ -136,14 +142,16 @@ public class UsuarioService implements IUsuarioService{
     
 
    
+    @org.springframework.transaction.annotation.Transactional
     public Usuario registrar(RegistroUsuarioDTO dto, Localidad localidad) {
         Usuario usuario = new Usuario();
 
+        identidad.validarNombre(usuario, dto.getNombre_usuario());
         usuario.setNombre_usuario(dto.getNombre_usuario().trim());
         usuario.setApellido(dto.getApellido().trim());
         usuario.setEmail(dto.getEmail().trim().toLowerCase());
         usuario.setDni(dto.getDni());
-        usuario.setTelefono(dto.getTelefono().trim());
+        usuario.setTelefono(dto.getTelefono() == null ? "" : dto.getTelefono().trim());
         usuario.setDireccion(dto.getDireccion().trim());
         usuario.setFecha_nacimiento(dto.getFecha_nacimiento());
         usuario.setFecha_registro(new Date());
@@ -151,7 +159,10 @@ public class UsuarioService implements IUsuarioService{
         usuario.setContraseña(dto.getContraseña());
         usuario.setPuntos(0);
 
-        return UsuarioRepo.save(usuario);
+        Usuario guardado = UsuarioRepo.save(usuario);
+        notificaciones.notificarNuevoUsuario(guardado);
+        correos.enviarBienvenida(guardado);
+        return guardado;
     }
 
 	

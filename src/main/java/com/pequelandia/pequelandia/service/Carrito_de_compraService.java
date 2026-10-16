@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 
 @Service
+@Transactional
 public class Carrito_de_compraService implements ICarrito_de_compraService{
 
 	@Autowired
@@ -58,6 +59,7 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
 
     @Override
     public void eliminar(Long id) {
+        editable(id);
         if (!carritoRepo.existsById(id)) {
             throw new NoSuchElementException("Carrito no encontrado id=" + id);
         }
@@ -66,7 +68,7 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
 
     @Override
     public Carrito_de_compra actualizarTotal(Long carritoId, BigDecimal nuevoTotal) {
-        Carrito_de_compra c = obtener(carritoId);
+        Carrito_de_compra c = editable(carritoId);
         if (nuevoTotal == null)
             nuevoTotal = BigDecimal.ZERO;
         c.setTotal(nuevoTotal);
@@ -77,7 +79,7 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
     public BigDecimal recalcularTotal1(Long carritoId){
         Double total = detalleRepo.totalCarrito(carritoId); // SUM(cantidad * precio)
         BigDecimal bd = BigDecimal.valueOf(total != null ? total : 0.0);
-        Carrito_de_compra c = carritoRepo.findById(carritoId).orElseThrow();
+        Carrito_de_compra c = editable(carritoId);
         c.setTotal(bd);
         carritoRepo.save(c);
         return bd;
@@ -90,7 +92,7 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
         if (cantidad == null || cantidad <= 0)
             throw new IllegalArgumentException("La cantidad debe ser mayor a 0.");
 
-        Carrito_de_compra carrito = obtener(carritoId);
+        Carrito_de_compra carrito = editable(carritoId);
 
         // 1) Buscar producto (para obtener PRECIO ACTUAL)
         Producto producto = productoRepo.findById(productoId)
@@ -107,7 +109,7 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
                 });
 
         // 3) Actualizar cantidad
-        det.setCantidad(det.getCantidad() + cantidad);
+        det.setCantidad(Math.addExact(det.getCantidad(), cantidad));
 
         // 4) Guardar precio actual del producto 💥 CLAVE para estadísticas
         det.setPrecio(producto.getPrecio());
@@ -117,6 +119,7 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
 
     @Override
     public void quitarDetalle(Long carritoId, Long productoId) {
+        editable(carritoId);
 
         Detalle_carrito det = detalleRepo.findOneByCarritoAndProductoNative(carritoId, productoId)
                 .orElseThrow(() ->
@@ -137,7 +140,7 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
         // ======================
         if (u != null) {
             // buscar carrito activo del usuario
-            return carritoRepo.findByUsuario(u)
+            return carritoRepo.findFirstByUsuarioAndPedidoIsNullOrderByIdCarritoDesc(u)
                 .orElseGet(() -> {
                     Carrito_de_compra c = new Carrito_de_compra();
                     c.setUsuario(u);
@@ -153,6 +156,7 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
 
         if (carritoId != null) {
             return carritoRepo.findById(carritoId)
+                .filter(c -> c.getPedido() == null && c.getUsuario() == null)
                 .orElseGet(() -> crearCarritoInvitado(session));
         }
 
@@ -173,6 +177,10 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
  carritoUsuarioId) {
  
  if (carritoInvitadoId.equals(carritoUsuarioId)) return;
+ Carrito_de_compra origen = editable(carritoInvitadoId);
+ Carrito_de_compra destino = editable(carritoUsuarioId);
+ if (origen.getUsuario() != null || destino.getUsuario() == null)
+     throw new IllegalArgumentException("Solo se puede incorporar un carrito invitado a un usuario");
 
  List<Detalle_carrito> items =
  detalleRepo.findAllByCarritoNative(carritoInvitadoId);
@@ -180,13 +188,15 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
  for (Detalle_carrito d : items) { detalleCarritoService.upsert(
 	  carritoUsuarioId, d.getProducto().getIdProducto(), d.getCantidad() ); }
 	  
- //borrar carrito invitado detalleRepo.deleteAll(items);
+ detalleRepo.deleteAll(items);
+  detalleRepo.flush();
   carritoRepo.deleteById(carritoInvitadoId);
 	  
-	  carritoRepo.calcularTotal(carritoUsuarioId); }
+	  recalcularTotal1(carritoUsuarioId); }
 	 
  @Override
  public void cambiarCantidad(Long carritoId, Long productoId, int cantidadNueva){
+        editable(carritoId);
      Detalle_carrito d = detalleRepo
              .findByCarrito_IdCarritoAndProducto_IdProducto(carritoId, productoId)
              .orElseThrow(() -> new RuntimeException("No existe línea"));
@@ -203,6 +213,7 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
 
  
  public void eliminarLinea(Long carritoId, Long productoId){
+        editable(carritoId);
      detalleRepo.findByCarrito_IdCarritoAndProducto_IdProducto(carritoId, productoId)
              .ifPresent(detalleRepo::delete);
 
@@ -223,7 +234,7 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
  }
  public BigDecimal recalcularTotal(Long carritoId){
      BigDecimal total = total(BigDecimal.ZERO, carritoId);
-     Carrito_de_compra c = carritoRepo.findById(carritoId).orElseThrow();
+     Carrito_de_compra c = editable(carritoId);
      c.setTotal(total);
      carritoRepo.save(c);
      return total;
@@ -232,4 +243,11 @@ public class Carrito_de_compraService implements ICarrito_de_compraService{
 
 	
 	
+
+    private Carrito_de_compra editable(Long id) {
+        Carrito_de_compra carrito = carritoRepo.bloquear(id).orElseThrow(() -> new NoSuchElementException("Carrito no encontrado"));
+        em.refresh(carrito, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (carrito.getPedido() != null) throw new IllegalStateException("No se puede modificar el carrito de un pedido confirmado");
+        return carrito;
+    }
 }

@@ -42,8 +42,7 @@ public class CarritoController {
 	    @Autowired private IPedidoRepository pedidoRepo; // el tuyo
 	    @Autowired private IPedidoService pedidoService;
 	    @Autowired private IDetalle_carritoRepository detalleRepo;
-	    @Autowired
-	    private INotificacionService notificacionService;
+
 
 @PostMapping("/cantidad")
 @ResponseBody
@@ -162,72 +161,13 @@ public Map<String, Object> finalizar(HttpSession session){
         return Map.of("ok", false, "redirect", "/auth/login");
     }
 
-    var cart = com.pequelandia.pequelandia.util.CartSessionUtil.getOrCreate(session);
-    if (cart.isEmpty()) {
-        return Map.of("ok", false, "redirect", "/carrito/vercarrito", "error", "Carrito vacío");
+    // Serializa el checkout de la misma sesión; el servicio protege el stock en PostgreSQL.
+    synchronized (org.springframework.web.util.WebUtils.getSessionMutex(session)) {
+        var cart = com.pequelandia.pequelandia.util.CartSessionUtil.getOrCreate(session);
+        if (cart.isEmpty()) return Map.of("ok", false, "error", "Carrito vacío");
+        Pedido pedido = pedidoService.comprar(u.getId(), cart.snapshot());
+        com.pequelandia.pequelandia.util.CartSessionUtil.clear(session);
+        return Map.of("ok", true, "pedidoId", pedido.getId_pedido());
     }
-    
- // 1) VALIDAR STOCK ANTES DE CREAR NADA
-    for (var entry : cart.getItems().entrySet()) {
-        Long productoId = entry.getKey();
-        int qty = entry.getValue();
-
-        Producto p = productoRepo.findById(productoId)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado id=" + productoId));
-
-        if (p.getStock() == 0 || p.getStock() < qty) {
-            return Map.of(
-                    "ok", false,
-                    "error", "Stock insuficiente para: " + p.getNombre_producto(),
-                    "stockDisponible", p.getStock() == 0 ? 0 : p.getStock()
-            );
-        }
-    }
-    
-    // 2) crear carrito en DB 
-    Carrito_de_compra c = new Carrito_de_compra();
-    c.setUsuario(u);
-    c.setTotal(BigDecimal.ZERO);
-    c = carritoRepo.save(c);
-
-    // 3) crear detalles en DB
-    BigDecimal total = BigDecimal.ZERO;
-
-    for (var entry : cart.getItems().entrySet()) {
-        Long productoId = entry.getKey();
-        int qty = entry.getValue();
-
-        Producto p = productoRepo.findById(productoId)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado id=" + productoId));
-
-        BigDecimal precio = BigDecimal.valueOf(p.getPrecio());
-        BigDecimal subtotal = precio.multiply(BigDecimal.valueOf(qty));
-
-        Detalle_carrito det = new Detalle_carrito();
-        det.setCarrito(c);
-        det.setProducto(p);
-        det.setCantidad(qty);
-        det.setPrecio(p.getPrecio());
-        detalleRepo.save(det);
-
-     
-        
-        total = total.add(subtotal);
-    }
-
-    c.setTotal(total);
-    carritoRepo.save(c);
-
-    // 4) generar pedido
-    Pedido pedido = pedidoService.finalizarCompra(u.getId(), c.getId_carrito());
-    
-    notificacionService.notificarNuevoPedido(pedido);
-    
-    // 5) limpiar carrito de sesión
-    com.pequelandia.pequelandia.util.CartSessionUtil.clear(session);
-
-    return Map.of("ok", true, "pedidoId", pedido.getId_pedido());
 }
-
-
 }

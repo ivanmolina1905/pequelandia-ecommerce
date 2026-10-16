@@ -17,6 +17,8 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/notificaciones")
 public class NotificacionController {
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.pequelandia.pequelandia.service.IdentidadService identidad;
     private final INotificacionService notificacionService;
 
     public NotificacionController(
@@ -142,9 +144,7 @@ public class NotificacionController {
             return null;
         }
 
-        if ("admin".equalsIgnoreCase(
-                usuario.getNombre_usuario()
-        )) {
+        if (identidad.esAdmin(usuario)) {
             return "ADMIN";
         }
 

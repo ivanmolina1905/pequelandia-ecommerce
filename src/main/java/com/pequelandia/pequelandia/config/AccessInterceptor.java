@@ -13,7 +13,11 @@ import java.util.Map;
 @Component
 public class AccessInterceptor implements HandlerInterceptor {
     private final IPedidoService pedidos;
-    public AccessInterceptor(IPedidoService pedidos) { this.pedidos = pedidos; }
+    private final com.pequelandia.pequelandia.service.IdentidadService identidad;
+    public AccessInterceptor(IPedidoService pedidos, com.pequelandia.pequelandia.service.IdentidadService identidad) {
+        this.pedidos = pedidos;
+        this.identidad = identidad;
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -21,28 +25,36 @@ public class AccessInterceptor implements HandlerInterceptor {
         var session = request.getSession(false);
         Usuario usuario = session == null ? null : (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
-            response.sendError(401, "Iniciá sesión para continuar");
+            rechazar(response, 401, "Iniciá sesión para continuar");
             return false;
         }
-        String path = request.getServletPath();
-        boolean admin = "admin".equalsIgnoreCase(usuario.getNombre_usuario());
+        String path = org.springframework.web.util.UrlPathHelper.defaultInstance.getPathWithinApplication(request);
+        usuario = identidad.exigirUsuario(session);
+        boolean admin = identidad.esAdmin(usuario);
         boolean soloAdmin = path.startsWith("/admin/") || path.equals("/admin")
                 || path.startsWith("/usuarios/") || path.equals("/panel/admin")
                 || path.startsWith("/paneladministracion") || path.endsWith("/confirmar-cancelacion");
         if (soloAdmin && !admin) {
-            response.sendError(403, "Acceso reservado a administración");
+            rechazar(response, 403, "Acceso reservado a administración");
             return false;
         }
         if (path.startsWith("/pedido/")) {
             var variables = (Map<?, ?>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
             if (variables != null && variables.get("id") != null) {
                 var pedido = pedidos.findPedido(Long.valueOf(variables.get("id").toString()));
-                if (pedido == null) { response.sendError(404); return false; }
-                if (!admin && (pedido.getUsuario() == null || pedido.getUsuario().getId() != usuario.getId())) {
-                    response.sendError(403); return false;
+                if (pedido == null) { rechazar(response, 404, "Pedido no encontrado"); return false; }
+                if (!admin && (pedido.getUsuario() == null || !java.util.Objects.equals(pedido.getUsuario().getId(), usuario.getId()))) {
+                    rechazar(response, 403, "No autorizado"); return false;
                 }
             }
         }
         return true;
+    }
+
+    private void rechazar(HttpServletResponse response, int status, String mensaje) throws java.io.IOException {
+        response.setStatus(status);
+        response.setContentType("application/json;charset=UTF-8");
+        new com.fasterxml.jackson.databind.ObjectMapper().writeValue(response.getWriter(), Map.of(
+                "ok", false, "error", mensaje, "redirect", status == 401 ? "/auth/login" : ""));
     }
 }
