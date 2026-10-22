@@ -101,6 +101,7 @@
       </button>
     </div>
 
+    <a class="dropdown-item text-center" th:href="@{/notificaciones/historial}">Ver todas las notificaciones</a>
     <div id="notificacionesLista"
          class="peq-notification-list">
 
@@ -168,6 +169,8 @@
                 </div>
                 <div class="offcanvas-body" style="background-color: #fff3cd;">
                     <ul class="nav flex-column">
+                        <li class="nav-item mb-2"><a class="nav-link" th:href="@{/notificaciones/historial}">🔔 Historial de notificaciones</a></li>
+                        <li class="nav-item mb-2"><a class="nav-link" th:href="@{/admin/correos}">✉️ Correos automáticos</a></li>
                         <li class="nav-item mb-2">
                             <a class="nav-link js-section" data-section="productos" th:href="@{/admin/productos}">🛒 Gestión de productos</a>
                         </li>
@@ -192,6 +195,8 @@
             <nav class="col-md-3 col-lg-2 d-none d-md-block sidebar p-3" style="background-color: #fff3cd; min-height: 80vh;">
                 <h5 class="text-center mb-4">Panel de Administración</h5>
                 <ul class="nav flex-column">
+                    <li class="nav-item mb-2"><a class="nav-link" th:href="@{/notificaciones/historial}">🔔 Historial de notificaciones</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" th:href="@{/admin/correos}">✉️ Correos automáticos</a></li>
                     <li class="nav-item mb-2">
                         <a class="nav-link js-section" data-section="productos" th:href="@{/admin/productos}">🛒 Gestión de productos</a>
                     </li>

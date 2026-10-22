@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Correos automáticos · Pequelandia</title><link rel="stylesheet" th:href="@{/css/centro-avisos.css}">
+</head><body>
+<header th:replace="~{fragments/centro-avisos :: cabecera}"></header>
+<main>
+  <p class="eyebrow">ADMINISTRACIÓN</p><h1>Correos automáticos</h1>
+  <p class="intro">Consultá los envíos y adelantá el próximo intento de un correo que falló.</p>
+  <p th:if="${mensaje}" th:text="${mensaje}" class="mensaje" role="status"></p>
+  <p th:unless="${entregaHabilitada}" class="mensaje">La entrega automática está desactivada. Los correos permanecerán en cola hasta que se habilite.</p>
+  <section class="tarjeta">
+    <form class="filtros" method="get" th:action="@{/admin/correos}">
+      <div><label for="q">Destinatario o asunto</label><input id="q" name="q" type="search" maxlength="200" th:value="${q}" placeholder="Buscar correo"></div>
+      <div><label for="estado">Estado</label><select id="estado" name="estado">
+        <option value="TODOS" th:selected="${estado == 'TODOS'}">Todos</option>
+        <option value="PENDIENTE" th:selected="${estado == 'PENDIENTE'}">Pendiente</option>
+        <option value="REINTENTO" th:selected="${estado == 'REINTENTO'}">Reintento pendiente</option>
+        <option value="ENVIADO" th:selected="${estado == 'ENVIADO'}">Enviado</option>
+      </select></div><button type="submit">Filtrar</button><a th:href="@{/admin/correos}">Limpiar</a>
+    </form>
+    <p class="resumen">“Enviado” indica que SMTP aceptó el mensaje; no confirma su recepción ni lectura. Los reintentos automáticos siguen activos cuando la entrega está habilitada.</p>
+  </section>
+  <section class="tarjeta" aria-label="Listado de correos">
+    <p class="vacio" th:if="${pagina.empty}">No hay correos para esta búsqueda.</p>
+    <div class="tabla" th:unless="${pagina.empty}"><table>
+      <thead><tr><th>Destinatario y asunto</th><th>Estado</th><th>Intentos</th><th>Envío / próximo intento</th><th>Acciones</th></tr></thead>
+      <tbody><tr th:each="correo : ${pagina.content}">
+        <td><strong th:text="${correo.asunto}"></strong><span class="destinatario" th:text="${correo.destinatario}"></span></td>
+        <td><span class="estado" th:text="${correo.estado}"></span></td><td th:text="${correo.intentos}"></td>
+        <td th:text="${#dates.format(correo.enviado_en != null ? correo.enviado_en : correo.proximo_intento, 'dd/MM/yyyy HH:mm')}"></td>
+        <td><form th:if="${correo.reintentable}" method="post" th:action="@{/admin/correos/{id}/reintentar(id=${correo.id})}">
+          <input type="hidden" name="estado" th:value="${estado}"><input type="hidden" name="q" th:value="${q}"><input type="hidden" name="page" th:value="${pagina.number}">
+          <input type="hidden" name="_csrf" th:value="${csrfToken}"><button type="submit" class="secundario">Reintentar ahora</button>
+        </form><span th:if="${correo.enviado_en != null}">Completado</span><span th:if="${correo.enviado_en == null and !correo.reintentable}">En cola</span></td>
+      </tr></tbody>
+    </table></div>
+    <nav th:replace="~{fragments/centro-avisos :: paginacion('/admin/correos')}"></nav>
+  </section>
+</main></body></html>

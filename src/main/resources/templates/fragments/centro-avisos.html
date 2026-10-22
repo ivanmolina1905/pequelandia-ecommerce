@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"><body>
+<header th:fragment="cabecera" class="cabecera">
+  <a class="marca" th:href="@{/}">Pequelandia</a>
+  <nav aria-label="Navegación del panel">
+    <a th:href="${admin} ? @{/admin/usuarios} : @{/panelusuarios/panelhistorial}">Volver a mi panel</a>
+    <a th:href="@{/notificaciones/historial}">Notificaciones</a>
+    <a th:if="${admin}" th:href="@{/admin/correos}">Correos</a>
+  </nav>
+</header>
+<nav th:fragment="paginacion(ruta)" class="paginacion" aria-label="Paginación">
+  <a th:if="${pagina.hasPrevious()}" th:href="@{${ruta}(page=${pagina.number - 1},estado=${estado},q=${q})}">← Anterior</a>
+  <span th:text="|Página ${pagina.number + 1} de ${T(java.lang.Math).max(1, pagina.totalPages)} · ${pagina.totalElements} resultados|">Página 1</span>
+  <a th:if="${pagina.hasNext()}" th:href="@{${ruta}(page=${pagina.number + 1},estado=${estado},q=${q})}">Siguiente →</a>
+</nav>
+</body></html>

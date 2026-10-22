@@ -233,4 +233,53 @@ class PedidosIntegrationTest extends IntegrationSupport {
         mvc.perform(get("/pedido/" + pedidoRepo.findAll().get(0).getId_pedido() + "/pdf").session(sesion(titular)))
                 .andExpect(status().isOk()).andExpect(content().contentType("application/pdf"));
     }
+
+    @Autowired CentroAvisosService centro;
+
+    @Test void historialPaginaFiltraYAislaDestinatarios() throws Exception {
+        for(int i=0;i<25;i++) jdbc.update("INSERT INTO notificacion(destinatario,descripcion,fecha_notificacion) VALUES (?,?,CURRENT_TIMESTAMP)", "USUARIO_"+titular.getId(), "Aviso propio "+i);
+        jdbc.update("INSERT INTO notificacion(destinatario,descripcion,fecha_notificacion) VALUES ('ADMIN','Solo admin',CURRENT_TIMESTAMP)");
+        jdbc.update("INSERT INTO notificacion(destinatario,descripcion,fecha_notificacion) VALUES (?, 'Solo ajeno',CURRENT_TIMESTAMP)", "USUARIO_"+ajeno.getId());
+        var pagina=centro.notificaciones("USUARIO_"+titular.getId(),"TODAS",0);
+        assertEquals(25,pagina.getTotalElements()); assertEquals(20,pagina.getNumberOfElements());
+        assertEquals(5,centro.notificaciones("USUARIO_"+titular.getId(),"TODAS",1).getNumberOfElements());
+        long id=((Number)pagina.getContent().get(0).get("id")).longValue();
+        mvc.perform(post("/notificaciones/historial/"+id+"/leer").session(sesion(ajeno)).param("_csrf","prueba-csrf")).andExpect(status().isNotFound());
+        mvc.perform(post("/notificaciones/historial/"+id+"/leer").session(sesion(titular))).andExpect(status().isForbidden());
+        mvc.perform(post("/notificaciones/historial/"+id+"/leer").session(sesion(titular)).param("_csrf","prueba-csrf")).andExpect(status().is3xxRedirection());
+        assertEquals(1,centro.notificaciones("USUARIO_"+titular.getId(),"LEIDAS",0).getTotalElements());
+        assertEquals(24,centro.notificaciones("USUARIO_"+titular.getId(),"NO_LEIDAS",0).getTotalElements());
+        mvc.perform(get("/notificaciones/historial").session(sesion(titular)))
+            .andExpect(status().isOk()).andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Solo admin"))))
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("Siguiente")));
+        mvc.perform(get("/notificaciones/historial").session(sesion(admin))).andExpect(status().isOk())
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("Solo admin")));
+        mvc.perform(post("/notificaciones/historial/leer-todas").session(sesion(titular)).param("_csrf","prueba-csrf")).andExpect(status().is3xxRedirection());
+        assertEquals(0,notificaciones.contarNoLeidas("USUARIO_"+titular.getId()));
+        assertEquals(1,notificaciones.contarNoLeidas("ADMIN"));
+        mvc.perform(get("/notificaciones/historial")).andExpect(status().isUnauthorized());
+    }
+
+    @Test void panelCorreosProtegeDatosYReintentos() throws Exception {
+        cola.encolar("destino@example.invalid","Asunto prueba","Texto");
+        long id=jdbc.queryForObject("SELECT id FROM correo_pendiente",Long.class);
+        jdbc.update("UPDATE correo_pendiente SET intentos=2,proximo_intento=CURRENT_TIMESTAMP+INTERVAL '1 hour' WHERE id=?",id);
+        mvc.perform(get("/admin/correos").session(sesion(titular))).andExpect(status().isForbidden());
+        mvc.perform(post("/admin/correos/"+id+"/reintentar").session(sesion(titular)).param("_csrf","prueba-csrf")).andExpect(status().isForbidden());
+        mvc.perform(post("/admin/correos/"+id+"/reintentar").session(sesion(admin))).andExpect(status().isForbidden());
+        mvc.perform(get("/admin/correos").session(sesion(admin)).param("estado","REINTENTO").param("q","ASUNTO"))
+            .andExpect(status().isOk()).andExpect(content().string(org.hamcrest.Matchers.containsString("Reintentar ahora")));
+        assertEquals(0,centro.correos("TODOS","%' OR 1=1 --",0).getTotalElements());
+        var resultados=paralelos(()->centro.reintentar(id),()->centro.reintentar(id));
+        assertEquals(1,resultados.stream().filter(Boolean.TRUE::equals).count());
+        assertEquals(1,correos());
+        assertEquals(2,jdbc.queryForObject("SELECT intentos FROM correo_pendiente WHERE id=?",Integer.class,id));
+        assertTrue(entrega.entregarSiguiente());
+        assertFalse(centro.reintentar(id));
+        assertEquals(1,centro.correos("ENVIADO","destino",0).getTotalElements());
+        assertEquals(0,centro.correos("REINTENTO","",0).getTotalElements());
+        verify(smtp,times(1)).send(any(SimpleMailMessage.class));
+        mvc.perform(get("/admin/correos").session(sesion(admin)).param("estado","INVALIDO")).andExpect(status().isBadRequest());
+    }
+
 }

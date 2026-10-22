@@ -32,7 +32,17 @@ Se mantienen los destinatarios `ADMIN` y `USUARIO_<id>`. Las lecturas se guardan
 
 La campanita muestra los últimos 12 avisos y cuenta todas las notificaciones no leídas. Se actualiza al abrirla, al volver a la pestaña y cada 30 segundos mientras está visible. Al pulsar un aviso se marca como leído y se abre el pedido relacionado mediante el mismo endpoint protegido del historial.
 
-## Correos pendientes
+## Historial y panel administrativo
+
+El historial `/notificaciones/historial` está disponible para clientes y administrador desde sus paneles y desde «Ver todas las notificaciones» en la campanita. Muestra 20 avisos por página, filtros por leídas/no leídas, lectura individual o de todos los avisos propios, y un detalle del pedido con enlace a PDF. El destinatario siempre se obtiene de la sesión validada: nunca se acepta un ID de usuario ni un destinatario enviado por el navegador. El administrador ve el destinatario `ADMIN`; los clientes ven exclusivamente `USUARIO_<id>`.
+
+El panel `/admin/correos` permite buscar por destinatario o asunto y filtrar entre pendientes, reintentos pendientes y enviados. Muestra intentos y fecha de envío o próximo intento. “Enviado” significa aceptado por SMTP; no confirma recepción o lectura. Si la entrega automática está desactivada, la pantalla lo informa.
+
+«Reintentar ahora» solo adelanta el próximo intento de una fila que ya falló y todavía tiene una espera futura. No crea filas, no borra el contador, no envía correo dentro de la petición HTTP y no reenvía correos ya aceptados. La actualización condicional se serializa con el bloqueo del worker. Las peticiones concurrentes para una misma espera solo programan un adelanto; cuando ya está listo se muestra «En cola». El worker conserva sus reintentos automáticos. Todas las acciones usan POST con CSRF y el panel de correos exige administrador tanto en el interceptor como en el controlador.
+
+No se modifica `Notificacion.java` ni se agrega una migración de tablas para estas pantallas. Se reutilizan `notificacion`, `notificacion_lectura` y `correo_pendiente`.
+
+## Funcionamiento de la cola
 
 `src/main/resources/db/notificaciones.sql` crea únicamente la tabla nueva `correo_pendiente` y su índice, de forma idempotente al arrancar. No modifica las tablas de pedidos ni notificaciones. El usuario de PostgreSQL debe tener permiso para crear esa tabla; si se aplica el script por separado, se puede desactivar la inicialización automática con `spring.sql.init.mode=never`.
 
@@ -59,3 +69,5 @@ Sin esa variable, se ejecutan los tests unitarios y se omiten explícitamente lo
 Se prueban permisos HTTP, CSRF, registro, renderizado Thymeleaf, PDF, compra y cancelación concurrentes, rollback ante fallos, congelación de carritos históricos, unión del carrito invitado, lecturas concurrentes y reintentos de correo. La entrega a buzones reales y un recorrido visual completo en navegador requieren una comprobación adicional con la configuración del entorno.
 
 Verificación realizada el 16 de octubre de 2026: 28 pruebas Java aprobadas, sin fallos ni omisiones, usando Java 22 y PostgreSQL 18.4 aislado. Otras 4 pruebas JavaScript verifican envío del token CSRF, conservación de headers, ausencia de filtración del token a otros sitios y escape de texto. Se ejecutan con `node --test src/test/js/seguridad.test.cjs`, sin instalar paquetes.
+
+Verificación del historial y panel de correos (22/10/2026): 30 pruebas Java y 4 JavaScript aprobadas. Se comprobó en navegador el acceso desde ambos paneles, filtros, lectura individual, detalle del pedido y reintento manual. Se usaron datos ficticios, PostgreSQL aislado y SMTP desactivado durante la revisión visual. Para esa instancia se utilizó el conector NIO2 temporal por el fallo local de sockets de Java 22; no se cambió el arranque habitual de Eclipse.

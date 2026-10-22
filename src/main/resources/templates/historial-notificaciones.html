@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mis notificaciones · Pequelandia</title>
+  <link rel="stylesheet" th:href="@{/css/centro-avisos.css}">
+  <script defer th:src="@{/js/historial-notificaciones.js}"></script>
+</head><body>
+<header th:replace="~{fragments/centro-avisos :: cabecera}"></header>
+<main>
+  <p class="eyebrow" th:text="${admin} ? 'ADMINISTRACIÓN' : 'MI CUENTA'">MI CUENTA</p>
+  <h1>Historial de notificaciones</h1>
+  <p class="intro">Consultá los avisos de tu cuenta y los cambios de tus pedidos.</p>
+  <p th:if="${mensaje}" th:text="${mensaje}" class="mensaje" role="status"></p>
+  <section class="tarjeta" aria-label="Filtros de notificaciones">
+    <div class="filtros">
+      <form method="get" th:action="@{/notificaciones/historial}">
+        <label for="estado">Mostrar</label>
+        <select id="estado" name="estado">
+          <option value="TODAS" th:selected="${estado == 'TODAS'}">Todas</option>
+          <option value="NO_LEIDAS" th:selected="${estado == 'NO_LEIDAS'}">No leídas</option>
+          <option value="LEIDAS" th:selected="${estado == 'LEIDAS'}">Leídas</option>
+        </select><button type="submit">Filtrar</button>
+      </form>
+      <form method="post" th:action="@{/notificaciones/historial/leer-todas}">
+        <input type="hidden" name="_csrf" th:value="${csrfToken}">
+        <button class="secundario" th:disabled="${noLeidas == 0}" type="submit">Marcar todas como leídas</button>
+      </form>
+    </div>
+    <p class="resumen" th:text="|Sin leer: ${noLeidas}|">Sin leer</p>
+  </section>
+  <section class="tarjeta" aria-label="Listado de notificaciones">
+    <p class="vacio" th:if="${pagina.empty}">No hay notificaciones para este filtro.</p>
+    <article class="aviso" th:each="aviso : ${pagina.content}" th:classappend="${!aviso.leida} ? 'nuevo'">
+      <div class="aviso-texto">
+        <span class="estado" th:text="${aviso.leida} ? 'Leída' : 'No leída'">Estado</span>
+        <h2 th:text="${aviso.descripcion}">Notificación</h2>
+        <time th:text="${aviso.fecha != null ? #dates.format(aviso.fecha, 'dd/MM/yyyy HH:mm') : 'Sin fecha'}"></time>
+      </div>
+      <div class="acciones">
+        <button th:if="${aviso.pedido != null}" type="button" class="secundario ver-pedido" th:attr="data-pedido=${aviso.pedido}">Ver pedido</button>
+        <form th:if="${!aviso.leida}" method="post" th:action="@{/notificaciones/historial/{id}/leer(id=${aviso.id})}">
+          <input type="hidden" name="_csrf" th:value="${csrfToken}">
+          <input type="hidden" name="estado" th:value="${estado}"><input type="hidden" name="page" th:value="${pagina.number}">
+          <button type="submit">Marcar como leída</button>
+        </form>
+      </div>
+    </article>
+    <nav th:replace="~{fragments/centro-avisos :: paginacion('/notificaciones/historial')}"></nav>
+  </section>
+  <dialog id="detalle-pedido" aria-labelledby="titulo-pedido">
+    <h2 id="titulo-pedido">Detalle del pedido</h2><p id="resultado-pedido" role="status"></p>
+    <div id="productos-pedido"></div>
+    <div class="acciones"><a id="pdf-pedido" hidden>Descargar PDF</a><form method="dialog"><button>Cerrar</button></form></div>
+  </dialog>
+</main></body></html>
