@@ -42,9 +42,19 @@ El panel `/admin/correos` permite buscar por destinatario o asunto y filtrar ent
 
 No se modifica `Notificacion.java` ni se agrega una migración de tablas para estas pantallas. Se reutilizan `notificacion`, `notificacion_lectura` y `correo_pendiente`.
 
-## Funcionamiento de la cola
+## Seguimiento de pedidos y stock mínimo
 
-`src/main/resources/db/notificaciones.sql` crea únicamente la tabla nueva `correo_pendiente` y su índice, de forma idempotente al arrancar. No modifica las tablas de pedidos ni notificaciones. El usuario de PostgreSQL debe tener permiso para crear esa tabla; si se aplica el script por separado, se puede desactivar la inicialización automática con `spring.sql.init.mode=never`.
+El JSON protegido `/pedido/{id}` incluye `historial`, ordenado por registro, con estado y fecha. La compra registra el estado inicial y cada transición efectiva agrega un evento en la misma transacción, bajo el bloqueo del pedido. Repetir el estado no agrega eventos; un fallo revierte estado, stock, historial y avisos. El detalle del carrito, los paneles de cliente/administrador y el historial de notificaciones muestran la línea de tiempo. Los pedidos antiguos sin eventos se identifican como tales; en su primer cambio se conserva el estado previo con fecha desconocida, sin inventar fechas anteriores. Las fechas nuevas corresponden al momento real del cambio.
+
+`app.stock.minimo` / `PEQUELANDIA_STOCK_MINIMO` configura un umbral global no negativo (5 por defecto). Al crear o guardar un producto, comprar o reponer por cancelación, se evalúa el stock. Si queda en el umbral o por debajo, un aviso `ADMIN` y un correo a `app.admin.email` identifican producto, existencias y umbral. No se muestran a clientes. Los productos inactivos o discontinuados no generan alertas. No se realiza un barrido del inventario histórico al iniciar: los productos existentes se evalúan al modificarse o participar en estas operaciones.
+
+Se avisa una sola vez mientras persiste el stock bajo. Las compras sucesivas y concurrentes no duplican la alerta. Reponer por encima del umbral desactiva la marca y permite otro aviso si vuelve a bajar. Guardar un producto con stock negativo se rechaza. La marca y el aviso se guardan en la misma transacción; si falla el correo pendiente, se revierte también la modificación de stock.
+
+El script aditivo `db/notificaciones.sql` crea `pedido_historial` y `producto_alerta_stock` e índices, sin cambiar `Notificacion.java`. Estas tablas usan identificadores del negocio; los servicios eliminan sus registros auxiliares al eliminar el pedido o producto. Las pruebas aisladas también limpian ambas tablas para no reutilizar marcas entre casos.
+
+## Entrega de correos
+
+`src/main/resources/db/notificaciones.sql` crea `correo_pendiente`, `pedido_historial`, `producto_alerta_stock` y sus índices de forma idempotente al arrancar. No modifica las tablas de pedidos ni notificaciones. El usuario de PostgreSQL debe tener permiso para crear estas tablas; si se aplica el script por separado, se puede desactivar la inicialización automática con `spring.sql.init.mode=never`.
 
 Los mensajes se guardan antes del commit de la operación. El worker solo consume filas confirmadas y usa `FOR UPDATE SKIP LOCKED` para que dos workers no envíen simultáneamente la misma fila. Cada lote procesa hasta 10 mensajes. Los errores SMTP se reintentan con espera creciente, desde 30 segundos hasta una hora. Los mensajes enviados se conservan con `enviado_en`.
 
@@ -71,3 +81,5 @@ Se prueban permisos HTTP, CSRF, registro, renderizado Thymeleaf, PDF, compra y c
 Verificación realizada el 16 de octubre de 2026: 28 pruebas Java aprobadas, sin fallos ni omisiones, usando Java 22 y PostgreSQL 18.4 aislado. Otras 4 pruebas JavaScript verifican envío del token CSRF, conservación de headers, ausencia de filtración del token a otros sitios y escape de texto. Se ejecutan con `node --test src/test/js/seguridad.test.cjs`, sin instalar paquetes.
 
 Verificación del historial y panel de correos (22/10/2026): 30 pruebas Java y 4 JavaScript aprobadas. Se comprobó en navegador el acceso desde ambos paneles, filtros, lectura individual, detalle del pedido y reintento manual. Se usaron datos ficticios, PostgreSQL aislado y SMTP desactivado durante la revisión visual. Para esa instancia se utilizó el conector NIO2 temporal por el fallo local de sockets de Java 22; no se cambió el arranque habitual de Eclipse.
+
+Verificación del seguimiento y stock mínimo (26/10/2026): 34 pruebas Java y 4 JavaScript aprobadas. Incluyen permisos, historial sin duplicados, fechas anteriores desconocidas, alertas concurrentes, reposición y rollback. Se corrigió además el reintento manual de correos para comparar con `clock_timestamp()` y evitar que una transacción antigua vuelva a adelantar una fila ya programada; su regresión determinista se ejecutó también por separado. En navegador se verificaron preparación, envío y entrega con horario argentino y el aviso administrativo de 4 unidades con umbral 5. Se usaron datos ficticios, PostgreSQL aislado, SMTP desactivado y el conector NIO2 temporal, sin alterar Eclipse.

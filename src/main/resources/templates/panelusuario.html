@@ -11,6 +11,8 @@
     <title>Pequelandia</title>
     <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/seguimiento-pedido.css}">
+<script th:src="@{/js/seguimiento-pedido.js}"></script>
 </head>
 <body>
     <!-- Cabecera fija -->
@@ -997,6 +999,7 @@ const fmtMoney = (v) => {
 	  document.getElementById("pd-numero").textContent = "#" + p.id;
 	  document.getElementById("pd-fecha").textContent = new Date(p.fecha).toLocaleString("es-AR");
 	  document.getElementById("pd-estado").textContent = p.estado;
+      mostrarSeguimientoPedido(p, document.getElementById("pd-items"));
 	  document.getElementById("pd-total").textContent = fmtMoney(p.total);
 
 	  // link PDF

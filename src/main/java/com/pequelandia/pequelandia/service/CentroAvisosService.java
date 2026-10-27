@@ -55,6 +55,6 @@ public class CentroAvisosService {
     public boolean reintentar(long id) {
         // La misma fila se bloquea contra el worker. No recrear ni reenviar mensajes aceptados.
         // Si ya está listo para procesarse, un segundo clic no cambia nada.
-        return jdbc.update("UPDATE correo_pendiente SET proximo_intento=CURRENT_TIMESTAMP WHERE id=? AND enviado_en IS NULL AND intentos>0 AND proximo_intento>CURRENT_TIMESTAMP", id) == 1;
+        return jdbc.update("UPDATE correo_pendiente SET proximo_intento=clock_timestamp() WHERE id=? AND enviado_en IS NULL AND intentos>0 AND proximo_intento>clock_timestamp()", id) == 1;
     }
 }

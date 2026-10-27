@@ -22,6 +22,9 @@ public class PedidoService implements IPedidoService {
     @Autowired private IUsuarioRepository usuarioRepo;
     @Autowired private INotificacionService notificaciones;
 
+    @Autowired private SeguimientoPedidoService seguimiento;
+    @Autowired private AlertaStockService alertaStock;
+
     private static final Set<String> ESTADOS = Set.of("PENDIENTE", "PREPARANDO", "ENVIADO",
             "ENTREGADO", "CANCELACION_SOLICITADA", "CANCELADO");
     private static String estado(String valor) {
@@ -57,6 +60,7 @@ public class PedidoService implements IPedidoService {
         Pedido pedido = bloquearPedido(id);
         if (!Set.of("CANCELADO", "ENTREGADO").contains(estado(pedido.getEstado_pedido())))
             transicionar(pedido, "CANCELADO");
+        seguimiento.eliminar(id);
         pedidoRepo.delete(pedido);
     }
 
@@ -101,6 +105,7 @@ public class PedidoService implements IPedidoService {
                 throw new IllegalStateException("Stock insuficiente para " + producto.getNombre_producto());
             producto.setStock(producto.getStock() - entry.getValue());
             productoRepo.save(producto);
+            alertaStock.evaluar(producto);
         }
         BigDecimal total = BigDecimal.ZERO;
         for (Detalle_carrito d : detalles) {
@@ -116,6 +121,7 @@ public class PedidoService implements IPedidoService {
         carrito.setPedido(pedido);
         carrito.setTotal(total);
         carritoRepo.save(carrito);
+        seguimiento.registrar(pedido.getId_pedido(), null, pedido.getEstado_pedido());
         notificaciones.notificarNuevoPedido(pedido);
         return pedido;
     }
@@ -161,8 +167,10 @@ public class PedidoService implements IPedidoService {
                 Producto producto = bloquearProducto(entry.getKey());
                 producto.setStock(Math.addExact(producto.getStock(), entry.getValue()));
                 productoRepo.save(producto);
+                alertaStock.evaluar(producto);
             }
         }
+        seguimiento.registrar(pedido.getId_pedido(), anterior, nuevo);
         pedido.setEstado_pedido(nuevo);
         pedidoRepo.save(pedido);
         if (nuevo.equals("CANCELACION_SOLICITADA")) notificaciones.notificarSolicitudCancelacion(pedido);

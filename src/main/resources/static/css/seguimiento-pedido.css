@@ -1,0 +1,9 @@
+.seguimiento-pedido { margin: 24px 0; padding: 18px; background: #fffaf0; border-radius: 12px; color: #493d2e; white-space: normal; }
+.seguimiento-pedido h3 { font-size: 18px; margin: 0 0 18px; }
+.seguimiento-pedido ol { list-style: none; padding-left: 12px; margin: 0; }
+.seguimiento-pedido li { position: relative; border-left: 2px solid #dfc998; padding: 0 0 22px 22px; }
+.seguimiento-pedido li::before { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #c4a15c; left: -7px; top: 4px; }
+.seguimiento-pedido li:last-child { padding-bottom: 0; }
+.seguimiento-pedido li.actual::before { background: #a84316; box-shadow: 0 0 0 4px #ffe6ba; }
+.seguimiento-pedido strong, .seguimiento-pedido span { display: block; }
+.seguimiento-pedido span { font-size: 13px; color: #6c6050; margin-top: 4px; }

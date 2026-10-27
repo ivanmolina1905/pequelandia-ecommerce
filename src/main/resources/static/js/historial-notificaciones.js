@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.ver-pedido').forEach(boton => boton.addEventListener('click', async () => {
     const actual = ++solicitud;
     resultado.textContent = 'Cargando pedido…'; productos.replaceChildren(); pdf.hidden = true;
+    const anterior = productos.nextElementSibling;
+    if (anterior && anterior.classList.contains('seguimiento-pedido')) anterior.remove();
     dialogo.showModal();
     try {
       const respuesta = await fetch('/pedido/' + encodeURIComponent(boton.dataset.pedido));
@@ -20,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fila.textContent = (item.producto || item.nombre || 'Producto') + ' · ' + item.cantidad + ' unidades';
         productos.appendChild(fila);
       });
+      mostrarSeguimientoPedido(pedido, productos);
       pdf.href = '/pedido/' + encodeURIComponent(pedido.id) + '/pdf'; pdf.hidden = false;
     } catch (error) { if(actual === solicitud) resultado.textContent = error.message; }
   }));

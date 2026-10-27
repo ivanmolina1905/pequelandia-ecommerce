@@ -12,12 +12,14 @@ import com.pequelandia.pequelandia.model.Producto;
 import com.pequelandia.pequelandia.repository.IProductoRepository;
 
 @Service
+@org.springframework.transaction.annotation.Transactional
 public class ProductoService implements IProductoService{
 
 
 	//generamos la dependencia
 	@Autowired
 	private IProductoRepository ProductoRepo;
+    @Autowired private AlertaStockService alertaStock;
 	
 	@Override
 	public List<Producto> getProducto() {
@@ -27,12 +29,17 @@ public class ProductoService implements IProductoService{
 
 	@Override
 	public void saveProducto(Producto produ) {
-		ProductoRepo.save(produ);
+		if (produ.getStock()<0) throw new IllegalArgumentException("El stock no puede ser negativo");
+        if (produ.getIdProducto()>0) ProductoRepo.bloquear(produ.getIdProducto()).orElseThrow();
+        ProductoRepo.saveAndFlush(produ);
+        alertaStock.evaluar(produ);
 	}
 
 	@Override
 	public void deleteProducto(Long id) {
-		ProductoRepo.deleteById(id);
+		ProductoRepo.bloquear(id).orElseThrow();
+        alertaStock.eliminar(id);
+        ProductoRepo.deleteById(id);
 	}
 
 	@Override
@@ -43,7 +50,7 @@ public class ProductoService implements IProductoService{
 
 	@Override
 	public void editProduto(Long id, Producto produ) {
-		   Producto db = findProducto(id);
+		   Producto db = ProductoRepo.bloquear(id).orElse(null);
 	        if (db == null) return;
 
 	        // Strings
@@ -71,7 +78,9 @@ public class ProductoService implements IProductoService{
 	            db.setImagenUrl(produ.getImagenUrl());
 	        }
 
-	        ProductoRepo.saveAndFlush(db);
+	        if(db.getStock()<0) throw new IllegalArgumentException("El stock no puede ser negativo");
+        ProductoRepo.saveAndFlush(db);
+        alertaStock.evaluar(db);
 	}
 	
 	 @Override

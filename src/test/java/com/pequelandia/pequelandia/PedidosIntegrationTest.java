@@ -44,7 +44,7 @@ class PedidosIntegrationTest extends IntegrationSupport {
     Producto producto;
 
     @BeforeEach void preparar() {
-        jdbc.execute("TRUNCATE usuario, producto, correo_pendiente RESTART IDENTITY CASCADE");
+        jdbc.execute("TRUNCATE usuario, producto, correo_pendiente, pedido_historial, producto_alerta_stock RESTART IDENTITY CASCADE");
         admin = usuario("admin"); titular = usuario("titular"); ajeno = usuario("ajeno");
         producto = producto(10);
         reset(smtp, cola);
@@ -147,7 +147,7 @@ class PedidosIntegrationTest extends IntegrationSupport {
         producto.setStock(1); productos.save(producto);
         var resultados = paralelos(() -> comprar(1), () -> comprar(1));
         assertEquals(1, resultados.stream().filter(Pedido.class::isInstance).count(), resultados.toString());
-        assertEquals(0, stock()); assertEquals(1, pedidoRepo.count()); assertEquals(2, correos());
+        assertEquals(0, stock()); assertEquals(1, pedidoRepo.count()); assertEquals(3, correos());
     }
     @Test void lecturaConcurrenteEsIdempotenteYProtegeDestinatario() throws Exception {
         comprar(1);
@@ -235,6 +235,7 @@ class PedidosIntegrationTest extends IntegrationSupport {
     }
 
     @Autowired CentroAvisosService centro;
+    @Autowired org.springframework.transaction.PlatformTransactionManager txManager;
 
     @Test void historialPaginaFiltraYAislaDestinatarios() throws Exception {
         for(int i=0;i<25;i++) jdbc.update("INSERT INTO notificacion(destinatario,descripcion,fecha_notificacion) VALUES (?,?,CURRENT_TIMESTAMP)", "USUARIO_"+titular.getId(), "Aviso propio "+i);
@@ -272,6 +273,21 @@ class PedidosIntegrationTest extends IntegrationSupport {
         assertEquals(0,centro.correos("TODOS","%' OR 1=1 --",0).getTotalElements());
         var resultados=paralelos(()->centro.reintentar(id),()->centro.reintentar(id));
         assertEquals(1,resultados.stream().filter(Boolean.TRUE::equals).count());
+        // Una transacción antigua no debe reprogramar una fila adelantada por otra más nueva.
+        jdbc.update("UPDATE correo_pendiente SET proximo_intento=CURRENT_TIMESTAMP+INTERVAL '1 hour' WHERE id=?",id);
+        try(var pool=Executors.newSingleThreadExecutor()) {
+            var iniciada=new CountDownLatch(1); var continuar=new CountDownLatch(1);
+            var antigua=pool.submit(()->new org.springframework.transaction.support.TransactionTemplate(txManager).execute(status->{
+                jdbc.queryForObject("SELECT CURRENT_TIMESTAMP",java.sql.Timestamp.class);
+                iniciada.countDown();
+                try { if(!continuar.await(5,TimeUnit.SECONDS)) throw new IllegalStateException("Timeout"); }
+                catch(InterruptedException ex) { Thread.currentThread().interrupt(); throw new IllegalStateException(ex); }
+                return centro.reintentar(id);
+            }));
+            assertTrue(iniciada.await(5,TimeUnit.SECONDS));
+            try { assertTrue(centro.reintentar(id)); } finally { continuar.countDown(); }
+            assertFalse(antigua.get(5,TimeUnit.SECONDS));
+        }
         assertEquals(1,correos());
         assertEquals(2,jdbc.queryForObject("SELECT intentos FROM correo_pendiente WHERE id=?",Integer.class,id));
         assertTrue(entrega.entregarSiguiente());
@@ -282,4 +298,57 @@ class PedidosIntegrationTest extends IntegrationSupport {
         mvc.perform(get("/admin/correos").session(sesion(admin)).param("estado","INVALIDO")).andExpect(status().isBadRequest());
     }
 
+
+    @Autowired SeguimientoPedidoService seguimiento;
+    @Autowired IProductoService servicioProductos;
+
+    @Test void seguimientoRegistraCambiosRealesSinDuplicadosYProtegeAcceso() throws Exception {
+        Pedido p=comprar(1);
+        pedidos.cambiarEstado(p.getId_pedido(),"ENVIADO");
+        pedidos.cambiarEstado(p.getId_pedido(),"ENVIADO");
+        pedidos.marcarEntregado(p.getId_pedido());
+        var eventos=seguimiento.listar(p.getId_pedido());
+        assertEquals(List.of("PREPARANDO","ENVIADO","ENTREGADO"), eventos.stream().map(e->e.get("estado")).toList());
+        assertTrue(eventos.stream().allMatch(e->e.get("fecha")!=null));
+        mvc.perform(get("/pedido/"+p.getId_pedido()).session(sesion(titular))).andExpect(status().isOk())
+            .andExpect(jsonPath("$.historial.length()").value(3));
+        mvc.perform(get("/pedido/"+p.getId_pedido()).session(sesion(ajeno))).andExpect(status().isForbidden());
+    }
+    @Test void seguimientoAntiguoNoInventaFechasYRevierteSiFallaElAviso() {
+        Pedido p=comprar(1);
+        jdbc.update("DELETE FROM pedido_historial WHERE id_pedido=?",p.getId_pedido());
+        pedidos.solicitarCancelacion(p.getId_pedido(),titular.getId());
+        var eventos=seguimiento.listar(p.getId_pedido());
+        assertEquals(2,eventos.size()); assertNull(eventos.get(0).get("fecha"));
+        assertEquals("PREPARANDO",eventos.get(0).get("estado"));
+        doThrow(new IllegalStateException("Fallo simulado")).when(cola).encolar(anyString(),anyString(),anyString());
+        assertThrows(IllegalStateException.class,()->pedidos.confirmarCancelacion(p.getId_pedido()));
+        assertEquals(2,seguimiento.listar(p.getId_pedido()).size()); assertEquals(9,stock());
+    }
+    long alertasStock() { return jdbc.queryForObject("SELECT count(*) FROM notificacion WHERE destinatario='ADMIN' AND descripcion LIKE 'Stock mínimo:%'",Long.class); }
+    @Test void stockMinimoAvisaUnaVezPorEpisodioYSeRearmaAlReponer() throws Exception {
+        Pedido p=comprar(5);
+        assertEquals(5,stock()); assertEquals(1,alertasStock());
+        var resultados=paralelos(()->comprar(1),()->comprar(1));
+        assertTrue(resultados.stream().allMatch(Pedido.class::isInstance));
+        assertEquals(3,stock()); assertEquals(1,alertasStock());
+        pedidos.cambiarEstado(p.getId_pedido(),"CANCELADO");
+        assertEquals(8,stock());
+        comprar(3); assertEquals(5,stock()); assertEquals(2,alertasStock());
+        assertEquals(2,jdbc.queryForObject("SELECT count(*) FROM correo_pendiente WHERE asunto LIKE 'Stock mínimo:%'",Integer.class));
+    }
+    @Test void stockManualGeneraAvisoYElFalloDeColaRevierteTodaLaCompra() {
+        Producto nuevo=producto(10);
+        nuevo.setNombre_producto("Producto "+"x".repeat(240));
+        nuevo.setStock(2); servicioProductos.saveProducto(nuevo);
+        servicioProductos.saveProducto(nuevo); assertEquals(1,alertasStock());
+        nuevo.setStock(9); servicioProductos.saveProducto(nuevo);
+        nuevo.setStock(0); servicioProductos.saveProducto(nuevo); assertEquals(2,alertasStock());
+        long antes=jdbc.queryForObject("SELECT count(*) FROM producto_alerta_stock",Long.class);
+        doThrow(new IllegalStateException("Fallo simulado")).when(cola).encolar(anyString(),anyString(),anyString());
+        assertThrows(IllegalStateException.class,()->comprar(6));
+        assertEquals(10,stock()); assertEquals(0,pedidoRepo.count());
+        assertEquals(antes,jdbc.queryForObject("SELECT count(*) FROM producto_alerta_stock",Long.class));
+        assertEquals(0,jdbc.queryForObject("SELECT count(*) FROM pedido_historial",Integer.class));
+    }
 }

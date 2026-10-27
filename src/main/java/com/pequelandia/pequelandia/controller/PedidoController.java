@@ -26,6 +26,7 @@ import jakarta.transaction.Transactional;
 @RequestMapping("/pedido")
 public class PedidoController {
 
+    @Autowired private com.pequelandia.pequelandia.service.SeguimientoPedidoService seguimiento;
     private final IPedidoService pedidoService;
 
     public PedidoController(IPedidoService pedidoService) {
@@ -47,6 +48,7 @@ public class PedidoController {
                 "id", p.getId_pedido(),
                 "fecha", p.getFecha_pedido(),
                 "estado", p.getEstado_pedido(),
+                "historial", seguimiento.listar(id),
                 "total", p.getCarrito().getTotal(),
                 "items", p.getCarrito().getDetalles().stream().map(d -> {
                     int cant = d.getCantidad() != null ? d.getCantidad() : 0;
