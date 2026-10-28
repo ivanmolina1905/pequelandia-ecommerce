@@ -13,6 +13,9 @@ import com.pequelandia.pequelandia.model.Usuario;
 
 //jparepository es una clase que tiene jpa donde estan los metodos para el crud, esta clase recibe dos parametros uno es la clase a la cual le hacemos el repository y otra el tipo de dato del id
 public interface IUsuarioRepository extends JpaRepository<Usuario,Long> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select u from Usuario u where u.id = :id")
+    Optional<Usuario> findByIdParaRecuperacion(@Param("id") Long id);
 	
 	@Query("""
 		       SELECT u

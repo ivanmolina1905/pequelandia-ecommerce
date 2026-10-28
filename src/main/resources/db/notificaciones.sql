@@ -22,3 +22,16 @@ CREATE TABLE IF NOT EXISTS producto_alerta_stock (
     id_producto BIGINT PRIMARY KEY,
     activa BOOLEAN NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS recuperacion_clave (
+    token_hash VARCHAR(64) PRIMARY KEY,
+    usuario_id BIGINT NOT NULL UNIQUE,
+    email VARCHAR(320) NOT NULL,
+    vence TIMESTAMPTZ NOT NULL
+);
+CREATE TABLE IF NOT EXISTS recuperacion_limite (
+    clave VARCHAR(64) PRIMARY KEY,
+    inicio TIMESTAMPTZ NOT NULL,
+    intentos INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_recuperacion_limite_inicio ON recuperacion_limite(inicio);

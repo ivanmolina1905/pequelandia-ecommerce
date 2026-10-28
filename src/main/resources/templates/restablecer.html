@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Pequelandia - Recuperar contraseña</title>
+<link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
+<link rel="stylesheet" th:href="@{/css/style.css}">
+</head><body>
+<main class="container min-vh-100 d-flex align-items-center justify-content-center py-4">
+<section class="card shadow" style="max-width:460px;width:100%"><div class="card-body p-4">
+<a th:href="@{/}" class="d-block text-center mb-3"><img th:src="@{/imagenes/peq.png.jpg}" alt="Pequelandia" width="120" height="90"></a><h1 class="h4">Crear contraseña nueva</h1>
+<div th:if="${error}" th:text="${error}" class="alert alert-danger" role="alert"></div>
+<div th:unless="${valido}" class="alert alert-warning" role="alert">El enlace venció, ya fue utilizado o no es válido. <a th:href="@{/auth/recuperar}">Solicitar otro enlace</a></div>
+<form th:if="${valido}" th:action="@{/auth/restablecer}" method="post">
+<input type="hidden" name="_csrf" th:value="${csrfToken}">
+<input type="hidden" name="token" th:value="${token}">
+<p id="ayuda">Elegí una contraseña de entre 8 y 128 caracteres.</p>
+<label for="password" class="form-label">Contraseña nueva</label>
+<input id="password" name="password" type="password" minlength="8" maxlength="128" autocomplete="new-password" aria-describedby="ayuda" required class="form-control mb-3">
+<label for="confirmacion" class="form-label">Repetir contraseña nueva</label>
+<input id="confirmacion" name="confirmacion" type="password" minlength="8" maxlength="128" autocomplete="new-password" required class="form-control mb-3">
+<button class="btn btn-amber w-100" type="submit">Guardar contraseña</button>
+</form><a class="d-block text-center mt-3" th:href="@{/auth/login}">Volver a iniciar sesión</a>
+</div></section></main></body></html>
