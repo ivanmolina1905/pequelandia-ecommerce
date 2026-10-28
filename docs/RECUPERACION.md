@@ -6,10 +6,16 @@ Desde **Olvidé mi contraseña**, el usuario ingresa su correo y recibe un enlac
 
 En la configuración local (ignorada por Git), configurar:
 
-- `app.security.public-url`: dirección pública fija de la aplicación, incluyendo su contexto si corresponde, por ejemplo `https://tienda.example.invalid`. HTTP se permite únicamente en localhost. No se construyen enlaces usando el encabezado Host del visitante.
+- No hace falta una URL pública para desarrollo: Spring usa `http://localhost:${server.port:8080}${server.servlet.context-path:}`. Con el puerto predeterminado, el enlace comienza en `http://localhost:8080/auth/restablecer`. Si cambiás el puerto o contexto en Spring, los enlaces se ajustan. Opcionalmente, `PEQUELANDIA_PUBLIC_URL` o `app.security.public-url` permite fijar otra dirección. No se usa el encabezado Host del visitante.
 - Configuración SMTP existente y `app.mail.delivery-enabled=true`. Con entrega desactivada, los correos permanecen en cola y no llegan al buzón.
 
 El script aditivo `db/notificaciones.sql` crea automáticamente las tablas de recuperación y límites. No modifica contraseñas existentes.
+
+El correo se envía mediante el flujo existente de Spring: `RecuperacionService` → `ColaCorreoService` → `CorreoScheduler` → `EntregaCorreoService` → `JavaMailSender`. No se usa un cliente de correo externo a Spring.
+
+Para Gmail siguen siendo necesarias las variables locales `PEQUELANDIA_MAIL_USERNAME`, `PEQUELANDIA_MAIL_PASSWORD` (contraseña de aplicación) y `PEQUELANDIA_ADMIN_EMAIL`. Si arrancás desde Eclipse, definirlas en Environment de la configuración de ejecución. No versionar estos valores. Spring no reemplaza la autenticación que exige Gmail.
+
+Abrí el enlace de localhost en la misma computadora donde corre Spring. En otro dispositivo, localhost apunta a ese otro dispositivo.
 
 ## Controles
 
@@ -32,3 +38,5 @@ Se conserva el almacenamiento de contraseñas existente, conforme a AGENTS.md. E
 `RecuperacionIntegrationTest` usa PostgreSQL aislado y correo simulado. Cubre flujo completo y login, token vencido/usado, correo cambiado, confirmación de clave, respuesta genérica, CSRF, límites, consumo concurrente, rollback y redirección al login. Ver `NOTIFICACIONES.md` para configurar la base descartable de pruebas.
 
 Verificación del 27/10/2026: 43 pruebas Java aprobadas (9 de recuperación), sin fallos ni omisiones, contra PostgreSQL 18 aislado; 4 pruebas JavaScript aprobadas. Se renderizaron los formularios con MockMvc/Thymeleaf y se simularon los envíos SMTP. No se verificó entrega a un buzón real.
+
+Verificación del modo local (27/10/2026): 44 pruebas Java y 4 JavaScript aprobadas. La nueva prueba verifica el enlace con server.port=8091 y la entrega mediante EntregaCorreoService y JavaMailSender simulado. Sin envío a buzones reales.

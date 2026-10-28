@@ -19,8 +19,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@org.springframework.test.context.TestPropertySource(properties = "server.port=8091")
 class RecuperacionIntegrationTest extends IntegrationSupport {
     @Autowired RecuperacionService recuperacion;
+    @Autowired EntregaCorreoService entrega;
     @Autowired IUsuarioRepository usuarios;
     @Autowired JdbcTemplate jdbc;
     @Autowired MockMvc mvc;
@@ -46,6 +48,18 @@ class RecuperacionIntegrationTest extends IntegrationSupport {
     }
     void pedir() { recuperacion.solicitar(usuario.getEmail(), "127.0.0.1"); }
 
+
+    @Test void entregaRecuperacionConSpringMailYUrlLocalDelPuertoConfigurado() {
+        pedir();
+        String t = token();
+        assertTrue(entrega.entregarSiguiente());
+        var mensaje = org.mockito.ArgumentCaptor.forClass(org.springframework.mail.SimpleMailMessage.class);
+        verify(smtp).send(mensaje.capture());
+        assertEquals("pruebas@example.invalid", mensaje.getValue().getFrom());
+        assertArrayEquals(new String[] { usuario.getEmail() }, mensaje.getValue().getTo());
+        assertTrue(mensaje.getValue().getText().contains("http://localhost:8091/auth/restablecer?token=" + t));
+        assertEquals(1, jdbc.queryForObject("SELECT count(*) FROM correo_pendiente WHERE enviado_en IS NOT NULL", Integer.class));
+    }
     @Test void flujoCompletoCorreoHashYUsoUnico() throws Exception {
         pedir(); String t = token();
         assertEquals(43, t.length());
