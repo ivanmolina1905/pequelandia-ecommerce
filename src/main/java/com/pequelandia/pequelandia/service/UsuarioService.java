@@ -122,8 +122,12 @@ public class UsuarioService implements IUsuarioService{
   
    
 
+    @org.springframework.transaction.annotation.Transactional
     public Optional<Usuario> login(String nombreUsuario,String contraseña) {
-        return UsuarioRepo.login(nombreUsuario, contraseña);
+        return UsuarioRepo.login(nombreUsuario.trim(), contraseña).map(usuario -> {
+            usuario.setUltima_conexion(new Date());
+            return UsuarioRepo.save(usuario);
+        });
     }
     
     public boolean existeEmail(String email) {
