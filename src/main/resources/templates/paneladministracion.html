@@ -715,7 +715,7 @@
 <!-- ============================
      DASHBOARD ESTADÍSTICAS
 ============================ -->
-<div id="estadisticas-contenido" class="dashboard-container" style="display:none;">
+<div id="estadisticas-contenido" class="dashboard-container" style="display:none;" th:attr="data-inicial=${seccion == 'estadisticas'}">
 
     <div class="admin-stats-header mb-4">
   <div>
@@ -2083,6 +2083,8 @@
 	    }
 	    else if (name === 'estadisticas' && estadisticas ) {
 	        if (estadisticas) estadisticas.style.display = 'block';
+	        configurarFechasIniciales();
+	        cargarGraficoVentas();
 	    }
 	    else if (name === 'pedidos' && pedidos) {
 	        pedidos.style.display = 'block';
@@ -2980,7 +2982,7 @@
 	 let graficoVentasObj = null;
 
 	  function fechaIso(date) {
-	    return date.toISOString().slice(0, 10);
+	    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 	  }
 
 	  function configurarFechasIniciales() {
@@ -3032,6 +3034,9 @@
 	    }
 
 	    try {
+	      if (tipo === "dia" && (!desde || !hasta || desde > hasta)) {
+	        throw new Error("Seleccioná un rango de fechas válido: Desde debe ser anterior o igual a Hasta.");
+	      }
 	      const res = await fetch(url);
 
 	      if (!res.ok) {
@@ -3040,11 +3045,13 @@
 
 	      const datos = await res.json();
 
-	      const labels = (datos || []).map(item => item.etiqueta);
+	      const labels = (datos || []).map(item => item.label);
 	      const valores = (datos || []).map(item => Number(item.valor || 0));
 	      const tieneDatos = valores.some(valor => valor > 0);
 
 	      if (empty) {
+	        empty.querySelector("strong").textContent = "No hay ventas registradas";
+	        empty.querySelector("span").textContent = "Probá seleccionando otro período.";
 	        empty.style.display = tieneDatos ? "none" : "flex";
 	      }
 
@@ -3127,15 +3134,16 @@
 	       * Exportamos el período visible usando tu endpoint actual.
 	       * No hace falta crear otra ruta en backend.
 	       */
-	      if (exportBtn && desde && hasta) {
-	        exportBtn.href =
-	          `/admin/export/ventas-dia?desde=${encodeURIComponent(desde)}&hasta=${encodeURIComponent(hasta)}`;
+	      if (exportBtn) {
+	        exportBtn.href = url.replace("/admin/estadisticas/serie-", "/admin/export/ventas-");
 	      }
 
 	    } catch (error) {
 	      console.error(error);
 
 	      if (empty) {
+	        empty.querySelector("strong").textContent = "No se pudo cargar el gráfico";
+	        empty.querySelector("span").textContent = error.message;
 	        empty.style.display = "flex";
 	      }
 	    }
@@ -3143,6 +3151,9 @@
 
 	  document.addEventListener("DOMContentLoaded", function() {
 	    configurarFechasIniciales();
+	    if (document.getElementById("estadisticas-contenido")?.dataset.inicial === "true") {
+	      showSection("estadisticas");
+	    }
 
 	    document.getElementById("btnAplicarGrafico")
 	      ?.addEventListener("click", cargarGraficoVentas);
