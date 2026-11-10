@@ -1119,12 +1119,18 @@
   
 
 
+			</main>
+        </div>
+    </div>
+
+            <!-- Fuera de main: su animación con transform desplaza los elementos fijos. -->
 						<!-- Botón flotante: Agregar usuario y productos-->
 			<!-- FAB Productos -->
-			<button id="fabProductos" class="btn btn-success rounded-circle position-fixed"
+			<button id="fabProductos" type="button" class="btn btn-success rounded-circle position-fixed"
+			        th:style="${seccion == 'productos' ? 'display:block;' : 'display:none;'} + 'bottom:24px; right:24px; width:60px; height:60px; z-index:1030;'"
 			        style="display:none;bottom:24px; right:24px; width:60px; height:60px; box-shadow:0 6px 18px rgba(0,0,0,.2);"
 			        data-bs-toggle="modal" data-bs-target="#newProductModal"
-			        title="Agregar producto">
+			        title="Agregar producto" aria-label="Agregar producto">
 			  <span class="fs-3 d-block" style="line-height:1;">＋</span>
 			</button>
 			
@@ -1136,10 +1142,6 @@
 			  <span class="fs-3 d-block" style="line-height:1;">＋</span>
 			</button>
 			
-			</main>
-        </div>
-    </div>
-
 <!-- ==========================================
      MODAL PREMIUM: DETALLE DEL PEDIDO
 =========================================== -->
