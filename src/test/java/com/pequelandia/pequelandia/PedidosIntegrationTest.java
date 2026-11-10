@@ -58,6 +58,40 @@ class PedidosIntegrationTest extends IntegrationSupport {
         p.setPrecio(12.5f); p.setEstado("activo"); return productos.save(p);
     }
     Pedido comprar(int cantidad) { return pedidos.comprar(titular.getId(), Map.of(producto.getIdProducto(), cantidad)); }
+
+    @Test void filtroAdministrativoPorFechasIncluyeLimitesYPagina() throws Exception {
+        for (String fecha : List.of("2026-10-31 23:59:59", "2026-11-01 00:00:00",
+                "2026-11-02 23:59:59.999", "2026-11-03 00:00:00")) {
+            Pedido pedido = comprar(1);
+            jdbc.update("UPDATE pedido SET fecha_pedido = ? WHERE id_pedido = ?",
+                    java.sql.Timestamp.valueOf(fecha), pedido.getId_pedido());
+        }
+        var session = sesion(admin);
+        mvc.perform(get("/admin/pedidos/lista").session(session)
+                        .param("desde", "2026-11-01").param("hasta", "2026-11-02").param("size", "1"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(2)).andExpect(jsonPath("$.content.length()").value(1));
+        mvc.perform(get("/admin/pedidos/lista").session(session).param("desde", "2026-11-02"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2));
+        mvc.perform(get("/admin/pedidos/lista").session(session).param("hasta", "2026-11-01"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2));
+        mvc.perform(get("/admin/pedidos/lista").session(session)
+                        .param("desde", "2026-11-02").param("hasta", "2026-11-02"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1));
+        mvc.perform(get("/admin/pedidos/lista").session(session))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(4));
+        mvc.perform(get("/admin/pedidos/lista").session(session)
+                        .param("desde", "2026-12-01").param("hasta", "2026-12-02"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(0));
+        mvc.perform(get("/admin/pedidos/lista").session(session)
+                        .param("desde", "2026-11-01").param("hasta", "2026-11-02")
+                        .param("estado", "PREPARANDO").param("usuario", "titular"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2));
+        mvc.perform(get("/admin/pedidos/lista").session(session)
+                        .param("desde", "2026-11-03").param("hasta", "2026-11-01"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.error").value(
+                        "La fecha Desde debe ser anterior o igual a Hasta."));
+    }
     int stock() { return productos.findById(producto.getIdProducto()).orElseThrow().getStock(); }
     int correos() { return jdbc.queryForObject("SELECT count(*) FROM correo_pendiente", Integer.class); }
     MockHttpSession sesion(Usuario u) {

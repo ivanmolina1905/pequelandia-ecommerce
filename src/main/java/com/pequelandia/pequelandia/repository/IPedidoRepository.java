@@ -231,12 +231,12 @@ public interface IPedidoRepository extends JpaRepository<Pedido,Long> {
              OR UPPER(p.estado_pedido) = UPPER(:estado)
          )
          AND (
-             :desde IS NULL
-             OR DATE(p.fecha_pedido) >= :desde
+             CAST(:desde AS DATE) IS NULL
+             OR DATE(p.fecha_pedido) >= CAST(:desde AS DATE)
          )
          AND (
-             :hasta IS NULL
-             OR DATE(p.fecha_pedido) <= :hasta
+             CAST(:hasta AS DATE) IS NULL
+             OR DATE(p.fecha_pedido) <= CAST(:hasta AS DATE)
          )
          AND (
              :usuario IS NULL
@@ -258,12 +258,12 @@ public interface IPedidoRepository extends JpaRepository<Pedido,Long> {
              OR UPPER(p.estado_pedido) = UPPER(:estado)
          )
          AND (
-             :desde IS NULL
-             OR DATE(p.fecha_pedido) >= :desde
+             CAST(:desde AS DATE) IS NULL
+             OR DATE(p.fecha_pedido) >= CAST(:desde AS DATE)
          )
          AND (
-             :hasta IS NULL
-             OR DATE(p.fecha_pedido) <= :hasta
+             CAST(:hasta AS DATE) IS NULL
+             OR DATE(p.fecha_pedido) <= CAST(:hasta AS DATE)
          )
          AND (
              :usuario IS NULL

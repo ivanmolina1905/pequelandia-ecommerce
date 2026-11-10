@@ -52,6 +52,10 @@ public class AdminPedidoController {
           @RequestParam(defaultValue = "10") int size
   ) {
 
+      if (desde != null && hasta != null && desde.isAfter(hasta)) {
+          throw new IllegalArgumentException("La fecha Desde debe ser anterior o igual a Hasta.");
+      }
+
       // Evitar valores inválidos desde la URL
       int paginaNormalizada = Math.max(page, 0);
       int tamanioNormalizado = Math.max(1, Math.min(size, 100));

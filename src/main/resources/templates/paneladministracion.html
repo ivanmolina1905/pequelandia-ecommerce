@@ -2541,11 +2541,6 @@
 	    10
 	  );
 
-	  /*
-	   * Estos filtros quedan enviados al backend.
-	   * Estado, page y size ya funcionan.
-	   * Para fecha y usuario vamos a adaptar luego el controller.
-	   */
 	  const desde = document.getElementById("pedidosDesde")?.value || "";
 	  const hasta = document.getElementById("pedidosHasta")?.value || "";
 	  const usuario = document.getElementById("pedidosUsuario")?.value?.trim() || "";
@@ -2561,6 +2556,11 @@
 	  if (usuario) params.append("usuario", usuario);
 
 	  const tbody = document.getElementById("tbodyPedidos");
+
+	  if (desde && hasta && desde > hasta) {
+	    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">La fecha Desde debe ser anterior o igual a Hasta.</td></tr>';
+	    return;
+	  }
 
 	  tbody.innerHTML = `
 	    <tr>
