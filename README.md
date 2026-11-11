@@ -79,6 +79,8 @@ Copy-Item application-example.properties config/application-local.properties
 
 El comando de clonación estará disponible cuando se publique el repositorio. Editar el archivo local con una base **nueva, vacía y descartable** y sus credenciales. No compartir ese archivo.
 
+**Si actualizás una base existente con `ddl-auto=validate`**, aplicá [la migración de roles](src/main/resources/db/roles-usuarios.sql) antes de iniciar esta versión. Agrega la columna `usuario.rol` si no existe y conserva el acceso administrativo anterior por ID cuando el rol es nulo.
+
 El ejemplo utiliza `ddl-auto=update` exclusivamente para generar tablas en desarrollo. La configuración principal usa `validate`: requiere un esquema de negocio ya existente. El script aditivo `src/main/resources/db/notificaciones.sql` crea la cola de correo al arrancar, sin modificar datos existentes. Para probar registro y catálogo se necesitan localidades, categorías y productos ficticios. No importar backups de clientes. Configurar el ID administrativo mediante `PEQUELANDIA_ADMIN_ID`; con valor 0 se conserva la búsqueda de una única cuenta `admin` al iniciar. El ejemplo deja desactivada la entrega SMTP hasta configurar un servidor de pruebas.
 
 También se pueden definir variables de entorno, sin archivo local:
