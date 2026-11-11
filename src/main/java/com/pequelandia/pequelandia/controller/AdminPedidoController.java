@@ -24,15 +24,30 @@ import com.pequelandia.pequelandia.repository.IPedidoRepository;
 import com.pequelandia.pequelandia.service.INotificacionService;
 import com.pequelandia.pequelandia.service.IPedidoService;
 
+/** [Doc]
+ * Presenta pedidos para administración y delega los cambios de estado.
+ */
 @Controller
 @RequestMapping("/admin/pedidos")
 public class AdminPedidoController {
 
+  // [Doc] Atributo pedidoRepo (IPedidoRepository): acceso de persistencia a pedido.
   @Autowired private IPedidoRepository pedidoRepo;
+  // [Doc] Atributo pedidoService (IPedidoService): colaborador que concentra operaciones de pedido.
   @Autowired private IPedidoService pedidoService;
 
   
   
+  /** [Doc]
+   * Consulta pedidos con los filtros administrativos recibidos y prepara su listado en el panel.
+   * @param estado estado usado por la operación.
+   * @param desde inicio del intervalo consultado.
+   * @param hasta fin del intervalo consultado.
+   * @param usuario cuenta de usuario utilizada por la operación.
+   * @param page índice de página solicitado, comenzando en cero.
+   * @param size size.
+   * @return Map&lt;String, Object&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+   */
   @GetMapping("/lista")
   @ResponseBody
   public Map<String, Object> lista(
@@ -57,20 +72,26 @@ public class AdminPedidoController {
       }
 
       // Evitar valores inválidos desde la URL
+      // [Doc] Variable local paginaNormalizada (int): pagina normalizada. Se inicializa con Math.max(page, 0).
       int paginaNormalizada = Math.max(page, 0);
+      // [Doc] Variable local tamanioNormalizado (int): tamanio normalizado. Se inicializa con Math.max(1, Math.min(size, 100)).
       int tamanioNormalizado = Math.max(1, Math.min(size, 100));
 
+      // [Doc] Variable local estadoNormalizado (String): estado normalizado. Se inicializa con estado == null ? "" : estado.trim().
       String estadoNormalizado =
               estado == null ? "" : estado.trim();
 
+      // [Doc] Variable local usuarioNormalizado (String): usuario normalizado. Se inicializa con usuario == null ? "" : usuario.trim().
       String usuarioNormalizado =
               usuario == null ? "" : usuario.trim();
 
+      // [Doc] Variable local pageable (PageRequest): parámetros de paginación y orden. Se inicializa con PageRequest.of( paginaNormalizada, tamanioNormalizado ).
       PageRequest pageable = PageRequest.of(
               paginaNormalizada,
               tamanioNormalizado
       );
 
+      // [Doc] Variable local pedidosPage (Page<Pedido>): pedidos page. Se inicializa con pedidoRepo.filtrarPedidosAdmin( estadoNormalizado, desde, hasta, usuarioNormalizado, pageable ).
       Page<Pedido> pedidosPage = pedidoRepo.filtrarPedidosAdmin(
               estadoNormalizado,
               desde,
@@ -79,6 +100,7 @@ public class AdminPedidoController {
               pageable
       );
 
+      // [Doc] Variable local content (List<Map<String, Object>>): content. Se inicializa con pedidosPage.getContent() .stream() .map(p -> Map.<String, Object>of( "id", p.getId_pedido(), "fecha", Strin....
       List<Map<String, Object>> content =
               pedidosPage.getContent()
                       .stream()
@@ -106,8 +128,10 @@ public class AdminPedidoController {
                       ))
                       .toList();
 
+      // [Doc] Variable local hoy (LocalDate): hoy. Se inicializa con LocalDate.now().
       LocalDate hoy = LocalDate.now();
 
+      // [Doc] Variable local resumen (Map<String, Object>): resumen. Se inicializa con Map.of( "totalPedidos", pedidoRepo.count(), "pedidosHoy", pedidoRepo.contarPedidosDelDia(hoy), "pendientes"....
       Map<String, Object> resumen = Map.of(
               "totalPedidos",
               pedidoRepo.count(),
@@ -122,6 +146,7 @@ public class AdminPedidoController {
               pedidoRepo.contarPorEstadoSinDistinguirMayusculas("CANCELADO")
       );
 
+      // [Doc] Termina el método o la función y devuelve Map.of( "content", content, "page", pedidosPage.getNumber(), "size", pedidosPage.getSize(), "totalPages", pedidosPage.getTotalPages(), "totalElements", pedid....
       return Map.of(
               "content", content,
               "page", pedidosPage.getNumber(),
@@ -133,10 +158,18 @@ public class AdminPedidoController {
   }
   
   
+  /** [Doc]
+   * Cambia estado en el ámbito de AdminPedidoController.
+   * @param id identificador del registro.
+   * @param estado estado usado por la operación.
+   * @return Map&lt;String, Object&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+   */
   @PostMapping("/{id}/estado")
   @ResponseBody
   public Map<String,Object> cambiarEstado(@PathVariable Long id, @RequestParam String estado){
+      // [Doc] Ejecuta la llamada o modificación pedidoService.cambiarEstadoConReposicion(id, estado); Sus efectos dependen del método invocado y del objeto receptor.
       pedidoService.cambiarEstadoConReposicion(id, estado);
+      // [Doc] Termina el método o la función y devuelve Map.of("ok", true).
       return Map.of("ok", true);
   }
 }

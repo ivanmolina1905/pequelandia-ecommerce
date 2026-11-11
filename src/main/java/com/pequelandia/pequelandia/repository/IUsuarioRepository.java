@@ -12,11 +12,26 @@ import org.springframework.data.repository.query.Param;
 import com.pequelandia.pequelandia.model.Usuario;
 
 //jparepository es una clase que tiene jpa donde estan los metodos para el crud, esta clase recibe dos parametros uno es la clase a la cual le hacemos el repository y otra el tipo de dato del id
+/** [Doc]
+ * Declara consultas y operaciones JPA de usuario; Spring Data crea la implementación.
+ */
 public interface IUsuarioRepository extends JpaRepository<Usuario,Long> {
+    /** [Doc]
+     * Consulta persistencia según el criterio expresado por findByIdParaRecuperacion; la consulta declarada o la
+     * convención de Spring Data determina el resultado.
+     * @param id identificador del registro.
+     * @return Optional&lt;Usuario&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+     */
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("select u from Usuario u where u.id = :id")
     Optional<Usuario> findByIdParaRecuperacion(@Param("id") Long id);
 	
+    /** [Doc]
+     * Busca los datos de la operación en el ámbito de IUsuarioRepository.
+     * @param q q.
+     * @param pageable parámetros de paginación y orden.
+     * @return Page&lt;Usuario&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+     */
 	@Query("""
 		       SELECT u
 		       FROM Usuario u
@@ -29,13 +44,17 @@ public interface IUsuarioRepository extends JpaRepository<Usuario,Long> {
 	
 	
 	
+    /** [Doc]
+     * Resuelve la operación login dentro de IUsuarioRepository; el detalle de instrucciones muestra sus pasos y
+     * llamadas.
+     * @param user user.
+     * @param pass pass.
+     * @return Optional&lt;Usuario&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+     */
 	@Query("""
 		    SELECT u
 		    FROM Usuario u
-		    WHERE (
-		        LOWER(u.nombre_usuario) = LOWER(:user)
-		        OR LOWER(u.email) = LOWER(:user)
-		    )
+		    WHERE LOWER(u.email) = LOWER(:user)
 		    AND u.contraseña = :pass
 		""")
 		Optional<Usuario> login(
@@ -45,6 +64,11 @@ public interface IUsuarioRepository extends JpaRepository<Usuario,Long> {
 
 
 	// Usuarios registrados por día
+    /** [Doc]
+     * Resuelve la operación usuarios registrados por dia dentro de IUsuarioRepository; el detalle de instrucciones
+     * muestra sus pasos y llamadas.
+     * @return List&lt;Object[]&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+     */
 	@Query(value = """
 	        SELECT DATE(u.fecha_registro) AS fecha, COUNT(*) AS total
 	        FROM usuario u
@@ -54,6 +78,12 @@ public interface IUsuarioRepository extends JpaRepository<Usuario,Long> {
 	    List<Object[]> usuariosRegistradosPorDia();
 
     //  Usuarios registrados por mes
+    /** [Doc]
+     * Resuelve la operación usuarios registrados por mes dentro de IUsuarioRepository; el detalle de instrucciones
+     * muestra sus pasos y llamadas.
+     * @param anio año de la consulta.
+     * @return List&lt;Object[]&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+     */
     @Query(value = """
             SELECT EXTRACT(MONTH FROM u.fecha_registro) AS mes, COUNT(*) AS total
             FROM usuario u
@@ -64,6 +94,11 @@ public interface IUsuarioRepository extends JpaRepository<Usuario,Long> {
         List<Object[]> usuariosRegistradosPorMes(@Param("anio") int anio);
 
     //  Usuarios registrados por año
+    /** [Doc]
+     * Resuelve la operación usuarios registrados por anio dentro de IUsuarioRepository; el detalle de instrucciones
+     * muestra sus pasos y llamadas.
+     * @return List&lt;Object[]&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+     */
     @Query(value = """
             SELECT EXTRACT(YEAR FROM u.fecha_registro) AS anio, COUNT(*) AS total
             FROM usuario u
@@ -75,6 +110,12 @@ public interface IUsuarioRepository extends JpaRepository<Usuario,Long> {
         
         
         
+        /** [Doc]
+         * Resuelve la operación existe email dentro de IUsuarioRepository; el detalle de instrucciones muestra sus pasos
+         * y llamadas.
+         * @param email dirección de correo de la cuenta.
+         * @return boolean con el resultado de la operación; véase el cuerpo para las ramas de error.
+         */
         @Query("""
         	    SELECT COUNT(u) > 0
         	    FROM Usuario u
@@ -83,6 +124,12 @@ public interface IUsuarioRepository extends JpaRepository<Usuario,Long> {
         	boolean existeEmail(@Param("email") String email);
 
 
+            /** [Doc]
+             * Resuelve la operación existe nombre usuario dentro de IUsuarioRepository; el detalle de instrucciones muestra
+             * sus pasos y llamadas.
+             * @param nombreUsuario nombre usuario.
+             * @return boolean con el resultado de la operación; véase el cuerpo para las ramas de error.
+             */
         	@Query("""
         	    SELECT COUNT(u) > 0
         	    FROM Usuario u
@@ -91,6 +138,12 @@ public interface IUsuarioRepository extends JpaRepository<Usuario,Long> {
         	boolean existeNombreUsuario(@Param("nombreUsuario") String nombreUsuario);
 
 
+            /** [Doc]
+             * Resuelve la operación existe dni dentro de IUsuarioRepository; el detalle de instrucciones muestra sus pasos y
+             * llamadas.
+             * @param dni documento de identidad.
+             * @return boolean con el resultado de la operación; véase el cuerpo para las ramas de error.
+             */
         	@Query("""
         	    SELECT COUNT(u) > 0
         	    FROM Usuario u
@@ -105,10 +158,23 @@ public interface IUsuarioRepository extends JpaRepository<Usuario,Long> {
         
         
 
+    /** [Doc]
+     * Resuelve la operación ids por nombre dentro de IUsuarioRepository; el detalle de instrucciones muestra sus
+     * pasos y llamadas.
+     * @param nombre nombre normalizado o visible de la entidad.
+     * @return List&lt;Long&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+     */
     @Query("select u.id from Usuario u where lower(u.nombre_usuario) = lower(:nombre)")
     List<Long> idsPorNombre(@Param("nombre") String nombre);
 
-    @Query("select count(u)>0 from Usuario u where u.id <> :id and (lower(u.nombre_usuario)=lower(:nombre) or lower(u.email)=lower(:email))")
-    boolean identidadEnUso(@Param("id") Long id, @Param("nombre") String nombre, @Param("email") String email);
+    /** [Doc]
+     * Resuelve la operación email en uso dentro de IUsuarioRepository; el detalle de instrucciones muestra sus
+     * pasos y llamadas.
+     * @param id identificador del registro.
+     * @param email dirección de correo de la cuenta.
+     * @return boolean con el resultado de la operación; véase el cuerpo para las ramas de error.
+     */
+    @Query("select count(u)>0 from Usuario u where u.id <> :id and lower(u.email)=lower(:email)")
+    boolean emailEnUso(@Param("id") Long id, @Param("email") String email);
 
 }

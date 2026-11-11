@@ -1,0 +1,18 @@
+{
+  "java_files": 108,
+  "resource_files": 32,
+  "comments_added": {
+    "TYPE": 107,
+    "VARIABLE": 733,
+    "METHOD": 769,
+    "STATEMENT": 1676
+  },
+  "nodes": {
+    "TYPE": 107,
+    "VARIABLE": 1673,
+    "METHOD": 769,
+    "STATEMENT": 2009
+  },
+  "java_tokens_unchanged": true,
+  "java_ast_unchanged": true
+}

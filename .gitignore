@@ -49,6 +49,7 @@ application-local.yaml
 /backups/
 /logs/
 /.tools/
+/tmp/documentacion/
 
 # SQL de esquema sin datos ni secretos
 !/src/main/resources/db/*.sql

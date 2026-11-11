@@ -1,6 +1,10 @@
 <!DOCTYPE html>
+<!-- [Doc] Vista verproductosa: Thymeleaf evalúa th:* en el servidor; HTML estructura la pantalla, CSS la presenta y los scripts gestionan sus acciones. Véase docs/documentacion/REFERENCIA_COMPLETA.html. -->
 <html lang="es">
 <head>
+<meta name="session-expires" th:if="${sesionVence != null}" th:content="${sesionVence}">
+<meta name="login-url" th:content="@{/auth/login(sesionVencida=true)}">
+
   <meta name="csrf-token" th:content="${csrfToken}">
   <script th:src="@{/js/seguridad.js}" src="/js/seguridad.js"></script>
 
@@ -11,6 +15,7 @@
     <title>Pequelandia</title>
     <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+  <script th:src="@{/js/reloj.js}" src="/js/reloj.js" defer></script>
 </head>
 <body>
         <!-- Cabecera fija -->
@@ -33,7 +38,7 @@
                 <a class="nav-link" href="#">Modo Noche</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link disabled" aria-disabled="true">Hora</a>
+                <span class="nav-link" id="clock" role="timer" aria-label="Hora actual">--:--:--</span>
               </li>
             </ul>
           </div>

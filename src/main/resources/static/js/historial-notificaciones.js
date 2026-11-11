@@ -1,3 +1,5 @@
+// [Doc] Procesa las acciones de lectura del historial y actualiza su presentación.
+// [Doc] Referencia de instrucciones: docs/documentacion/REFERENCIA_COMPLETA.html.
 document.addEventListener('DOMContentLoaded', () => {
   const dialogo = document.getElementById('detalle-pedido');
   const resultado = document.getElementById('resultado-pedido');

@@ -1,3 +1,4 @@
+/* [Doc] Estilos propios de seguimiento-pedido: los selectores determinan qué elementos reciben cada regla. Referencia: docs/documentacion/REFERENCIA_COMPLETA.html. */
 .seguimiento-pedido { margin: 24px 0; padding: 18px; background: #fffaf0; border-radius: 12px; color: #493d2e; white-space: normal; }
 .seguimiento-pedido h3 { font-size: 18px; margin: 0 0 18px; }
 .seguimiento-pedido ol { list-style: none; padding-left: 12px; margin: 0; }

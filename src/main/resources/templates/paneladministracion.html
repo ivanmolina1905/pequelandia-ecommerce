@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 
+<!-- [Doc] Vista paneladministracion: Thymeleaf evalúa th:* en el servidor; HTML estructura la pantalla, CSS la presenta y los scripts gestionan sus acciones. Véase docs/documentacion/REFERENCIA_COMPLETA.html. -->
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+<meta name="session-expires" th:if="${sesionVence != null}" th:content="${sesionVence}">
+<meta name="login-url" th:content="@{/auth/login(sesionVencida=true)}">
+
   <meta name="csrf-token" th:content="${csrfToken}">
   <script th:src="@{/js/seguridad.js}" src="/js/seguridad.js"></script>
 
@@ -16,8 +20,12 @@
     
 <link rel="stylesheet" th:href="@{/css/seguimiento-pedido.css}">
 <script th:src="@{/js/seguimiento-pedido.js}"></script>
+<link rel="stylesheet" th:href="@{/css/admin-avisos.css}">
+<script th:if="${seccion == 'notificaciones'}" defer th:src="@{/js/historial-notificaciones.js}"></script>
+  <link rel="stylesheet" th:href="@{/css/paneles.css}">
+  <script th:src="@{/js/reloj.js}" src="/js/reloj.js" defer></script>
 </head>
-<body>
+<body class="panel-theme">
     <!-- Cabecera fija -->
 <div name="cabecera fija" >
   <div class="container-fluid">
@@ -171,8 +179,8 @@
                 </div>
                 <div class="offcanvas-body" style="background-color: #fff3cd;">
                     <ul class="nav flex-column">
-                        <li class="nav-item mb-2"><a class="nav-link" th:href="@{/notificaciones/historial}">🔔 Historial de notificaciones</a></li>
-                        <li class="nav-item mb-2"><a class="nav-link" th:href="@{/admin/correos}">✉️ Correos automáticos</a></li>
+                        <li class="nav-item mb-2"><a class="nav-link js-section" data-section="notificaciones" th:href="@{/notificaciones/historial}">🔔 Historial de notificaciones</a></li>
+                        <li class="nav-item mb-2"><a class="nav-link js-section" data-section="correos" th:href="@{/admin/correos}">✉️ Correos automáticos</a></li>
                         <li class="nav-item mb-2">
                             <a class="nav-link js-section" data-section="productos" th:href="@{/admin/productos}">🛒 Gestión de productos</a>
                         </li>
@@ -197,8 +205,8 @@
             <nav class="col-md-3 col-lg-2 d-none d-md-block sidebar p-3" style="background-color: #fff3cd; min-height: 80vh;">
                 <h5 class="text-center mb-4">Panel de Administración</h5>
                 <ul class="nav flex-column">
-                    <li class="nav-item mb-2"><a class="nav-link" th:href="@{/notificaciones/historial}">🔔 Historial de notificaciones</a></li>
-                    <li class="nav-item mb-2"><a class="nav-link" th:href="@{/admin/correos}">✉️ Correos automáticos</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link js-section" data-section="notificaciones" th:href="@{/notificaciones/historial}">🔔 Historial de notificaciones</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link js-section" data-section="correos" th:href="@{/admin/correos}">✉️ Correos automáticos</a></li>
                     <li class="nav-item mb-2">
                         <a class="nav-link js-section" data-section="productos" th:href="@{/admin/productos}">🛒 Gestión de productos</a>
                     </li>
@@ -224,15 +232,22 @@
 			
             <!-- Contenido principal -->
             <main  class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div id="welcome-message" class="pt-3">
+<section class="centro-avisos pt-3" th:if="${seccion == 'notificaciones'}"><div th:replace="~{historial-notificaciones :: contenido}"></div></section>
+<section class="centro-avisos pt-3" th:if="${seccion == 'correos'}"><div th:replace="~{panel-correos :: contenido}"></div></section>
+                <div id="welcome-message" class="pt-3" th:if="${seccion != 'notificaciones' and seccion != 'correos' and seccion != 'productos' and seccion != 'usuarios' and seccion != 'gestion'}">
                     <h2>Bienvenido al panel de administración</h2>
                     <p>Seleccioná una opción del menú para comenzar.</p>
                 </div>
                 
                 
                 <div id="gestion-productos-contenido" class="pt-3" th:attr="style=${seccion}=='productos' ? '' : 'display:none;'">
+  <div class="admin-orders-header">
+    <div>
+      <h2>Gestión de Productos</h2>
+      <p>Visualizá y administrá todos los productos de la tienda.</p>
+    </div>
+  </div>
   <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-    <h2 class="m-0" style="color: #a93512bb;">Gestión de Productos</h2>
 
     <!-- Buscador -->
     <form class="d-flex" method="get" th:action="@{/admin/productos}">
@@ -354,9 +369,14 @@
                
 				<div id="gestion-usuarios-contenido" class="pt-3"
 					th:attr="style=${seccion} == 'gestion' ? '' : 'display: none;'">
+                    <div class="admin-orders-header">
+                      <div>
+                        <h2>Gestión de Usuarios</h2>
+                        <p>Visualizá y administrá todos los usuarios registrados en la tienda.</p>
+                      </div>
+                    </div>
 					<div
 						class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-						<h2 class="m-0" style="color: #6a1b9a;">Gestión de Usuarios</h2>
 
 						<!-- Buscador -->
 						<form class="d-flex" method="get" th:action="@{/admin/usuarios}">
@@ -1116,7 +1136,7 @@
 }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 </style>
-  
+
 
 
 			</main>
@@ -1339,6 +1359,8 @@
           <b>→</b>
           <span>PREPARANDO</span>
           <b>→</b>
+          <span>ENVIADO</span>
+          <b>→</b>
           <span>ENTREGADO</span>
         </div>
 
@@ -1386,6 +1408,8 @@
       <form id="newUserForm" method="post" th:action="@{/admin/usuarios/nuevo}">
 <input type="hidden" name="_csrf" th:value="${csrfToken}">
         <div class="modal-body peq-admin-modal-body">
+          <div class="alert alert-danger" th:if="${showNewUserModal == true}">No se pudo crear el usuario. Revisá los datos e ingresá una contraseña de entre 8 y 128 caracteres.</div>
+
 
           <input th:if="${_csrf != null}" type="hidden"
                  th:name="${_csrf.parameterName}"
@@ -1395,6 +1419,20 @@
             <h6 class="peq-form-section-title">Datos personales</h6>
 
             <div class="row g-3">
+              <div class="col-md-6">
+                <label for="newUserPassword" class="form-label peq-admin-label">Contraseña</label>
+                <input id="newUserPassword" type="password" name="contraseña" minlength="8" maxlength="128" autocomplete="new-password" class="form-control peq-admin-input" required>
+                <small class="peq-help-text">Entre 8 y 128 caracteres.</small>
+              </div>
+              <div class="col-md-6">
+                <label for="newUserRol" class="form-label peq-admin-label">Rol</label>
+                <select id="newUserRol" name="rol" class="form-select peq-admin-input" required>
+                  <option value="USUARIO">Usuario</option>
+                  <option value="ADMINISTRADOR">Administrador</option>
+                </select>
+                <small class="peq-help-text">Solo los administradores pueden entrar al panel administrador.</small>
+              </div>
+
               <div class="col-md-4">
                 <label class="form-label peq-admin-label">Nombre</label>
                 <input name="nombre_usuario" class="form-control peq-admin-input" required>
@@ -1611,7 +1649,7 @@
                 <label class="form-label peq-admin-label">Precio</label>
                 <div class="peq-input-money">
                   <span>$</span>
-                  <input type="number" step="0.01" name="precio" class="form-control peq-admin-input peq-input-with-prefix" required>
+                  <input type="number" step="0.01" min="0" name="precio" class="form-control peq-admin-input peq-input-with-prefix" required>
                 </div>
               </div>
 
@@ -1675,6 +1713,21 @@
               <div class="col-md-12">
                 <label class="form-label peq-admin-label">URL Imagen</label>
                 <input name="imagenUrl" class="form-control peq-admin-input" placeholder="https://...">
+                <div class="mt-3" id="productCamera" data-upload-url="/admin/productos/foto" th:data-upload-url="@{/admin/productos/foto}">
+                  <button type="button" class="btn btn-outline-primary" id="openProductCamera">📷 Sacar foto</button>
+                  <input type="file" id="productPhotoFile" accept="image/jpeg,image/png" capture="environment" hidden>
+                  <div id="productCameraView" hidden>
+                    <video id="productCameraVideo" autoplay muted playsinline style="width:100%;max-height:320px;object-fit:contain"></video>
+                    <button type="button" class="btn btn-primary" id="takeProductPhoto">Sacar foto</button>
+                    <button type="button" class="btn btn-outline-secondary" id="cancelProductCamera">Cancelar cámara</button>
+                  </div>
+                  <div id="productPhotoPreview" hidden>
+                    <img id="productPhotoImage" alt="Vista previa de la foto del producto" style="display:block;width:100%;max-height:320px;object-fit:contain" class="my-2">
+                    <button type="button" class="btn btn-outline-danger" id="discardProductPhoto" aria-label="Descartar foto y sacar otra">🗑</button>
+                    <button type="button" class="btn btn-success" id="uploadProductPhoto">✓ OK, subir foto</button>
+                  </div>
+                  <p id="productPhotoStatus" class="peq-help-text mt-2" role="status" aria-live="polite"></p>
+                </div>
                 <small class="peq-help-text">Si no cargás imagen, se puede mostrar una imagen por defecto.</small>
               </div>
             </div>
@@ -1731,7 +1784,7 @@
                   <span>$</span>
                   <input type="number"
                          step="0.01"
-                         name="precio"
+                         name="precio" min="0"
                          id="prodPrecio"
                          class="form-control peq-admin-input peq-input-with-prefix"
                          required>
@@ -2064,6 +2117,7 @@
 		
 	  
 	  function showSection(name) {
+            document.querySelectorAll('.centro-avisos').forEach(section => { section.style.display = 'none'; });
 	    if (welcome) welcome.style.display = 'none';
 
 	    // Ocultar todo
@@ -2125,6 +2179,8 @@
 
 	  
 	  const path = window.location.pathname;
+          if (path.includes('/notificaciones/historial')) marcarLinkActivo('notificaciones');
+          else if (path.includes('/admin/correos')) marcarLinkActivo('correos');
 
 	  if (path.includes("/admin/productos")) {
 	    marcarLinkActivo("productos");
@@ -2154,8 +2210,8 @@
 
  
 
-  
-  
+
+
 
 
  
@@ -2187,8 +2243,8 @@
 //     });
 //   }); 
 
-  
-  
+
+
 //Modal: confirmar eliminación de PRODUCTO
   (function () {
     const modalEl = document.getElementById('confirmDeleteProductModal');
@@ -2207,7 +2263,7 @@
       form.setAttribute('action', action);
     });
   })();
-  
+
   //modal para ver ventana despues de eliminar
   (function () {
     const modalEl = document.getElementById('confirmDeleteModal');
@@ -2243,7 +2299,7 @@
 	    modalEl.querySelector('#edtDireccion').value= btn.getAttribute('data-direccion')|| '';
 	  });
 	})();
-  
+
   (() => {
 	  const modalEl = document.getElementById('newUserModal');
 	  if (!modalEl) return;
@@ -2253,7 +2309,7 @@
 	    form.reset(); // limpia todos los campos
 	  });
 	})();
-  
+
   (() => {
 	  const modalEl = document.getElementById('newProductModal');
 	  if (!modalEl) return;
@@ -2299,7 +2355,7 @@
     });
   })();
 
-  
+
 
 
 
@@ -2315,24 +2371,13 @@
 
 
 //--- Reloj en vivo ---
-  (function liveClock(){
-    const el = document.getElementById('clock');
-    if (!el) return;
-    const pad = n => n.toString().padStart(2,'0');
-    const tick = () => {
-      const d = new Date();
-      const hh = pad(d.getHours()), mm = pad(d.getMinutes()), ss = pad(d.getSeconds());
-      el.textContent = `${hh}:${mm}:${ss}`;
-    };
-    tick();
-    setInterval(tick, 1000);
-  })();
-  
-  
+
+
+
  
 
-  
-  
+
+
   document.querySelectorAll('.stat-card').forEach(card => {
 	    card.addEventListener('click', () => {
 	        const destino = card.getAttribute('data-open');
@@ -2347,7 +2392,7 @@
 	            window.location.href = "/admin/pedidos";
 	    });
 	});
-  
+
 //Modal: HISTORIAL DE COMPRAS DEL USUARIO
   (function () {
     const modalEl = document.getElementById('modalHistorial');
@@ -2423,7 +2468,7 @@
         });
     });
   })();
-  
+
 //Abre el modal con el detalle de una compra (productos)
   function verDetalleCompra(idCompra) {
     const modalEl = document.getElementById('modalDetalleCompra');
@@ -2487,7 +2532,7 @@
     const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl)
     bsModal.show();
   }
-  
+
   function fmtMoney(v){
 	  const n = (typeof v === "number") ? v : Number(String(v).replace(",", "."));
 	  return Number.isFinite(n) ? "$ " + n.toLocaleString("es-AR") : "$ 0";
@@ -2710,7 +2755,8 @@
 		      icono: "📦"
 		    },
 
-		    ENTREGADO: {
+		    ENVIADO: { clase: "admin-order-status-shipped", texto: "ENVIADO", icono: "🚚" },
+            ENTREGADO: {
 		      clase: "admin-order-status-delivered",
 		      texto: "ENTREGADO",
 		      icono: "✓"
@@ -2895,7 +2941,8 @@
 		      texto: "Indicará que el pedido ya está siendo procesado."
 		    },
 
-		    ENTREGADO: {
+		    ENVIADO: { clase: "peq-order-alert-info", icono: "🚚", titulo: "El pedido quedará enviado.", texto: "El pedido está en camino al comprador." },
+            ENTREGADO: {
 		      clase: "peq-order-alert-success",
 		      icono: "✅",
 		      titulo: "El pedido quedará entregado.",
@@ -3063,8 +3110,8 @@
 
 	      const contexto = canvas.getContext("2d");
 	      const gradiente = contexto.createLinearGradient(0, 0, 0, 280);
-	      gradiente.addColorStop(0, "rgba(255, 152, 0, .30)");
-	      gradiente.addColorStop(1, "rgba(255, 152, 0, .03)");
+	      gradiente.addColorStop(0, "rgba(173, 75, 22, .20)");
+	      gradiente.addColorStop(1, "rgba(173, 75, 22, .02)");
 
 	      graficoVentasObj = new Chart(contexto, {
 	        type: tipoChart,
@@ -3073,16 +3120,16 @@
 	          datasets: [{
 	            label: etiqueta,
 	            data: valores,
-	            borderColor: "#ff9800",
+	            borderColor: getComputedStyle(document.body).getPropertyValue("--panel-accent").trim(),
 	            backgroundColor: tipoChart === "bar"
-	              ? "rgba(255, 152, 0, .58)"
+	              ? "rgba(173, 75, 22, .58)"
 	              : gradiente,
 	            borderWidth: 3,
 	            tension: .35,
 	            fill: tipoChart === "line",
 	            pointRadius: tipoChart === "line" ? 4 : 0,
 	            pointHoverRadius: tipoChart === "line" ? 6 : 0,
-	            pointBackgroundColor: "#ff9800",
+	            pointBackgroundColor: getComputedStyle(document.body).getPropertyValue("--panel-accent").trim(),
 	            pointBorderColor: "#fff",
 	            pointBorderWidth: 2,
 	            borderRadius: tipoChart === "bar" ? 8 : 0
@@ -3376,7 +3423,7 @@
 	
 	
   </script>
-  
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
@@ -3807,8 +3854,8 @@ main{
   #gestion-usuarios-contenido form{
     width: 100%;
   }
-  
-  
+
+
 }
 
 /* ==================================================
@@ -5576,6 +5623,11 @@ main{
   color: #b77700;
 }
 
+.admin-order-status-shipped{
+  background: #e0f2fe;
+  color: #075985;
+}
+
 .admin-order-status-preparing{
   border: 1px solid #ffd0a4;
   background: #fff0e2;
@@ -6330,5 +6382,6 @@ main{
   text-align: center;
 }
 </style>     
+<script th:src="@{/js/producto-foto.js}" src="/js/producto-foto.js"></script>
 </body>
 </html>

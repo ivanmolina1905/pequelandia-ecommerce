@@ -1,6 +1,10 @@
 <!DOCTYPE html>
+<!-- [Doc] Vista login: Thymeleaf evalúa th:* en el servidor; HTML estructura la pantalla, CSS la presenta y los scripts gestionan sus acciones. Véase docs/documentacion/REFERENCIA_COMPLETA.html. -->
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+<meta name="session-expires" th:if="${sesionVence != null}" th:content="${sesionVence}">
+<meta name="login-url" th:content="@{/auth/login(sesionVencida=true)}">
+
   <meta name="csrf-token" th:content="${csrfToken}">
   <script th:src="@{/js/seguridad.js}" src="/js/seguridad.js"></script>
   <meta charset="UTF-8">
@@ -10,6 +14,7 @@
   <title>Pequelandia - Iniciar sesión</title>
   <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
   <link rel="stylesheet" th:href="@{/css/style.css}">
+  <script th:src="@{/js/reloj.js}" src="/js/reloj.js" defer></script>
 </head>
 
 <body>
@@ -108,12 +113,15 @@
  	 	Cuenta creada correctamente. Ya podés iniciar sesión.
 		</div>
         
+        <div th:if="${param.sesionVencida}" class="alert alert-info" role="status">
+          Tu sesión venció. Iniciá sesión nuevamente para continuar.
+        </div>
         <form th:action="@{/auth/login}" method="post" novalidate>
 <input type="hidden" name="_csrf" th:value="${csrfToken}">
           <div class="mb-3">
-            <label for="username" class="form-label">Usuario o email</label>
-            <input type="text" class="form-control" id="username" name="username"
-                   placeholder="tuusuario" autocomplete="username" required>
+            <label for="username" class="form-label">Email</label>
+            <input type="email" class="form-control" id="username" name="username"
+                   placeholder="nombre@email.com" autocomplete="username" required>
           </div>
 
           <div class="mb-3">
@@ -146,18 +154,7 @@
   <script th:src="@{/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js}"></script>
   <script>
 //--- Reloj en vivo ---
-  (function liveClock(){
-    const el = document.getElementById('clock');
-    if (!el) return;
-    const pad = n => n.toString().padStart(2,'0');
-    const tick = () => {
-      const d = new Date();
-      const hh = pad(d.getHours()), mm = pad(d.getMinutes()), ss = pad(d.getSeconds());
-      el.textContent = `${hh}:${mm}:${ss}`;
-    };
-    tick();
-    setInterval(tick, 1000);
-  })();
+
   </script>
 </body>
 </html>

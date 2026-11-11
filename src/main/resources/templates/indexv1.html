@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 
+<!-- [Doc] Vista indexv1: Thymeleaf evalúa th:* en el servidor; HTML estructura la pantalla, CSS la presenta y los scripts gestionan sus acciones. Véase docs/documentacion/REFERENCIA_COMPLETA.html. -->
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+<meta name="session-expires" th:if="${sesionVence != null}" th:content="${sesionVence}">
+<meta name="login-url" th:content="@{/auth/login(sesionVencida=true)}">
+
   <meta name="csrf-token" th:content="${csrfToken}">
   <script th:src="@{/js/seguridad.js}" src="/js/seguridad.js"></script>
 
@@ -14,6 +18,7 @@
    
    <link rel="stylesheet" th:href="@{/css/style.css(v=${#dates.createNow().time})}">
 
+  <script th:src="@{/js/reloj.js}" src="/js/reloj.js" defer></script>
 </head>
 <body>
     <!-- Cabecera fija -->
@@ -73,7 +78,7 @@
          name="q"
          placeholder="Buscar"
          aria-label="Search">
-  
+
   <!-- opcional: si querés mantener categoría -->
   <input type="hidden" name="categoriaId" value="0">
 
@@ -288,13 +293,13 @@
       
 	
   </div>
-  
+
 </section>
 
 
     <section class="container my-5">
   <div class="row g-3 row-cols-1 row-cols-md-3">
-  
+
     <!-- Categoría Bebés -->
    <div class="col">
   <a th:href="@{/productos(categoriaId=6)}" class="text-decoration-none text-dark">
@@ -513,7 +518,7 @@ document.addEventListener("click", (e) => {
 	    return;
 	  }
 	});
-  
+
  
 
   // Delegación de eventos (+, -, eliminar)
@@ -612,20 +617,9 @@ document.addEventListener("click", (e) => {
     
     
   }
-  const clockEl = document.getElementById("clock");
-  if (clockEl) {
-    const tick = () => {
-      const now = new Date();
-      const hh = String(now.getHours()).padStart(2, "0");
-      const mm = String(now.getMinutes()).padStart(2, "0");
-      const ss = String(now.getSeconds()).padStart(2, "0");
-      clockEl.textContent = `${hh}:${mm}:${ss}`;
-    };
-    tick();
-    setInterval(tick, 1000);
-  }
-  
-  
+
+
+
   const fmtARS = (n) => "$ " + Number(n || 0).toLocaleString("es-AR", {minimumFractionDigits: 0, maximumFractionDigits: 2});
 
   function setThumb(imgEl, url, onClick){
@@ -640,8 +634,8 @@ document.addEventListener("click", (e) => {
     imgEl.onclick = onClick;
   }
 
-  
-  
+
+
   document.addEventListener("click", (e) => {
     const btn = e.target.closest(".js-open-product-modalver");
     if(!btn) return;
@@ -693,7 +687,7 @@ document.addEventListener("click", (e) => {
       }
     })(t.onclick));
   });
-  
+
 </script>
 <style>
 /* =========================
@@ -885,8 +879,8 @@ document.addEventListener("click", (e) => {
    gap: 12px;    
    
   position: absolute;
-  
-  
+
+
    padding: 12px;
   background: rgba(255,255,255,.95);
   border-top: 1px solid rgba(0,0,0,.08);
@@ -896,12 +890,12 @@ document.addEventListener("click", (e) => {
   transition: transform .18s ease, opacity .18s ease;
 
   pointer-events: none;
-  
+
   left: 10px;
   right: 10px;
   bottom: 10px;
   border-radius: 12px;
-  
+
 }
 
 /* Mostrar SOLO al hover */
@@ -935,13 +929,13 @@ document.addEventListener("click", (e) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
 }
 
 /* Ajuste extra solo para el hover inferior */
 .peq-card-actions .peq-btn-sm{
   line-height: 1.1;
-  
+
 }
 
 
@@ -1024,7 +1018,7 @@ document.addEventListener("click", (e) => {
   font-weight: 900;
   border: 0;
   padding: 10px 14px;
-  
+
 }
 
 .peq-quick-close-round{
@@ -1036,7 +1030,7 @@ document.addEventListener("click", (e) => {
   border: 1px solid rgba(0,0,0,.18);
   background: #fff;
   font-weight: 900;
-  
+
 }
 
 /* MINI CART right panel */
@@ -1167,11 +1161,11 @@ document.addEventListener("click", (e) => {
   flex-direction: column;
   align-items: center;      /* ⬅️ centra todo */
   text-align: center;
-  
-  
 
-  
-  
+
+
+
+
 }
 
 .peq-qty-label{
@@ -1180,11 +1174,11 @@ document.addEventListener("click", (e) => {
   color: #333;
   margin-bottom: 6px;
   display: block;
-  
+
   flex-direction: column;
   align-items: center;      /* ⬅️ centra todo */
   text-align: center;
-  
+
 }
 
 .peq-qty-row{
@@ -1213,7 +1207,7 @@ document.addEventListener("click", (e) => {
   text-align: center;
   font-weight: 900;
   }
-  
+
   .peq-modal{
   border-radius: 16px;
   overflow: hidden;

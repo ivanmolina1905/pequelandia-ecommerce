@@ -1,3 +1,5 @@
+// [Doc] Construye la línea de tiempo del pedido con nodos DOM y fechas de Buenos Aires.
+// [Doc] Referencia de instrucciones: docs/documentacion/REFERENCIA_COMPLETA.html.
 window.mostrarSeguimientoPedido = function (pedido, referencia) {
   const ancla = referencia.closest('table') || referencia;
   let seccion = ancla.nextElementSibling;

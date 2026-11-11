@@ -4,7 +4,6 @@
 
 Aplicación web de comercio electrónico de indumentaria infantil que reúne catálogo, carrito, pedidos y herramientas de administración. Construida con Java y Spring Boot, utiliza vistas Thymeleaf y persistencia relacional con PostgreSQL.
 
-> Proyecto en desarrollo. Las funcionalidades siguientes se identificaron mediante revisión del código; esto no equivale a una validación integral en ejecución. Las contraseñas de usuarios se mantienen sin hash por decisión de alcance: utilizar exclusivamente datos ficticios en demostraciones.
 
 ## Tecnologías
 
@@ -27,6 +26,13 @@ Java 22 · Maven Wrapper (Maven 3.9.11) · Spring Boot 3.5.4 · Spring MVC · Sp
 No se presenta como implementada una pasarela de pagos ni un despliegue de producción. El flujo de pedidos, stock, notificaciones y cola de correos tiene pruebas automatizadas contra PostgreSQL descartable y SMTP simulado. La entrega a buzones reales sigue pendiente de comprobación. Ver [cambios, configuración y pruebas](docs/NOTIFICACIONES.md).
 
 ## Arquitectura
+
+### Documentación completa del código
+
+Consultar el [manual PDF](docs/documentacion/Pequelandia_Documentacion_Completa.pdf), la
+[referencia navegable de declaraciones e instrucciones](docs/documentacion/REFERENCIA_COMPLETA.html)
+y la [guía de documentación y verificación](docs/documentacion/README.md).
+El código propio contiene comentarios en español y Javadoc de clases, métodos y parámetros.
 
 Aplicación monolítica con MVC y servicios de negocio:
 

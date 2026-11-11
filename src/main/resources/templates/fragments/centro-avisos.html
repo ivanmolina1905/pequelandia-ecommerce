@@ -1,11 +1,14 @@
 <!DOCTYPE html>
+<!-- [Doc] Vista centro-avisos: Thymeleaf evalúa th:* en el servidor; HTML estructura la pantalla, CSS la presenta y los scripts gestionan sus acciones. Véase docs/documentacion/REFERENCIA_COMPLETA.html. -->
 <html lang="es" xmlns:th="http://www.thymeleaf.org"><body>
 <header th:fragment="cabecera" class="cabecera">
+  <script th:src="@{/js/reloj.js}" src="/js/reloj.js" defer></script>
   <a class="marca" th:href="@{/}">Pequelandia</a>
   <nav aria-label="Navegación del panel">
     <a th:href="${admin} ? @{/admin/usuarios} : @{/panelusuarios/panelhistorial}">Volver a mi panel</a>
     <a th:href="@{/notificaciones/historial}">Notificaciones</a>
     <a th:if="${admin}" th:href="@{/admin/correos}">Correos</a>
+  <span id="clock" role="timer" aria-label="Hora actual">--:--:--</span>
   </nav>
 </header>
 <nav th:fragment="paginacion(ruta)" class="paginacion" aria-label="Paginación">

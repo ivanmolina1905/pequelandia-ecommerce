@@ -1,6 +1,10 @@
 <!DOCTYPE html>
+<!-- [Doc] Vista carrito: Thymeleaf evalúa th:* en el servidor; HTML estructura la pantalla, CSS la presenta y los scripts gestionan sus acciones. Véase docs/documentacion/REFERENCIA_COMPLETA.html. -->
 <html lang="es">
 <head>
+<meta name="session-expires" th:if="${sesionVence != null}" th:content="${sesionVence}">
+<meta name="login-url" th:content="@{/auth/login(sesionVencida=true)}">
+
   <meta name="csrf-token" th:content="${csrfToken}">
   <script th:src="@{/js/seguridad.js}" src="/js/seguridad.js"></script>
 
@@ -213,6 +217,7 @@
   </style>
 <link rel="stylesheet" th:href="@{/css/seguimiento-pedido.css}">
 <script th:src="@{/js/seguimiento-pedido.js}"></script>
+  <script th:src="@{/js/reloj.js}" src="/js/reloj.js" defer></script>
 </head>
 <body>
     <!-- Cabecera fija -->
@@ -235,7 +240,7 @@
               <a class="nav-link" href="#">Modo Noche</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link disabled" aria-disabled="true">Hora</a>
+              <span class="nav-link" id="clock" role="timer" aria-label="Hora actual">--:--:--</span>
             </li>
           </ul>
         </div>
@@ -431,6 +436,11 @@
 
       <div class="modal-body">
 
+        <div class="alert alert-success" role="status">
+          <strong>¡Recibimos tu pedido!</strong>
+          Tu pedido está en proceso. Podés consultar su estado en el seguimiento del pedido.
+        </div>
+
         <div class="mb-3">
           <div><b>Fecha:</b> <span id="pd-fecha"></span></div>
           <div><b>Estado:</b> <span id="pd-estado" class="badge bg-success"></span></div>
@@ -464,9 +474,6 @@
         <button class="btn peq-btn-outline" data-bs-dismiss="modal">
           Cerrar
         </button>
-        <a href="/productos" class="btn peq-btn-accent">
-          Seguir comprando
-        </a>
         <a id="pd-pdf" class="btn peq-btn-outline" href="#" target="_blank">
   		Descargar PDF
 		</a>

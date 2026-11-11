@@ -1,0 +1,38 @@
+name: pequelandia-servidor
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pequelandia_demo
+      POSTGRES_USER: pequelandia
+      POSTGRES_PASSWORD: ${PEQUELANDIA_DB_PASSWORD:?Definir PEQUELANDIA_DB_PASSWORD en .env}
+    volumes:
+      - datos_demo:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U pequelandia -d pequelandia_demo']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  web:
+    build: .
+    volumes:
+      - fotos_productos:/app/uploads
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PEQUELANDIA_DB_URL: jdbc:postgresql://db:5432/pequelandia_demo
+      PEQUELANDIA_DB_USERNAME: pequelandia
+      PEQUELANDIA_DB_PASSWORD: ${PEQUELANDIA_DB_PASSWORD:?Definir PEQUELANDIA_DB_PASSWORD en .env}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      PEQUELANDIA_MAIL_DELIVERY_ENABLED: 'false'
+      # Base de enlaces de recuperación; HTTP solo es válido con localhost.
+      # Para publicación, configurar aquí una URL HTTPS con TLS operativo.
+      PEQUELANDIA_PUBLIC_URL: ${PEQUELANDIA_PUBLIC_URL:-http://localhost:8080}
+volumes:
+  datos_demo:
+  fotos_productos:

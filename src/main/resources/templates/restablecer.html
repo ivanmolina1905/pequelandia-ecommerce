@@ -1,6 +1,11 @@
 <!DOCTYPE html>
+<!-- [Doc] Vista restablecer: Thymeleaf evalúa th:* en el servidor; HTML estructura la pantalla, CSS la presenta y los scripts gestionan sus acciones. Véase docs/documentacion/REFERENCIA_COMPLETA.html. -->
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+<meta name="session-expires" th:if="${sesionVence != null}" th:content="${sesionVence}">
+<meta name="login-url" th:content="@{/auth/login(sesionVencida=true)}">
+<script th:src="@{/js/seguridad.js}" defer></script>
+
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <title>Pequelandia - Recuperar contraseña</title>

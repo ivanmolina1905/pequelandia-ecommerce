@@ -11,8 +11,17 @@ import org.springframework.data.repository.query.Param;
 
 import com.pequelandia.pequelandia.model.Producto;
 
+/** [Doc]
+ * Declara consultas y operaciones JPA de producto; Spring Data crea la implementación.
+ */
 public interface IProductoRepository extends JpaRepository<Producto,Long> {
 
+    /** [Doc]
+     * Busca los datos de la operación en el ámbito de IProductoRepository.
+     * @param q q.
+     * @param pageable parámetros de paginación y orden.
+     * @return Page&lt;Producto&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+     */
 	@Query("""
 	        SELECT p
 	        FROM Producto p
@@ -28,6 +37,16 @@ public interface IProductoRepository extends JpaRepository<Producto,Long> {
 	    Page<Producto> buscar(@Param("q") String q, Pageable pageable);
 	
 	
+    /** [Doc]
+     * Busca publico en el ámbito de IProductoRepository.
+     * @param q q.
+     * @param categoriaId categoria id.
+     * @param precioMin precio min.
+     * @param precioMax precio max.
+     * @param talle talle.
+     * @param pageable parámetros de paginación y orden.
+     * @return Page&lt;Producto&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+     */
 	@EntityGraph(attributePaths = "categorias")
 	@Query(value = """
 	    SELECT DISTINCT p
@@ -76,6 +95,11 @@ public interface IProductoRepository extends JpaRepository<Producto,Long> {
 //=====================================================
 // 📉 PRODUCTOS CON STOCK BAJO (para Dashboard)
 // =====================================================
+/** [Doc]
+ * Obtiene stock bajo en el ámbito de IProductoRepository.
+ * @param minimo umbral de unidades que activa el aviso de stock bajo.
+ * @return List&lt;Producto&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+ */
 @Query(value = """
         SELECT p.*
         FROM producto p
@@ -92,6 +116,12 @@ List<Producto> obtenerStockBajo(
 // =====================================================
 // 🏆 TOP PRODUCTOS MÁS VENDIDOS
 // =====================================================
+/** [Doc]
+ * Resuelve la operación productos mas vendidos dentro de IProductoRepository; el detalle de instrucciones
+ * muestra sus pasos y llamadas.
+ * @param limite limite.
+ * @return List&lt;Object[]&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+ */
 @Query(value = """
 SELECT p.id_producto, p.nombre_producto, SUM(d.cantidad) AS total
 FROM detalle_carrito d
@@ -106,9 +136,18 @@ List<Object[]> productosMasVendidos(@Param("limite") int limite);
 // =====================================================
 // 📦 TOTAL DE PRODUCTOS ACTIVOS
 // =====================================================
+/** [Doc]
+ * Cuenta activos en el ámbito de IProductoRepository.
+ * @return Long con el resultado de la operación; véase el cuerpo para las ramas de error.
+ */
 @Query("SELECT COUNT(p) FROM Producto p WHERE LOWER(p.estado) = 'activo'")
 Long contarActivos();
 
+/** [Doc]
+ * Obtiene aleatorios en el ámbito de IProductoRepository.
+ * @param limite limite.
+ * @return List&lt;Producto&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+ */
 @Query(value = """
 SELECT p.*
 FROM producto p
@@ -119,6 +158,12 @@ LIMIT :limite
 List<Producto> obtenerAleatorios(@Param("limite") int limite);
 
 
+    /** [Doc]
+     * Resuelve la operación bloquear dentro de IProductoRepository; el detalle de instrucciones muestra sus pasos y
+     * llamadas.
+     * @param id identificador del registro.
+     * @return java.util.Optional&lt;Producto&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+     */
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("select e from Producto e where e.idProducto = :id")
     java.util.Optional<Producto> bloquear(@Param("id") Long id);

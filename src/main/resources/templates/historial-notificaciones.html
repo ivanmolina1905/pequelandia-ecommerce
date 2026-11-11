@@ -1,14 +1,20 @@
 <!DOCTYPE html>
+<!-- [Doc] Vista historial-notificaciones: Thymeleaf evalúa th:* en el servidor; HTML estructura la pantalla, CSS la presenta y los scripts gestionan sus acciones. Véase docs/documentacion/REFERENCIA_COMPLETA.html. -->
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+<meta name="session-expires" th:if="${sesionVence != null}" th:content="${sesionVence}">
+<meta name="login-url" th:content="@{/auth/login(sesionVencida=true)}">
+<script th:src="@{/js/seguridad.js}" defer></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mis notificaciones · Pequelandia</title>
   <link rel="stylesheet" th:href="@{/css/centro-avisos.css}">
   <script defer th:src="@{/js/historial-notificaciones.js}"></script>
 <link rel="stylesheet" th:href="@{/css/seguimiento-pedido.css}">
 <script th:src="@{/js/seguimiento-pedido.js}"></script>
-</head><body>
+  <link rel="stylesheet" th:href="@{/css/paneles.css}">
+</head><body class="panel-theme">
 <header th:replace="~{fragments/centro-avisos :: cabecera}"></header>
-<main>
+<main th:fragment="contenido" class="avisos-contenido">
   <p class="eyebrow" th:text="${admin} ? 'ADMINISTRACIÓN' : 'MI CUENTA'">MI CUENTA</p>
   <h1>Historial de notificaciones</h1>
   <p class="intro">Consultá los avisos de tu cuenta y los cambios de tus pedidos.</p>

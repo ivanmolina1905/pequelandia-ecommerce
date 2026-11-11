@@ -1,6 +1,10 @@
 <!DOCTYPE html>
+<!-- [Doc] Vista loginbk: Thymeleaf evalúa th:* en el servidor; HTML estructura la pantalla, CSS la presenta y los scripts gestionan sus acciones. Véase docs/documentacion/REFERENCIA_COMPLETA.html. -->
 <html lang="es">
 <head>
+<meta name="session-expires" th:if="${sesionVence != null}" th:content="${sesionVence}">
+<meta name="login-url" th:content="@{/auth/login(sesionVencida=true)}">
+
   <meta name="csrf-token" th:content="${csrfToken}">
   <script th:src="@{/js/seguridad.js}" src="/js/seguridad.js"></script>
 
@@ -58,9 +62,9 @@ Login
         <form action="/auth/login" method="post" novalidate>
 <input type="hidden" name="_csrf" th:value="${csrfToken}">
           <div class="mb-3">
-            <label for="username" class="form-label">Usuario o email</label>
-            <input type="text" class="form-control" id="username" name="username"
-                   placeholder="tuusuario" autocomplete="username" required>
+            <label for="username" class="form-label">Email</label>
+            <input type="email" class="form-control" id="username" name="username"
+                   placeholder="nombre@email.com" autocomplete="username" required>
           </div>
 
           <div class="mb-2">
@@ -164,7 +168,7 @@ Login
       loginMsg.classList.remove('d-none');
     }
     if (qs.get('error') === 'badcred' && loginErr) {
-      loginErr.textContent = 'Usuario o contraseña incorrectos.';
+      loginErr.textContent = 'Email o contraseña incorrectos.';
       loginErr.classList.remove('d-none');
     }
 

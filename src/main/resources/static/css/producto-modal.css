@@ -1,0 +1,55 @@
+html:has(.peq-detalle-modal[open]) { overflow: hidden; scrollbar-gutter: stable; }
+.peq-card:focus-within .peq-card-actions { opacity: 1; transform: translateY(0); pointer-events: auto; }
+@media (hover: none) {
+  .peq-card .peq-card-actions { opacity: 1; transform: translateY(0); pointer-events: auto; }
+}
+.peq-detalle-modal {
+  width: min(1120px, calc(100% - 32px));
+  max-height: calc(100dvh - 48px);
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  margin: auto;
+  color: #403727;
+  background: #fff;
+  box-shadow: 0 24px 80px #0004;
+  overscroll-behavior: contain;
+}
+.peq-detalle-modal::backdrop { background: #211c197a; }
+.peq-detalle-cerrar {
+  position: sticky;
+  top: 12px;
+  z-index: 1;
+  display: block;
+  margin: 12px 12px -52px auto;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #dedbd5;
+  border-radius: 50%;
+  background: #fff;
+  color: #403727;
+  font-size: 30px;
+  line-height: 1;
+}
+.peq-detalle-cerrar:hover { background: #fff3cd; }
+.peq-detalle-cerrar:focus-visible { outline: 3px solid #ad7500; outline-offset: 3px; }
+.peq-detalle-contenido { padding: 60px 36px 36px; }
+.peq-detalle-contenido .producto { padding: 0; box-shadow: none !important; }
+.peq-detalle-contenido .producto img {
+  width: 100%; height: min(60vh, 560px); object-fit: contain; border-radius: 12px;
+}
+.peq-detalle-contenido h1 { font-size: clamp(24px, 3vw, 32px); font-weight: 750; }
+.peq-detalle-contenido .descripcion { white-space: pre-line; overflow-wrap: anywhere; }
+.peq-detalle-estado { margin: 20px 0 0; }
+@media (max-width: 767px) {
+  .peq-detalle-modal { width: calc(100% - 20px); max-height: calc(100dvh - 24px); border-radius: 16px; }
+  .peq-detalle-contenido { padding: 60px 20px 24px; }
+  .peq-detalle-contenido .producto img { height: 32vh; }
+  .peq-detalle-contenido dl.row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    column-gap: 12px;
+    margin: 0 0 16px;
+  }
+  .peq-detalle-contenido dl.row > * { width: auto; padding: 0; overflow-wrap: anywhere; }
+}

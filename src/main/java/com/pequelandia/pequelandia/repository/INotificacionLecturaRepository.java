@@ -9,9 +9,18 @@ import org.springframework.data.repository.query.Param;
 
 import com.pequelandia.pequelandia.model.NotificacionLectura;
 
+/** [Doc]
+ * Declara consultas y operaciones JPA de notificacion lectura; Spring Data crea la implementación.
+ */
 public interface INotificacionLecturaRepository
         extends JpaRepository<NotificacionLectura, Long> {
 
+    /** [Doc]
+     * Busca lectura en el ámbito de INotificacionLecturaRepository.
+     * @param notificacionId notificacion id.
+     * @param destinatario identidad o dirección que recibirá el aviso o correo.
+     * @return Optional&lt;NotificacionLectura&gt; con el resultado de la operación; véase el cuerpo para las ramas de error.
+     */
     @Query("""
         SELECT l
         FROM NotificacionLectura l
@@ -23,6 +32,10 @@ public interface INotificacionLecturaRepository
             @Param("destinatario") String destinatario
     );
 
+    /** [Doc]
+     * Registra todas como leidas en el ámbito de INotificacionLecturaRepository.
+     * @param destinatario identidad o dirección que recibirá el aviso o correo.
+     */
     @Modifying
     @Query(value = """
         INSERT INTO notificacion_lectura
@@ -42,6 +55,12 @@ public interface INotificacionLecturaRepository
             @Param("destinatario") String destinatario
     );
 
+    /** [Doc]
+     * Resuelve la operación insertar lectura dentro de INotificacionLecturaRepository; el detalle de instrucciones
+     * muestra sus pasos y llamadas.
+     * @param id identificador del registro.
+     * @param destinatario identidad o dirección que recibirá el aviso o correo.
+     */
     @Modifying
     @Query(value = """
         INSERT INTO notificacion_lectura (id_notificacion, destinatario, fecha_lectura)

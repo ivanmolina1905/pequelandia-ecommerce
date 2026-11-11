@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta name="session-expires" th:if="${sesionVence != null}" th:content="${sesionVence}">
+<meta name="login-url" th:content="@{/auth/login(sesionVencida=true)}">
+<script th:src="@{/js/seguridad.js}" defer></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${p.nombre_producto + ' | Pequelandia'}">Producto | Pequelandia</title>
+  <link rel="stylesheet" th:href="@{/bootstrap-5.3.5-dist/css/bootstrap.min.css}">
+  <style>
+    body { background: #fffaf0; color: #403727; }
+    .producto { background: white; border-radius: 24px; padding: clamp(20px, 4vw, 48px); }
+    .producto img { width: 100%; max-height: 560px; object-fit: contain; border-radius: 16px; }
+    .descripcion { white-space: pre-line; overflow-wrap: anywhere; }
+  </style>
+  <script th:src="@{/js/reloj.js}" src="/js/reloj.js" defer></script>
+</head>
+<body>
+  <header class="bg-warning-subtle py-3 shadow-sm">
+    <nav class="container d-flex justify-content-between gap-3" aria-label="Navegación principal">
+      <a class="fw-bold text-dark text-decoration-none" th:href="@{/}">Pequelandia</a>
+      <a th:href="@{/carrito/vercarrito}" class="text-dark">Ver carrito</a>
+    <span id="clock" role="timer" aria-label="Hora actual">--:--:--</span>
+  </nav>
+  </header>
+  <main class="container py-4">
+    <a th:href="@{/productos}" class="btn btn-outline-secondary mb-4">Volver al catálogo</a>
+    <article class="producto shadow-sm">
+      <div class="row g-4 align-items-start">
+        <div class="col-md-6">
+          <img th:src="${#strings.isEmpty(p.imagenUrl) ? '/imagenes/imagendefecto.png' : p.imagenUrl}"
+               th:alt="${p.nombre_producto}">
+        </div>
+        <div class="col-md-6">
+          <h1 th:text="${p.nombre_producto}">Producto</h1>
+          <p class="fs-2 fw-bold" th:text="'$' + ${#numbers.formatDecimal(p.precio,1,'COMMA',0,'POINT')}"></p>
+          <p><strong th:text="'$' + ${#numbers.formatDecimal(p.precio * 0.90,1,'COMMA',0,'POINT')}"></strong> con transferencia o depósito</p>
+          <p>3 cuotas sin interés de <strong th:text="'$' + ${#numbers.formatDecimal(p.precio / 3,1,'COMMA',2,'POINT')}"></strong></p>
+          <p class="descripcion" th:text="${#strings.isEmpty(p.descripcion_producto) ? 'Sin descripción disponible.' : p.descripcion_producto}"></p>
+          <dl class="row">
+            <dt class="col-4">Marca</dt><dd class="col-8" th:text="${#strings.isEmpty(p.marca_producto) ? 'Sin especificar' : p.marca_producto}"></dd>
+            <dt class="col-4">Modelo</dt><dd class="col-8" th:text="${#strings.isEmpty(p.modelo_producto) ? 'Sin especificar' : p.modelo_producto}"></dd>
+            <dt class="col-4">Talle</dt><dd class="col-8" th:text="${#strings.isEmpty(p.talle_producto) ? 'Sin especificar' : p.talle_producto}"></dd>
+            <dt class="col-4">Disponibilidad</dt><dd class="col-8" th:text="${p.stock > 0 ? 'En stock (' + p.stock + ')' : 'Sin stock'}"></dd>
+          </dl>
+          <form th:if="${p.stock > 0}" th:action="@{/productos/agregar}" method="post">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+            <input type="hidden" name="productoId" th:value="${p.idProducto}">
+            <label for="cantidad" class="form-label">Cantidad</label>
+            <input id="cantidad" class="form-control mb-3" style="max-width:120px" type="number" name="cantidad" min="1" th:max="${p.stock}" value="1" required>
+            <button class="btn btn-warning" type="submit">Agregar al carrito</button>
+          </form>
+        </div>
+      </div>
+    </article>
+  </main>
+</body>
+</html>
