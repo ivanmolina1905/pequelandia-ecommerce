@@ -430,16 +430,16 @@ class CircuitoUsuariosIntegrationTest extends IntegrationSupport {
         assertEquals(1,cantidad("usuario")); assertEquals(0,cantidad("notificacion")); assertEquals(0,cantidad("correo_pendiente"));
     }
     /** [Doc]
-     * Comprueba el escenario «hallazgo ultima conexion no se actualiza al ingresar» mediante las aserciones del
+     * Comprueba el escenario «última conexión se actualiza al ingresar» mediante las aserciones del
      * cuerpo.
      */
-    @Test void hallazgoUltimaConexionNoSeActualizaAlIngresar() throws Exception {
+    @Test void ultimaConexionSeActualizaAlIngresar() throws Exception {
         // [Doc] Variable local u (var; tipo inferido por Java): cuenta de usuario utilizada por la operación. Se inicializa con registrar().
         var u=registrar();
         // [Doc] Ejecuta la llamada o modificación ingresar("circuito@example.invalid","Cuenta-Prueba-2026","/panelusuarios/panelhistorial?section=perfil"); Sus efectos dependen del método invocado y del objeto receptor.
         ingresar("circuito@example.invalid","Cuenta-Prueba-2026","/panelusuarios/panelhistorial?section=perfil");
-        // [Doc] Verifica una expectativa de la prueba; una diferencia hace fallar el caso: assertEquals(1,jdbc.queryForObject("SELECT count(*) FROM usuario WHERE id_usuario=? AND ultima_conexion IS NULL",Integer.class,u.getId()));
-        assertEquals(1,jdbc.queryForObject("SELECT count(*) FROM usuario WHERE id_usuario=? AND ultima_conexion IS NULL",Integer.class,u.getId()));
+        // [Doc] Verifica una expectativa de la prueba; una diferencia hace fallar el caso: assertEquals(1,jdbc.queryForObject("SELECT count(*) FROM usuario WHERE id_usuario=? AND ultima_conexion IS NOT NULL",Integer.class,u.getId()));
+        assertEquals(1,jdbc.queryForObject("SELECT count(*) FROM usuario WHERE id_usuario=? AND ultima_conexion IS NOT NULL",Integer.class,u.getId()));
     }
 
     /** [Doc]
